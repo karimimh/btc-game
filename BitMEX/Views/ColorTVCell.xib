@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="qo0-H4-rQd" customClass="ColorTVCell" customModule="BitMEX" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="qo0-H4-rQd" id="vPm-YZ-Fe4">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rjd-Ug-3GS">
+                        <rect key="frame" x="20" y="13.5" width="40.5" height="17.5"/>
+                        <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="15"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HCb-rn-5be">
+                        <rect key="frame" x="369" y="9.5" width="25" height="25"/>
+                        <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="25" id="cpb-0A-ORr"/>
+                            <constraint firstAttribute="height" constant="25" id="t8n-IN-qky"/>
+                        </constraints>
+                        <connections>
+                            <action selector="colorViewTapped:" destination="qo0-H4-rQd" eventType="touchUpInside" id="Yor-xx-JcV"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="Rjd-Ug-3GS" firstAttribute="leading" secondItem="vPm-YZ-Fe4" secondAttribute="leading" constant="20" id="FOs-5R-TsL"/>
+                    <constraint firstAttribute="trailing" secondItem="HCb-rn-5be" secondAttribute="trailing" constant="20" id="Ogs-a1-jOX"/>
+                    <constraint firstItem="Rjd-Ug-3GS" firstAttribute="centerY" secondItem="vPm-YZ-Fe4" secondAttribute="centerY" id="TK6-IF-dLi"/>
+                    <constraint firstItem="HCb-rn-5be" firstAttribute="centerY" secondItem="vPm-YZ-Fe4" secondAttribute="centerY" id="d00-kr-3Zc"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="colorView" destination="HCb-rn-5be" id="mZi-1C-Cku"/>
+                <outlet property="label" destination="Rjd-Ug-3GS" id="Dxk-Hc-GUh"/>
+            </connections>
+            <point key="canvasLocation" x="42" y="183"/>
+        </tableViewCell>
+    </objects>
+</document>

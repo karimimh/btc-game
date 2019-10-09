@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DrawerBar" customModule="BitMEX" customModuleProvider="target">
+            <connections>
+                <outlet property="autoButton" destination="ep3-Y9-lOj" id="dWN-pl-OdM"/>
+                <outlet property="contentView" destination="iN0-l3-epB" id="lZ5-5i-v7b"/>
+                <outlet property="indicatorsButton" destination="4A6-cd-SF5" id="EnJ-GQ-NTQ"/>
+                <outlet property="logButton" destination="SGm-Fg-kLK" id="waA-FX-sxe"/>
+                <outlet property="minimizeButton" destination="KMr-eT-O5z" id="fWp-vG-PNV"/>
+                <outlet property="timeframeButton" destination="Ofa-uc-4xT" id="UNI-e1-bCA"/>
+                <outlet property="toolsButton" destination="NIT-Ga-7uy" id="mhK-xE-hfa"/>
+                <outlet property="viewOfStackView" destination="dIt-ew-xlT" id="XXK-sb-Bpm"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clipsSubviews="YES" contentMode="bottom" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view clipsSubviews="YES" contentMode="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="dIt-ew-xlT">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="627"/>
+                    <subviews>
+                        <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NIT-Ga-7uy">
+                            <rect key="frame" x="0.0" y="0.0" width="375" height="125.5"/>
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" image="gear" catalog="system">
+                                <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </state>
+                            <connections>
+                                <action selector="toolsButtonTapped:" destination="-1" eventType="touchUpInside" id="kkd-f8-stP"/>
+                            </connections>
+                        </button>
+                        <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4A6-cd-SF5">
+                            <rect key="frame" x="0.0" y="125.5" width="375" height="125.5"/>
+                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" image="waveform.path.ecg" catalog="system">
+                                <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </state>
+                            <connections>
+                                <action selector="indicatorsButtonTapped:" destination="-1" eventType="touchUpInside" id="Lcg-KJ-o0n"/>
+                            </connections>
+                        </button>
+                        <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ofa-uc-4xT">
+                            <rect key="frame" x="0.0" y="251" width="375" height="125"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="17"/>
+                            <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" title="1D">
+                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </state>
+                            <connections>
+                                <action selector="timeframeButtonTapped:" destination="-1" eventType="touchUpInside" id="IRQ-VF-A8R"/>
+                            </connections>
+                        </button>
+                        <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SGm-Fg-kLK">
+                            <rect key="frame" x="0.0" y="376" width="375" height="125.5"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                            <state key="normal" title="log">
+                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </state>
+                            <connections>
+                                <action selector="logButtonTapped:" destination="-1" eventType="touchUpInside" id="evc-vh-HaZ"/>
+                            </connections>
+                        </button>
+                        <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ep3-Y9-lOj">
+                            <rect key="frame" x="0.0" y="501.5" width="375" height="125.5"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                            <state key="normal" title="auto">
+                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </state>
+                            <connections>
+                                <action selector="autoButtonTapped:" destination="-1" eventType="touchUpInside" id="Cnc-Mj-D3k"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstItem="NIT-Ga-7uy" firstAttribute="leading" secondItem="dIt-ew-xlT" secondAttribute="leading" id="2a6-gx-ZO7"/>
+                        <constraint firstItem="4A6-cd-SF5" firstAttribute="height" secondItem="NIT-Ga-7uy" secondAttribute="height" id="3Wz-Nu-CFE"/>
+                        <constraint firstItem="Ofa-uc-4xT" firstAttribute="trailing" secondItem="NIT-Ga-7uy" secondAttribute="trailing" id="5uu-la-5rE"/>
+                        <constraint firstItem="SGm-Fg-kLK" firstAttribute="top" secondItem="Ofa-uc-4xT" secondAttribute="bottom" id="DrG-m8-Fea"/>
+                        <constraint firstItem="SGm-Fg-kLK" firstAttribute="height" secondItem="NIT-Ga-7uy" secondAttribute="height" id="F5E-8a-Ypw"/>
+                        <constraint firstItem="Ofa-uc-4xT" firstAttribute="top" secondItem="4A6-cd-SF5" secondAttribute="bottom" id="Go6-wr-i8c"/>
+                        <constraint firstItem="4A6-cd-SF5" firstAttribute="top" secondItem="NIT-Ga-7uy" secondAttribute="bottom" id="Tm0-nb-CyG"/>
+                        <constraint firstAttribute="trailing" secondItem="NIT-Ga-7uy" secondAttribute="trailing" id="Uae-88-e87"/>
+                        <constraint firstItem="ep3-Y9-lOj" firstAttribute="trailing" secondItem="NIT-Ga-7uy" secondAttribute="trailing" id="Xxh-VT-Cuv"/>
+                        <constraint firstItem="ep3-Y9-lOj" firstAttribute="top" secondItem="SGm-Fg-kLK" secondAttribute="bottom" id="YAt-Qs-ofm"/>
+                        <constraint firstItem="Ofa-uc-4xT" firstAttribute="height" secondItem="NIT-Ga-7uy" secondAttribute="height" id="b3y-UC-YxQ"/>
+                        <constraint firstAttribute="bottom" secondItem="ep3-Y9-lOj" secondAttribute="bottom" id="cex-OE-KJj"/>
+                        <constraint firstItem="SGm-Fg-kLK" firstAttribute="leading" secondItem="NIT-Ga-7uy" secondAttribute="leading" id="hXo-nC-aom"/>
+                        <constraint firstItem="ep3-Y9-lOj" firstAttribute="leading" secondItem="NIT-Ga-7uy" secondAttribute="leading" id="j4e-tJ-6gt"/>
+                        <constraint firstItem="Ofa-uc-4xT" firstAttribute="leading" secondItem="NIT-Ga-7uy" secondAttribute="leading" id="l07-8C-lQe"/>
+                        <constraint firstItem="4A6-cd-SF5" firstAttribute="trailing" secondItem="NIT-Ga-7uy" secondAttribute="trailing" id="qHl-eZ-ojY"/>
+                        <constraint firstItem="ep3-Y9-lOj" firstAttribute="height" secondItem="NIT-Ga-7uy" secondAttribute="height" id="qSh-dt-dT6"/>
+                        <constraint firstItem="4A6-cd-SF5" firstAttribute="leading" secondItem="NIT-Ga-7uy" secondAttribute="leading" id="rfO-mO-0aN"/>
+                        <constraint firstItem="SGm-Fg-kLK" firstAttribute="trailing" secondItem="NIT-Ga-7uy" secondAttribute="trailing" id="xDo-VD-Llz"/>
+                        <constraint firstItem="NIT-Ga-7uy" firstAttribute="top" secondItem="dIt-ew-xlT" secondAttribute="top" id="yuu-lh-DKE"/>
+                    </constraints>
+                </view>
+                <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KMr-eT-O5z">
+                    <rect key="frame" x="0.0" y="627" width="375" height="40"/>
+                    <color key="backgroundColor" systemColor="systemIndigoColor" red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="40" id="eLN-ki-hdQ"/>
+                    </constraints>
+                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <state key="normal" image="chevron.up" catalog="system"/>
+                    <connections>
+                        <action selector="minimizeButtonTapped:" destination="-1" eventType="touchUpInside" id="7nK-EE-XOZ"/>
+                    </connections>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="0.34509803921568627" green="0.60784313725490191" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="KMr-eT-O5z" secondAttribute="bottom" id="120-DA-IAR"/>
+                <constraint firstItem="dIt-ew-xlT" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="9qq-39-QUE"/>
+                <constraint firstAttribute="trailing" secondItem="dIt-ew-xlT" secondAttribute="trailing" id="cE6-Le-fIS"/>
+                <constraint firstItem="KMr-eT-O5z" firstAttribute="top" secondItem="dIt-ew-xlT" secondAttribute="bottom" id="qoZ-Jk-aDa"/>
+                <constraint firstItem="KMr-eT-O5z" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="sLb-qD-XrX"/>
+                <constraint firstItem="dIt-ew-xlT" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="uZM-zN-ueW"/>
+                <constraint firstAttribute="trailing" secondItem="KMr-eT-O5z" secondAttribute="trailing" id="yjX-zw-bQf"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="138.40000000000001" y="144.3778110944528"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="chevron.up" catalog="system" width="64" height="34"/>
+        <image name="gear" catalog="system" width="64" height="60"/>
+        <image name="waveform.path.ecg" catalog="system" width="64" height="62"/>
+    </resources>
+</document>

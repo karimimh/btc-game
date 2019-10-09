@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="GAe-9v-pXd" customClass="CheckMarkTVCell" customModule="BitMEX" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="GAe-9v-pXd" id="j5h-c0-HG2">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Twl-Ji-8mp">
+                        <rect key="frame" x="20" y="5" width="187" height="34"/>
+                        <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="15"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="63B-id-sS7">
+                        <rect key="frame" x="345" y="5" width="51" height="34"/>
+                        <connections>
+                            <action selector="switchValueChanged:" destination="GAe-9v-pXd" eventType="valueChanged" id="acw-of-XL4"/>
+                        </connections>
+                    </switch>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="63B-id-sS7" secondAttribute="trailing" constant="20" id="3nc-Sr-03Z"/>
+                    <constraint firstItem="63B-id-sS7" firstAttribute="bottom" secondItem="Twl-Ji-8mp" secondAttribute="bottom" id="Lox-3D-5gl"/>
+                    <constraint firstAttribute="centerX" secondItem="Twl-Ji-8mp" secondAttribute="trailing" id="OXB-P4-bO3"/>
+                    <constraint firstItem="63B-id-sS7" firstAttribute="top" secondItem="Twl-Ji-8mp" secondAttribute="top" id="QIw-1R-oa8"/>
+                    <constraint firstItem="Twl-Ji-8mp" firstAttribute="leading" secondItem="j5h-c0-HG2" secondAttribute="leading" constant="20" id="XKB-LU-SQn"/>
+                    <constraint firstAttribute="bottom" secondItem="Twl-Ji-8mp" secondAttribute="bottom" constant="5" id="hdn-L8-KLO"/>
+                    <constraint firstItem="Twl-Ji-8mp" firstAttribute="top" secondItem="j5h-c0-HG2" secondAttribute="top" constant="5" id="oid-7b-ZhH"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="label" destination="Twl-Ji-8mp" id="4hE-8G-iDa"/>
+                <outlet property="switch" destination="63B-id-sS7" id="CD6-CY-bkF"/>
+            </connections>
+            <point key="canvasLocation" x="139" y="145"/>
+        </tableViewCell>
+    </objects>
+</document>

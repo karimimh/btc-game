@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14868" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14824"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" id="hva-xe-btQ" customClass="TextFieldTVCell" customModule="BitMEX" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="hva-xe-btQ" id="sk2-Yu-IOk">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OFa-hA-ON5">
+                        <rect key="frame" x="20" y="13.5" width="40.5" height="17.5"/>
+                        <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="15"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="20 %" textAlignment="right" clearsOnBeginEditing="YES" minimumFontSize="9" translatesAutoresizingMaskIntoConstraints="NO" id="Jc4-Q6-0bN">
+                        <rect key="frame" x="321" y="12.5" width="63" height="19"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="63" id="YuN-z0-cfE"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="15"/>
+                        <textInputTraits key="textInputTraits" keyboardType="numbersAndPunctuation" returnKeyType="done"/>
+                    </textField>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Kh-C3-LzS">
+                        <rect key="frame" x="389" y="2" width="20" height="20"/>
+                        <constraints>
+                            <constraint firstAttribute="width" secondItem="6Kh-C3-LzS" secondAttribute="height" multiplier="1:1" id="VqE-UI-AHl"/>
+                            <constraint firstAttribute="height" constant="20" id="Yzz-XE-Dug"/>
+                        </constraints>
+                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <state key="normal" image="chevron.up" catalog="system"/>
+                        <connections>
+                            <action selector="plusButtonTapped:" destination="hva-xe-btQ" eventType="touchUpInside" id="Eeg-89-4WS"/>
+                        </connections>
+                    </button>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7h0-M6-Ac2">
+                        <rect key="frame" x="389" y="22" width="20" height="20"/>
+                        <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <state key="normal" image="chevron.down" catalog="system"/>
+                        <connections>
+                            <action selector="minusButtonTapped:" destination="hva-xe-btQ" eventType="touchUpInside" id="GmW-FJ-ivb"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="Jc4-Q6-0bN" firstAttribute="centerY" secondItem="sk2-Yu-IOk" secondAttribute="centerY" id="7Dh-Un-WE2"/>
+                    <constraint firstItem="7h0-M6-Ac2" firstAttribute="top" secondItem="6Kh-C3-LzS" secondAttribute="bottom" id="Dh1-p9-Pkb"/>
+                    <constraint firstItem="6Kh-C3-LzS" firstAttribute="leading" secondItem="Jc4-Q6-0bN" secondAttribute="trailing" constant="5" id="E7v-ak-FiU"/>
+                    <constraint firstItem="OFa-hA-ON5" firstAttribute="centerY" secondItem="sk2-Yu-IOk" secondAttribute="centerY" id="JVI-4l-jAJ"/>
+                    <constraint firstAttribute="trailing" secondItem="6Kh-C3-LzS" secondAttribute="trailing" constant="5" id="LFP-JF-bJ7"/>
+                    <constraint firstItem="7h0-M6-Ac2" firstAttribute="leading" secondItem="6Kh-C3-LzS" secondAttribute="leading" id="ZMs-yo-ivR"/>
+                    <constraint firstItem="OFa-hA-ON5" firstAttribute="leading" secondItem="sk2-Yu-IOk" secondAttribute="leading" constant="20" id="e14-ZK-Rdg"/>
+                    <constraint firstItem="6Kh-C3-LzS" firstAttribute="bottom" secondItem="sk2-Yu-IOk" secondAttribute="centerY" id="hxn-B6-Jhp"/>
+                    <constraint firstItem="Jc4-Q6-0bN" firstAttribute="centerY" secondItem="sk2-Yu-IOk" secondAttribute="centerY" id="vt2-6g-ywP"/>
+                    <constraint firstItem="7h0-M6-Ac2" firstAttribute="trailing" secondItem="6Kh-C3-LzS" secondAttribute="trailing" id="wAA-ve-ejD"/>
+                    <constraint firstItem="7h0-M6-Ac2" firstAttribute="height" secondItem="6Kh-C3-LzS" secondAttribute="height" id="wAS-9a-IKX"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="label" destination="OFa-hA-ON5" id="VpO-mT-K2l"/>
+                <outlet property="minusButton" destination="7h0-M6-Ac2" id="UBg-Ak-GCp"/>
+                <outlet property="plusButton" destination="6Kh-C3-LzS" id="TTo-rh-JBH"/>
+                <outlet property="textField" destination="Jc4-Q6-0bN" id="bss-rS-v2t"/>
+            </connections>
+            <point key="canvasLocation" x="-57" y="191"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="chevron.down" catalog="system" width="64" height="34"/>
+        <image name="chevron.up" catalog="system" width="64" height="34"/>
+    </resources>
+</document>
