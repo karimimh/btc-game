@@ -14,7 +14,7 @@ class TextFieldTVCell: UITableViewCell, UITextFieldDelegate {
     @IBOutlet weak var minusButton: UIButton!
     @IBOutlet weak var plusButton: UIButton!
     
-    static let identidier = "TextFieldTVCell"
+    static let identidier = "TextFieldTVCell2"
     
     
     
@@ -35,15 +35,16 @@ class TextFieldTVCell: UITableViewCell, UITextFieldDelegate {
     }
 
 
-    func textFieldDidBeginEditing(_ textField: UITextField) {
-        app.chart?.settingsView.currentTextFieldCell = self
-    }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textFieldValueChangedCompletion?(textField.text)
-        app.chart?.settingsView.currentTextFieldCell = nil
         textField.resignFirstResponder()
         return true
+    }
+    
+    func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
+        textFieldValueChangedCompletion?(textField.text)
+        textField.resignFirstResponder()
     }
     
     @IBAction func minusButtonTapped(_ sender: Any) {

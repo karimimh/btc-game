@@ -83,8 +83,8 @@ class TimeView: UIView {
             string.draw(in: stringRect)
             verticalGridLines.append(x)
         }
-        ctx.setLineWidth(2.0)
-        ctx.strokeLineSegments(between: [CGPoint(x: 0, y: 0), CGPoint(x: rect.width, y: 0)])
+//        ctx.setLineWidth(2.0)
+//        ctx.strokeLineSegments(between: [CGPoint(x: rect.width, y: 0), CGPoint(x: rect.width, y: rect.height)])
     }
     
     func redraw() {

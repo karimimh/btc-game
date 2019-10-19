@@ -15,9 +15,13 @@ class App {
     var settings: Settings
     var defaultSettings = Settings()
     var activeInstruments = [Instrument]()
-    var chart: Chart?
+    var chart: Chart? {
+        return chartVC?.chart
+    }
+    var chartVC: ChartVC?
     var chartNeedsSetupOnViewAppeared = true
     
+    var viewAnimationDuration = 0.15
     //MARK: Convinience Properties
     static var BullColor = UIColor.fromHex(hex: "#26A69A")
     static var BearColor = UIColor.fromHex(hex: "#EF5350")
@@ -175,10 +179,12 @@ class Settings: NSObject, NSCoding {
         if let q = showTitles { self.showTitles = q}
         
         super.init()
+        self.chartIndicators = sort(indicators: self.chartIndicators)
     }
     
     override init() {
-        
+        super.init()
+        chartIndicators = sort(indicators: chartIndicators)
     }
     
     //MARK: Types
@@ -270,4 +276,39 @@ class Settings: NSObject, NSCoding {
     fileprivate static let DocumentsDirectory = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first!
     fileprivate static let ArchiveURL = DocumentsDirectory.appendingPathComponent("bitmex")
     
+    
+    
+    //MARK: Private Methods
+    private func sort(indicators: [Indicator]) -> [Indicator] {
+        var result = [Indicator]()
+        var frameRow = 0
+        while result.count < indicators.count {
+            let indicatorsInThisFrameRow = indicators.filter { (ind) -> Bool in
+                return ind.getRow() == frameRow
+            }
+            //Find SmallestLayerIndex
+            var smallestLayerIndex: Double = 0.0
+            indicatorsInThisFrameRow.forEach { (indicator) in
+                if let index = indicator.style[Indicator.StyleKey.zIndex] as? Double {
+                    if index < smallestLayerIndex {
+                        smallestLayerIndex = index
+                    }
+                }
+            }
+            indicatorsInThisFrameRow.forEach { (indicator) in
+                if indicator.style[Indicator.StyleKey.zIndex] == nil {
+                    smallestLayerIndex -= 1.0
+                    indicator.style[Indicator.StyleKey.zIndex] = smallestLayerIndex
+                }
+            }
+            
+            result.append(contentsOf: indicatorsInThisFrameRow.sorted(by: { (ind1, ind2) -> Bool in
+                return (ind1.style[Indicator.StyleKey.zIndex] as! Double) >
+                    (ind2.style[Indicator.StyleKey.zIndex] as! Double)
+            }))
+            
+            frameRow += 1
+        }
+        return result
+    }
 }

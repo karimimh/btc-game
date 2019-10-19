@@ -41,9 +41,10 @@ class PriceView: UIView {
         guard let timeframe = self.timeframe else { return }
         let ctx = UIGraphicsGetCurrentContext()!
         
-        ctx.setLineWidth(2.0)
-        ctx.strokeLineSegments(between: [CGPoint(x: 0, y: 0), CGPoint(x: rect.width, y: 0)])
-        ctx.setLineWidth(1.0)
+//        ctx.setLineWidth(2.0)
+//        ctx.strokeLineSegments(between: [CGPoint(x: 0, y: rect.height), CGPoint(x: rect.width, y: rect.height)])
+//        ctx.strokeLineSegments(between: [CGPoint(x: rect.width, y: 0), CGPoint(x: rect.width, y: rect.height)])
+//        ctx.setLineWidth(1.0)
         
         if !visibleCandles.isEmpty {
             for candle in visibleCandles {
@@ -52,9 +53,11 @@ class PriceView: UIView {
                 
                 let blockWidth = candleWidth + spacing
                 if candle.high == candle.low {
-                    draw(candle: candle, in: CGRect(x: candle.x - blockWidth / 2, y: y, width: blockWidth, height: wickWidth), using: ctx)
+                    Candle.drawOptimized(candle, in: CGRect(x: candle.x - blockWidth / 2, y: y, width: blockWidth, height: wickWidth), using: ctx, blockWidth: blockWidth, candleWidth: candleWidth, spacing: spacing, wickWidth: wickWidth)
+//                    draw(candle: candle, in: CGRect(x: candle.x - blockWidth / 2, y: y, width: blockWidth, height: wickWidth), using: ctx)
                 } else {
-                    draw(candle: candle, in: CGRect(x: candle.x - blockWidth / 2, y: y, width: blockWidth, height: h), using: ctx)
+                    Candle.drawOptimized(candle, in: CGRect(x: candle.x - blockWidth / 2, y: y, width: blockWidth, height: h), using: ctx, blockWidth: blockWidth, candleWidth: candleWidth, spacing: spacing, wickWidth: wickWidth)
+//                    draw(candle: candle, in: CGRect(x: candle.x - blockWidth / 2, y: y, width: blockWidth, height: h), using: ctx)
                 }
             }
         }
@@ -86,8 +89,7 @@ class PriceView: UIView {
     private func draw(candle: Candle, in rect: CGRect, using ctx: CGContext) {
         let candleHeight = rect.height
         
-        let ctx = UIGraphicsGetCurrentContext()!
-        ctx.setLineWidth(0)
+        ctx.setLineWidth(0.2)
         if candle.high == candle.low {
             ctx.setFillColor(App.BullColor.cgColor)
             ctx.setStrokeColor(App.BullColor.cgColor)
@@ -140,70 +142,7 @@ class PriceView: UIView {
         
     }
     
-    private func drawRounded(candle: Candle, in rect: CGRect, using ctx: CGContext) {
-        let candleHeight = rect.height
-        
-        let ctx = UIGraphicsGetCurrentContext()!
-        
-        ctx.setLineWidth(0)
-        if candle.high == candle.low {
-            ctx.setFillColor(App.BullColor.cgColor)
-            ctx.setStrokeColor(App.BullColor.cgColor)
-            ctx.fill(CGRect(x: spacing / 2 + rect.origin.x, y: rect.origin.y, width: candleWidth, height: candleHeight))
-            ctx.stroke(CGRect(x: spacing / 2 + rect.origin.x, y: rect.origin.y, width: candleWidth, height: candleHeight))
-            return
-        }
-        
-        
-        
-        let isGreen = (candle.close >= candle.open)
-        let color: UIColor
-        if isGreen {
-            color = App.BullColor
-        } else {
-            color = App.BearColor
-        }
-        
-        
-        var bodyHeight = CGFloat((candle.close - candle.open) / (candle.high - candle.low)) * candleHeight
-        if !isGreen {
-            bodyHeight = -bodyHeight
-        }
-        if bodyHeight < wickWidth {
-            bodyHeight = wickWidth
-        }
-        
-        
-        let upperWickHeight = CGFloat((candle.high - (isGreen ? candle.close : candle.open)) / (candle.high - candle.low)) * candleHeight
-        let lowerWickHeight = candleHeight - upperWickHeight - bodyHeight
-        
-        
-        
-        
-        ctx.setStrokeColor(color.cgColor)
-        ctx.setFillColor(color.cgColor)
-        ctx.setLineCap(.round)
-        ctx.setLineJoin(.round)
-        if upperWickHeight > 0 {
-            ctx.fill(CGRect(x: spacing / 2 + rect.origin.x + candleWidth / 2 - wickWidth / 2, y: rect.origin.y, width: wickWidth, height: upperWickHeight))
-            ctx.stroke(CGRect(x: spacing / 2 + rect.origin.x + candleWidth / 2 - wickWidth / 2, y: rect.origin.y, width: wickWidth, height: upperWickHeight))
-        }
-        
-        let bodyPath = UIBezierPath(roundedRect: CGRect(x: spacing / 2 + rect.origin.x, y: rect.origin.y + upperWickHeight, width: candleWidth, height: bodyHeight), cornerRadius: candleWidth / 5)
-        ctx.beginPath()
-        ctx.addPath(bodyPath.cgPath)
-        ctx.fillPath()
-        ctx.strokePath()
-//        ctx.fill(CGRect(x: spacing / 2 + rect.origin.x, y: rect.origin.y + upperWickHeight, width: candleWidth, height: bodyHeight))
-//        ctx.stroke(CGRect(x: spacing / 2 + rect.origin.x, y: rect.origin.y + upperWickHeight, width: candleWidth, height: bodyHeight))
-        if lowerWickHeight > 0 {
-            ctx.fill(CGRect(x: spacing / 2 + rect.origin.x + candleWidth / 2 - wickWidth / 2, y: rect.origin.y + upperWickHeight + bodyHeight, width: wickWidth, height: lowerWickHeight))
-            ctx.stroke(CGRect(x: spacing / 2 + rect.origin.x + candleWidth / 2 - wickWidth / 2, y: rect.origin.y + upperWickHeight + bodyHeight, width: wickWidth, height: lowerWickHeight))
-        }
-        
-        
-        
-    }
+    
     
     
     
@@ -282,6 +221,64 @@ class PriceView: UIView {
         if candles[oldestVisibleCandleIndex].x - chart.blockWidth > 0 {
             chart.downloadOlderCandles()
         }
+    }
+    
+    
+//    func getPreviewImage() -> UIImage {
+//        let width: CGFloat = 150.0
+//        let height: CGFloat = 50.0
+//        UIGraphicsBeginImageContext(CGSize(width: width, height: height))
+//        let ctx = UIGraphicsGetCurrentContext()!
+//
+//        let blockWidth: CGFloat = 30.0
+//        let candleWidth: CGFloat = 24.0
+//        let spacing: CGFloat = 6.0
+//        let wickWidth: CGFloat = 3.0
+//
+//        var N = Int(width / blockWidth)
+//        if visibleCandles.count - N < 0 {
+//            N = visibleCandles.count
+//        }
+//        if N == 0 {
+//            return UIImage()
+//        }
+//
+//        let v = UIView(frame: CGRect(x: 0, y: 0, width: width, height: height))
+//
+//        var highestPrice = visibleCandles[0].high
+//        var lowestPrice = visibleCandles[0].low
+//        for i in 0 ..< N {
+//            let candle = visibleCandles[i]
+//            if candle.high > highestPrice { highestPrice = candle.high }
+//            if candle.low < lowestPrice { lowestPrice = candle.low }
+//        }
+//
+//
+//
+//        for i in 0 ..< N {
+//            let candle = visibleCandles[i]
+//            let y = v.y(price: candle.high, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: 0, bottomMargin: 0, logScale: app.settings.chartLogScale)
+//            let h = v.y(price: candle.low, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: 0, bottomMargin: 0, logScale: app.settings.chartLogScale) - y
+//            let rect = CGRect(x: width - blockWidth * (i + 1).cgFloat, y: y, width: blockWidth, height: h)
+//            Candle.draw(candle, in: rect, using: ctx, blockWidth: blockWidth, candleWidth: candleWidth, spacing: spacing, wickWidth: wickWidth)
+//        }
+//
+//        let image =  UIGraphicsGetImageFromCurrentImageContext()!
+//
+//        UIGraphicsEndImageContext()
+//
+//        return image
+//    }
+    
+    func getPreviewImage() -> UIImage {
+        let width: CGFloat = bounds.width
+        let height: CGFloat = bounds.height
+        UIGraphicsBeginImageContext(CGSize(width: width, height: height))
+        self.draw(CGRect(x: 0, y: 0, width: width, height: height))
+        let image =  UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+
+        return image
     }
     
     

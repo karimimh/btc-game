@@ -36,8 +36,8 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
     weak var drawerBarHeightConstraint: NSLayoutConstraint!
     weak var priceTracker: PriceTracker?
     weak var crosshair: Crosshair?
-    weak var settingsView: ChartSettings!
-    
+    weak var guidelines: Guidlines!
+    var layersVC: LayersVC!
     var app: App!
     
     
@@ -51,7 +51,14 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         backgroundColor = app.settings.chartBackgroundColor
     }
     
-    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        if let delegate = UIApplication.shared.delegate as? AppDelegate {
+            app = delegate.app
+        }
+        webSocket = RealTime.startWebSocket()
+        backgroundColor = app.settings.chartBackgroundColor
+    }
     
     
     
@@ -120,7 +127,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
     }
     
     
-    private func setupSubViews() {
+    func setupSubViews() {
         //MARK: CleanUp:
         priceTracker?.isEnabled = false
         isDownloadingOlderCandles = false
@@ -132,19 +139,28 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
             iv.removeFromSuperview()
         }
         priceView?.valueBar?.removeFromSuperview()
+        indicatorViews.removeAll()
+        
+        sortIndicators()
         for indicator in indicators {
-            indicator.computeValue(candles: candles)
+            indicator.computeValue(candles: candles.reversed())
         }
         valueBarWidth = 40
-        indicatorViews.removeAll()
         priceViewHeightConstraint.constant = self.bounds.height - timeView!.bounds.height
         self.alpha = 1.0
         
         priceView?.valueBar = ValueBar(chart: self, highestValue: Decimal(candles[0].high), lowestValue: Decimal(candles[0].low), tickSize: Decimal(instrument!.tickSize!), topMargin: self.topMargin, bottomMargin: self.bottomMargin, logScale: logScale)
         
+        
+        
         var frameHeights = [CGFloat]()
+        var percentSum = 0.0
         for indicator in indicators {
             if indicator.getRow() > 0 {
+                if percentSum + indicator.getHeight() > 80.0 {
+                    indicator.style[Indicator.StyleKey.height] = (80.0 - percentSum) / 2.0
+                }
+                percentSum += indicator.getHeight()
                 frameHeights.append(CGFloat(indicator.getHeight()) * (self.bounds.height - timeView!.bounds.height) / 100.0)
             } else {
                 frameHeights.append(0.0)
@@ -163,6 +179,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         priceView!.valueBar!.leadingAnchor.constraint(equalTo: valueBars!.leadingAnchor).isActive = true
         priceView!.valueBar!.trailingAnchor.constraint(equalTo: valueBars!.trailingAnchor).isActive = true
         priceView!.valueBar!.heightAnchor.constraint(equalToConstant: priceViewHeight).isActive = true
+        
         
         
         for i in 0 ..< indicators.count {
@@ -214,7 +231,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         
         drawerBar.isHidden = false
         self.isUserInteractionEnabled = true
-
+        
         priceTracker?.isEnabled = true
         startTradeWebsocket()
         redraw()
@@ -232,6 +249,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
             iv.redraw()
         }
         self.gridView?.redraw()
+        self.guidelines.redraw()
         self.crosshair?.redraw()
         self.priceTracker?.redraw()
         
@@ -299,6 +317,21 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         }
     }
     
+    
+    //MARK: Methods
+    func getIndicatorsIn(row: Int) -> [Indicator] {
+        var result = [Indicator]()
+        for indicator in indicators {
+            if indicator.getRow() == row {
+                result.append(indicator)
+            }
+        }
+        return result
+    }
+    
+    func getNumberOfRows() -> Int {
+        return indicators.isEmpty ? 1 : indicators.last!.getRow() + 1
+    }
     
     
     //MARK: - Websocket
@@ -421,7 +454,6 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
             let loc = panBeganLocation.applying(CGAffineTransform(translationX: -valueBars!.frame.origin.x, y: -valueBars!.frame.origin.y))
             if priceView!.valueBar!.frame.contains(loc) {
                 autoScale = false
-                drawerBar.setButtonStyle(drawerBar.autoButton)
                 redraw()
             }
         case .changed:
@@ -466,7 +498,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
                 //Panning TimeView
                 
                 let scale = 1 - 2 * dx / timeView!.bounds.width
-                if pinchBeganBlockWidth * scale < 0.2 { blockWidth = 0.2; return }
+                if pinchBeganBlockWidth * scale < 0.5 { blockWidth = 0.5; return }
                 blockWidth = pinchBeganBlockWidth * scale
                 
                 redraw()
@@ -532,7 +564,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
             pinchBeganBlockWidth = blockWidth
             panBeganNewestX = newestCandleX
         case .changed:
-            if pinchBeganBlockWidth * scale < 0.2 { blockWidth = 0.2; return }
+            if pinchBeganBlockWidth * scale < 0.5 { blockWidth = 0.5; return }
             blockWidth = pinchBeganBlockWidth * scale
             let newLatestCandleX = panBeganNewestX * (1 + scale) / 2
             if !(newLatestCandleX > 0) {
@@ -662,7 +694,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
     var isContextMenuShowing = false
     private func toggleContextMenu(completion: @escaping (() -> Void) = {}) {
         if !isContextMenuShowing {
-            
+            isContextMenuShowing = !isContextMenuShowing
             UIView.animate(withDuration: animationDuration, animations: {
                 let f = self.buttonContainer.frame
                 var menuHeight = self.buttonCount * self.buttonHeight
@@ -683,11 +715,12 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
                 self.layoutIfNeeded()
             }) { (_) in
                 self.buttonContainer.removeFromSuperview()
+                self.isContextMenuShowing = !self.isContextMenuShowing
                 completion()
             }
         }
         
-        isContextMenuShowing = !isContextMenuShowing
+        
     }
     
     
@@ -699,7 +732,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "SimpleTVCell", for: indexPath) as! SimpleTVCell
         cell.lbl.text = menuTitles[indexPath.row]
         if menuTitles[indexPath.row] == selectedTitle {
-            cell.backgroundColor = #colorLiteral(red: 0, green: 0.9914394021, blue: 1, alpha: 1)
+            cell.backgroundColor = .systemBlue
         }
         return cell
     }
@@ -716,16 +749,20 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
     
     
     
-    //MARK: - Private Methods
+    //MARK: - Methods
+    func sortIndicators() {
+        indicators = sort(indicators: indicators)
+    }
     private func sort(indicators: [Indicator]) -> [Indicator] {
         var result = [Indicator]()
+        if indicators.isEmpty { return result }
         var frameRow = 0
         while result.count < indicators.count {
             let indicatorsInThisFrameRow = indicators.filter { (ind) -> Bool in
                 return ind.getRow() == frameRow
             }
-            //Find BiggestLayerIndex
-            var smallestLayerIndex: Double = 0.0
+            //Find SmallestLayerIndex
+            var smallestLayerIndex: Double = indicators.first!.style[Indicator.StyleKey.zIndex] as! Double
             indicatorsInThisFrameRow.forEach { (indicator) in
                 if let index = indicator.style[Indicator.StyleKey.zIndex] as? Double {
                     if index < smallestLayerIndex {
@@ -735,7 +772,8 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
             }
             indicatorsInThisFrameRow.forEach { (indicator) in
                 if indicator.style[Indicator.StyleKey.zIndex] == nil {
-                    indicator.style[Indicator.StyleKey.zIndex] = smallestLayerIndex - 1.0
+                    smallestLayerIndex -= 1.0
+                    indicator.style[Indicator.StyleKey.zIndex] = smallestLayerIndex
                 }
             }
             
@@ -746,6 +784,26 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
             
             frameRow += 1
         }
+        var percentSum = 0.0
+        var n = 0.0
+        for indicator in indicators {
+            if indicator.getRow() > 0 {
+                percentSum += indicator.getHeight()
+                n += 1.0
+            }
+        }
+        if percentSum > 80.0 {
+            let diff = percentSum - 80.0
+            let delta = diff / n
+            
+            indicators.forEach { (indicator) in
+                if indicator.getRow() > 0 {
+                    indicator.style[Indicator.StyleKey.height] = indicator.getHeight() - delta
+                }
+            }
+        }
+        
+        
         return result
     }
     
@@ -800,7 +858,8 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         return blockWidth - spacing
     }
     var wickWidth: CGFloat {
-        return blockWidth >= 2.0 ? blockWidth * 0.25 : blockWidth * 0.5
+//        return blockWidth >= 2.0 ? blockWidth * 0.25 : blockWidth * 0.5
+        return blockWidth >= 1.0 ? 1.0 : blockWidth
     }
     var blockWidth: CGFloat {
         get {
@@ -816,7 +875,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
             return app.settings.chartIndicators
         }
         set {
-            app.settings.chartIndicators = sort(indicators: newValue)
+            app.settings.chartIndicators = newValue
         }
     }
     
@@ -881,7 +940,4 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         }
     }
     
-    var isSettingsViewShowing: Bool {
-        return !settingsView.isHidden
-    }
 }

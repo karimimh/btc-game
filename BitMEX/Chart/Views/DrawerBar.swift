@@ -31,16 +31,18 @@ class DrawerBar: UIView {
         addSubview(contentView)
         
         
-        let f = CGRect(x: 0, y: bounds.height - CGFloat(N) * h, width: h, height: CGFloat(N) * h)
+        let f = CGRect(x: 0, y: bounds.width - w, width: w, height: N.cgFloat * h)
         contentView.frame = f
         
         
-        contentView.addBorders(edges: .init(arrayLiteral: .left, .top), color: .black, width: 1.0)
-        autoButton.addBorders(edges: .top, color: .black, width: 1.0)
-        logButton.addBorders(edges: .top, color: .black, width: 1.0)
-        timeframeButton.addBorders(edges: .top, color: .black, width: 1.0)
-        indicatorsButton.addBorders(edges: .top, color: .black, width: 1.0)
-        minimizeButton.addBorders(edges: .top, color: .black, width: 1.0)
+//        contentView.addBorders(edges: .init(arrayLiteral: .left, .bottom), color: .black, width: 1.0)
+//        autoButton.addBorders(edges: .bottom, color: .black, width: 1.0)
+//        logButton.addBorders(edges: .bottom, color: .black, width: 1.0)
+//        timeframeButton.addBorders(edges: .bottom, color: .black, width: 1.0)
+//        indicatorsButton.addBorders(edges: .bottom, color: .black, width: 1.0)
+//        toolsButton.addBorders(edges: .bottom, color: .black, width: 1.0)
+        
+        addShadow(color: .lightGray, opacity: 1.0, shadowRadius: 7.5, offset: .zero)
         
         setButtonStyle(autoButton)
         setButtonStyle(logButton)
@@ -66,20 +68,18 @@ class DrawerBar: UIView {
         if !isMainMenuShowing {
             UIView.animate(withDuration: animationDuration, animations: {
                 let f = self.contentView.frame
-                self.contentView.frame = CGRect(x: 0, y: self.bounds.height - CGFloat(self.N) * self.h, width: f.width, height: CGFloat(self.N) * self.h)
+                self.contentView.frame = CGRect(x: self.bounds.width - self.w, y: 0, width: f.width, height: CGFloat(self.N) * self.h)
                 self.layoutIfNeeded()
             }) { (_) in
-                self.minimizeButton.setImage(UIImage.init(systemName: "chevron.down"), for: .normal)
                 
                 completion()
             }
         } else {
             UIView.animate(withDuration: animationDuration, animations: {
                 let f = self.contentView.frame
-                self.contentView.frame = CGRect(x: 0, y: self.bounds.height - self.h, width: f.width, height: self.h)
+                self.contentView.frame = CGRect(x: self.bounds.width - self.w, y: 0, width: f.width, height: 0)
                 self.layoutIfNeeded()
             }) { (_) in
-                self.minimizeButton.setImage(UIImage.init(systemName: "chevron.up"), for: .normal)
                 completion()
             }
         }
@@ -169,7 +169,7 @@ class DrawerBar: UIView {
             if i == menuButtons.count - 1 {
                 b.topAnchor.constraint(equalTo: submenuButtonContainer.topAnchor).isActive = true
             }
-            b.addBorders(edges: .top, color: .black, width: 1.0)
+            b.addBorders(edges: .bottom, color: .black, width: 1.0)
             b.addTarget(self, action: #selector(submenuButtonTapped(_:)), for: .touchUpInside)
             setNeedsLayout()
             layoutIfNeeded()
@@ -189,21 +189,19 @@ class DrawerBar: UIView {
         
         if !isSubMenuShowing {
             UIView.animate(withDuration: animationDuration, animations: {
-                self.submenuButtonContainer.frame = CGRect(x: 0, y: self.bounds.height - self.h * (self.submenuN + 1).cgFloat, width: f.width, height: CGFloat(self.submenuN) * self.h)
+                self.submenuButtonContainer.frame = CGRect(x: 0, y: 0, width: f.width, height: CGFloat(self.submenuN) * self.h)
                 self.submenuButtonContainer.alpha = 1.0
                 self.layoutIfNeeded()
             }) { (_) in
-                self.minimizeButton.setImage(UIImage.init(systemName: "chevron.down"), for: .normal)
 
                 completion()
             }
         } else {
             UIView.animate(withDuration: animationDuration, animations: {
-                self.submenuButtonContainer.frame = CGRect(x: 0, y: self.bounds.height - self.h, width: f.width, height: 0)
+                self.submenuButtonContainer.frame = CGRect(x: 0, y: 0, width: f.width, height: 0)
                 self.submenuButtonContainer.alpha = 0.0
                 self.layoutIfNeeded()
             }) { (_) in
-                self.minimizeButton.setImage(UIImage.init(systemName: "chevron.up"), for: .normal)
                 self.submenuButtonContainer.removeFromSuperview()
                 completion()
             }
@@ -213,23 +211,6 @@ class DrawerBar: UIView {
     }
 
     
-    //MARK: - Minimize Button
-    @IBAction func minimizeButtonTapped(_ sender: Any) {
-        if isSubMenuShowing {
-            toggleSubmenu {
-                self.minimizeButton.setImage(UIImage.init(systemName: "chevron.up"), for: .normal)
-            }
-        } else {
-            toggleMenu {
-                if self.isMainMenuShowing {
-                    self.minimizeButton.setImage(UIImage.init(systemName: "chevron.down"), for: .normal)
-                } else {
-                    self.minimizeButton.setImage(UIImage.init(systemName: "chevron.up"), for: .normal)
-                }
-            }
-        }
-        
-    }
     
     //MARK: - Auto Button
     @IBAction func autoButtonTapped(_ sender: Any) {
@@ -324,8 +305,7 @@ class DrawerBar: UIView {
             }
             self.chart?.setupChart()
             self.toggleMenu {
-                self.chart?.settingsView.tabIndex = 1
-                self.chart?.settingsView.show()
+//                self.chart?.settingsView.show()
             }
         }
 
@@ -336,11 +316,11 @@ class DrawerBar: UIView {
     
     //MARK: - Tools Button
     @IBAction func toolsButtonTapped(_ sender: Any) {
-        if let chart = self.chart {
-            self.toggleMenu {
-                 chart.settingsView.show()
-            }
-        }
+//        if let chart = self.chart {
+//            self.toggleMenu {
+//                 chart.settingsView.show()
+//            }
+//        }
     }
     
     
@@ -354,7 +334,6 @@ class DrawerBar: UIView {
     
     //MARK: - Outlets
     @IBOutlet var contentView: UIView!
-    @IBOutlet weak var minimizeButton: UIButton!
     @IBOutlet weak var viewOfStackView: UIView!
 
     @IBOutlet weak var toolsButton: UIButton!
@@ -365,9 +344,9 @@ class DrawerBar: UIView {
     
     
     //MARK: - Properties
-    var N = 6//Number of Buttons in MainMenu
+    var N = 5//Number of Buttons in MainMenu
     let h: CGFloat = 40 //Height of Each Button
-    
+    let w: CGFloat = 200
     var animationDuration: Double = 0.15
     var app: App!
     var chart: Chart? {

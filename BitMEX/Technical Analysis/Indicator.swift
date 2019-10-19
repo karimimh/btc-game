@@ -495,4 +495,9 @@ class Indicator: NSObject, NSCoding {
         }
         self.init(name: name, id: id, defaultInputs: inputs, defaultStyle: style)
     }
+    
+    //MARK: Equatable
+    static func == (lhs: Indicator, rhs: Indicator) -> Bool {
+        return lhs.id == rhs.id
+    }
 }

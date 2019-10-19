@@ -13,7 +13,6 @@
                 <outlet property="contentView" destination="iN0-l3-epB" id="lZ5-5i-v7b"/>
                 <outlet property="indicatorsButton" destination="4A6-cd-SF5" id="EnJ-GQ-NTQ"/>
                 <outlet property="logButton" destination="SGm-Fg-kLK" id="waA-FX-sxe"/>
-                <outlet property="minimizeButton" destination="KMr-eT-O5z" id="fWp-vG-PNV"/>
                 <outlet property="timeframeButton" destination="Ofa-uc-4xT" id="UNI-e1-bCA"/>
                 <outlet property="toolsButton" destination="NIT-Ga-7uy" id="mhK-xE-hfa"/>
                 <outlet property="viewOfStackView" destination="dIt-ew-xlT" id="XXK-sb-Bpm"/>
@@ -25,12 +24,12 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view clipsSubviews="YES" contentMode="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="dIt-ew-xlT">
-                    <rect key="frame" x="0.0" y="0.0" width="375" height="627"/>
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                     <subviews>
                         <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NIT-Ga-7uy">
-                            <rect key="frame" x="0.0" y="0.0" width="375" height="125.5"/>
-                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <state key="normal" image="gear" catalog="system">
+                            <rect key="frame" x="0.0" y="0.0" width="375" height="133.5"/>
+                            <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" title="  Settings" image="gear" catalog="system">
                                 <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
                             <connections>
@@ -38,9 +37,9 @@
                             </connections>
                         </button>
                         <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4A6-cd-SF5">
-                            <rect key="frame" x="0.0" y="125.5" width="375" height="125.5"/>
-                            <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <state key="normal" image="waveform.path.ecg" catalog="system">
+                            <rect key="frame" x="0.0" y="133.5" width="375" height="133.5"/>
+                            <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" title="  Add Indicator" image="waveform.path.ecg" catalog="system">
                                 <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
                             <connections>
@@ -48,32 +47,32 @@
                             </connections>
                         </button>
                         <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ofa-uc-4xT">
-                            <rect key="frame" x="0.0" y="251" width="375" height="125"/>
+                            <rect key="frame" x="0.0" y="267" width="375" height="133"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <fontDescription key="fontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="17"/>
                             <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <state key="normal" title="1D">
-                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" title="Timeframe: 1D">
+                                <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
                             <connections>
                                 <action selector="timeframeButtonTapped:" destination="-1" eventType="touchUpInside" id="IRQ-VF-A8R"/>
                             </connections>
                         </button>
                         <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SGm-Fg-kLK">
-                            <rect key="frame" x="0.0" y="376" width="375" height="125.5"/>
+                            <rect key="frame" x="0.0" y="400" width="375" height="133.5"/>
                             <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                            <state key="normal" title="log">
-                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" title="log Scale">
+                                <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
                             <connections>
                                 <action selector="logButtonTapped:" destination="-1" eventType="touchUpInside" id="evc-vh-HaZ"/>
                             </connections>
                         </button>
                         <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ep3-Y9-lOj">
-                            <rect key="frame" x="0.0" y="501.5" width="375" height="125.5"/>
+                            <rect key="frame" x="0.0" y="533.5" width="375" height="133.5"/>
                             <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                            <state key="normal" title="auto">
-                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <state key="normal" title="Fit Data">
+                                <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
                             <connections>
                                 <action selector="autoButtonTapped:" destination="-1" eventType="touchUpInside" id="Cnc-Mj-D3k"/>
@@ -104,35 +103,19 @@
                         <constraint firstItem="NIT-Ga-7uy" firstAttribute="top" secondItem="dIt-ew-xlT" secondAttribute="top" id="yuu-lh-DKE"/>
                     </constraints>
                 </view>
-                <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KMr-eT-O5z">
-                    <rect key="frame" x="0.0" y="627" width="375" height="40"/>
-                    <color key="backgroundColor" systemColor="systemIndigoColor" red="0.34509803919999998" green="0.33725490200000002" blue="0.83921568629999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="40" id="eLN-ki-hdQ"/>
-                    </constraints>
-                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <state key="normal" image="chevron.up" catalog="system"/>
-                    <connections>
-                        <action selector="minimizeButtonTapped:" destination="-1" eventType="touchUpInside" id="7nK-EE-XOZ"/>
-                    </connections>
-                </button>
             </subviews>
-            <color key="backgroundColor" red="0.34509803921568627" green="0.60784313725490191" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color key="backgroundColor" systemColor="systemGroupedBackgroundColor" red="0.94901960780000005" green="0.94901960780000005" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstAttribute="bottom" secondItem="KMr-eT-O5z" secondAttribute="bottom" id="120-DA-IAR"/>
                 <constraint firstItem="dIt-ew-xlT" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="9qq-39-QUE"/>
                 <constraint firstAttribute="trailing" secondItem="dIt-ew-xlT" secondAttribute="trailing" id="cE6-Le-fIS"/>
-                <constraint firstItem="KMr-eT-O5z" firstAttribute="top" secondItem="dIt-ew-xlT" secondAttribute="bottom" id="qoZ-Jk-aDa"/>
-                <constraint firstItem="KMr-eT-O5z" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="sLb-qD-XrX"/>
                 <constraint firstItem="dIt-ew-xlT" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="uZM-zN-ueW"/>
-                <constraint firstAttribute="trailing" secondItem="KMr-eT-O5z" secondAttribute="trailing" id="yjX-zw-bQf"/>
+                <constraint firstItem="dIt-ew-xlT" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="zJq-8i-mow"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
-            <point key="canvasLocation" x="138.40000000000001" y="144.3778110944528"/>
+            <point key="canvasLocation" x="-372" y="228"/>
         </view>
     </objects>
     <resources>
-        <image name="chevron.up" catalog="system" width="64" height="34"/>
         <image name="gear" catalog="system" width="64" height="60"/>
         <image name="waveform.path.ecg" catalog="system" width="64" height="62"/>
     </resources>

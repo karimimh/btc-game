@@ -91,7 +91,13 @@ class Util {
     }
     
 }
-
+extension UIImage {
+    func resize(targetSize: CGSize) -> UIImage {
+        return UIGraphicsImageRenderer(size: targetSize).image { _ in
+            self.draw(in: CGRect(origin: .zero, size: targetSize))
+        }
+    }
+}
 
 extension Date {
     func bitMEXString() -> String {
@@ -784,4 +790,22 @@ extension UIView {
         layer.shadowOffset = offset
         layer.masksToBounds = false
     }
+}
+
+
+extension IndexPath {
+    init(_ row: Int, _ section: Int) {
+        self.init(row: row, section: section)
+    }
+}
+
+extension UIBarButtonItem {
+    func xPositionInBar() -> CGFloat {
+        return self.asView()!.frame.origin.x + self.asView()!.superview!.frame.origin.x
+    }
+    
+    func asView() -> UIView? {
+        return self.value(forKey: "view") as? UIView
+    }
+    
 }

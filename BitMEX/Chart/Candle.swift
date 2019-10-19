@@ -19,7 +19,7 @@ class Candle {
     var closeTime: Date
     
     
-    
+    //MARK: For Drawing
     var x: CGFloat = 0
     
     //MARK: - Initialization
@@ -184,7 +184,156 @@ class Candle {
         return result
     }
     
+    static func draw(_ candle: Candle, in rect: CGRect, using ctx: CGContext, blockWidth: CGFloat, candleWidth: CGFloat, spacing: CGFloat, wickWidth: CGFloat) {
+        let candleHeight = rect.height
+        
+        ctx.setLineWidth(0.2)
+        if candle.high == candle.low {
+            ctx.setFillColor(App.BullColor.cgColor)
+            ctx.setStrokeColor(App.BullColor.cgColor)
+            ctx.fill(CGRect(x: spacing / 2 + rect.origin.x, y: rect.origin.y, width: candleWidth, height: candleHeight))
+            ctx.stroke(CGRect(x: spacing / 2 + rect.origin.x, y: rect.origin.y, width: candleWidth, height: candleHeight))
+            return
+        }
+        
+        
+        
+        let isGreen = (candle.close >= candle.open)
+        let color: UIColor
+        if isGreen {
+            color = App.BullColor
+        } else {
+            color = App.BearColor
+        }
+        
+        
+        var bodyHeight = CGFloat((candle.close - candle.open) / (candle.high - candle.low)) * candleHeight
+        if !isGreen {
+            bodyHeight = -bodyHeight
+        }
+        if bodyHeight < wickWidth {
+            bodyHeight = wickWidth
+        }
+        
+        
+        let upperWickHeight = CGFloat((candle.high - (isGreen ? candle.close : candle.open)) / (candle.high - candle.low)) * candleHeight
+        let lowerWickHeight = candleHeight - upperWickHeight - bodyHeight
+        
+        
+        
+        ctx.setStrokeColor(color.cgColor)
+        ctx.setFillColor(color.cgColor)
+        ctx.setLineCap(.round)
+        ctx.setLineJoin(.round)
+        if upperWickHeight > 0 {
+            ctx.fill(CGRect(x: spacing / 2 + rect.origin.x + candleWidth / 2 - wickWidth / 2, y: rect.origin.y, width: wickWidth, height: upperWickHeight))
+            ctx.stroke(CGRect(x: spacing / 2 + rect.origin.x + candleWidth / 2 - wickWidth / 2, y: rect.origin.y, width: wickWidth, height: upperWickHeight))
+        }
+        ctx.fill(CGRect(x: spacing / 2 + rect.origin.x, y: rect.origin.y + upperWickHeight, width: candleWidth, height: bodyHeight))
+        ctx.stroke(CGRect(x: spacing / 2 + rect.origin.x, y: rect.origin.y + upperWickHeight, width: candleWidth, height: bodyHeight))
+        if lowerWickHeight > 0 {
+            ctx.fill(CGRect(x: spacing / 2 + rect.origin.x + candleWidth / 2 - wickWidth / 2, y: rect.origin.y + upperWickHeight + bodyHeight, width: wickWidth, height: lowerWickHeight))
+            ctx.stroke(CGRect(x: spacing / 2 + rect.origin.x + candleWidth / 2 - wickWidth / 2, y: rect.origin.y + upperWickHeight + bodyHeight, width: wickWidth, height: lowerWickHeight))
+        }
+        
+        
+        
+    }
     
+    
+    static func drawOptimized(_ candle: Candle, in rect: CGRect, using ctx: CGContext, blockWidth: CGFloat, candleWidth: CGFloat, spacing: CGFloat, wickWidth: CGFloat) {
+        
+        let candleHeight = rect.height
+        let x0 = rect.origin.x + rect.width / 2 // center x of rect
+        let y0 = rect.origin.y // top y of rect
+        
+        
+        
+        
+        if candle.high == candle.low {
+            ctx.setFillColor(App.BullColor.cgColor)
+            ctx.setStrokeColor(App.BullColor.cgColor)
+            
+            
+            let bodyPath = UIBezierPath(rect: CGRect(x: x0 - candleWidth / 2, y: y0, width: candleWidth, height: wickWidth))
+            bodyPath.lineWidth = wickWidth
+            bodyPath.stroke()
+            bodyPath.fill()
+            return
+        }
+        
+        
+        
+        let isGreen = candle.isGreen()
+        let color: UIColor
+        if isGreen {
+            color = App.BullColor
+        } else {
+            color = App.BearColor
+        }
+        
+        
+        var bodyHeight = CGFloat((candle.close - candle.open) / (candle.high - candle.low)) * candleHeight
+        if !isGreen {
+            bodyHeight = -bodyHeight
+        }
+        if bodyHeight < wickWidth {
+            bodyHeight = wickWidth
+        }
+        
+        
+        let upperWickHeight = CGFloat((candle.high - (isGreen ? candle.close : candle.open)) / (candle.high - candle.low)) * candleHeight
+        let lowerWickHeight = candleHeight - upperWickHeight - bodyHeight
+        
+        
+        //set Stroke and Fill color:
+        ctx.setStrokeColor(color.cgColor)
+        ctx.setFillColor(color.cgColor)
+        
+        
+        //draw Path:
+        
+        if blockWidth < 1.0 {
+            let bodyPath = UIBezierPath()
+            bodyPath.lineWidth = wickWidth
+            bodyPath.move(to: CGPoint(x: x0, y: y0))
+            bodyPath.addLine(to: CGPoint(x: x0, y: y0 + rect.height))
+            bodyPath.close()
+            bodyPath.stroke()
+            return
+        }
+        
+        
+        
+        let upperWickPath = UIBezierPath()
+        upperWickPath.lineWidth = wickWidth
+        if upperWickHeight > 0 {
+            upperWickPath.move(to: CGPoint(x: x0, y: y0))
+            upperWickPath.addLine(to: CGPoint(x: x0, y: y0 + upperWickHeight))
+            upperWickPath.close()
+            upperWickPath.stroke()
+        }
+        
+        let lowerWickPath = UIBezierPath()
+        lowerWickPath.lineWidth = wickWidth
+        if lowerWickHeight > 0 {
+            lowerWickPath.move(to: CGPoint(x: x0, y: y0 + upperWickHeight + bodyHeight))
+            lowerWickPath.addLine(to: CGPoint(x: x0, y: y0 + rect.height))
+            lowerWickPath.close()
+            lowerWickPath.stroke()
+        }
+        let bodyPath = UIBezierPath()
+        bodyPath.lineWidth = wickWidth
+        bodyPath.move(to: CGPoint(x: x0, y: y0 + upperWickHeight))
+        bodyPath.addLine(to: CGPoint(x: x0 + candleWidth / 2, y: y0 + upperWickHeight))
+        bodyPath.addLine(to: CGPoint(x: x0 + candleWidth / 2, y: y0 + upperWickHeight + bodyHeight))
+        bodyPath.addLine(to: CGPoint(x: x0 - candleWidth / 2, y: y0 + upperWickHeight + bodyHeight))
+        bodyPath.addLine(to: CGPoint(x: x0 - candleWidth / 2, y: y0 + upperWickHeight))
+        bodyPath.close()
+        
+        bodyPath.stroke()
+        bodyPath.fill()
+    }
     
     
 }

@@ -52,4 +52,25 @@ enum Timeframe: String {
             return 43200 // 30 day month
         }
     }
+    
+    func pretty() -> String {
+        switch self {
+        case .oneMinute, .fiveMinutes, .fifteenMinutes, .thirtyMinutes:
+            return rawValue
+        case .hourly, .twoHourly, .fourHourly, .twelveHourly:
+            return rawValue.uppercased()
+        case .daily, .weekly, .monthly:
+            return rawValue.uppercased()
+        }
+    }
+    
+    static func fromPretty(p: String) -> Timeframe {
+        if p == "1M" {
+            return .monthly
+        } else if p.uppercased() == p {
+            return Timeframe(rawValue: p.lowercased())!
+        } else {
+            return Timeframe(rawValue: p)!
+        }
+    }
 }

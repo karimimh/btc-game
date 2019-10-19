@@ -81,9 +81,8 @@ class ValueBar: UIView {
         
         horizontalGridLines.removeAll()
         let ctx = UIGraphicsGetCurrentContext()!
-        ctx.setLineWidth(2.0)
-        ctx.strokeLineSegments(between: [CGPoint(x: 0, y: 0), CGPoint(x: rect.width, y: 0)])
-        ctx.strokeLineSegments(between: [CGPoint(x: 0, y: 0), CGPoint(x: 0, y: rect.height)])
+//        ctx.setLineWidth(2.0)
+//        ctx.strokeLineSegments(between: [CGPoint(x: 0, y: rect.height), CGPoint(x: rect.width, y: rect.height)])
         ctx.setLineWidth(1.0)
         
         let L: Decimal = lowestValue

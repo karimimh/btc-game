@@ -18,19 +18,28 @@ class ChartVC: UIViewController {
     @IBOutlet weak var gridView: GridView!
     @IBOutlet weak var priceTracker: PriceTracker!
     @IBOutlet weak var crosshair: Crosshair!
-    @IBOutlet weak var settingsView: ChartSettings!
+    @IBOutlet weak var guidelines: Guidlines!
     
     @IBOutlet weak var valueBarWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var priceViewHeightConstraint: NSLayoutConstraint!
+    @IBOutlet weak var layersContainerView: UIView!
+    @IBOutlet weak var layersButton: UIButton!
+    var layersVC: LayersVC!
+    var layerSettingsVC: LayerSettingsVC!
+    var colorPickerVC: ColorPickerVC!
+    var addLayerVC: AddLayerVC!
     
-    
+    @IBOutlet weak var timeframesContainer: UIView!
+    @IBOutlet weak var timeframeBBI: UIBarButtonItem!
+    var timeframeVC: TimeframeVC!
     var app: App!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         if let delegate = UIApplication.shared.delegate as? AppDelegate {
             app = delegate.app
         }
-        app.chart = self.chart
+        app.chartVC = self
         chart.priceView = priceView
         chart.bottomViews = bottomViews
         chart.timeView = timeView
@@ -41,12 +50,15 @@ class ChartVC: UIViewController {
         chart.gridView = gridView
         chart.priceTracker = priceTracker
         chart.crosshair = crosshair
-        chart.settingsView = settingsView
+        chart.layersVC = layersVC
+        chart.guidelines = guidelines
         
         let tapGR = UITapGestureRecognizer(target: self, action: #selector(viewTapped(_:)))
         tapGR.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGR)
         
+        setupLayerView()
+        setupTimeframesContainer()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -67,23 +79,140 @@ class ChartVC: UIViewController {
     
     @IBAction func viewTapped(_ sender: UITapGestureRecognizer) {
         let location = sender.location(in: chart)
-        if chart.isSettingsViewShowing {
-            settingsView.hideKeyboard()
+        if timeframeVC.isShowing {
+            let f = CGRect(x: timeframesContainer.frame.origin.x, y: 0, width: timeframesContainer.bounds.width, height: timeframesContainer.bounds.height)
+            if !f.contains(location) {
+                toggleTimeframesSelector()
+            }
+        } else if !layersContainerView.isHidden && !layersButton.frame.contains(location) {
+            layersContainerView.endEditing(true)
             if chart.isContextMenuShowing {
                 if !chart.buttonContainer.frame.contains(location) {
                     chart.hideContextMenu()
                 }
-            } else if settingsView.currentColorPicker != nil, settingsView.currentColorPicker!.isShowing {
-                let loc = sender.location(in: view)
-                if !settingsView.currentColorPicker!.frame.contains(loc) {
-                    settingsView.currentColorPicker!.hide()
+            } else if !layersContainerView.frame.contains(location) {
+                toggleLayersView()
+            }
+
+        }
+    }
+    
+    @IBAction func showDrawerBar(_ sender: Any) {
+        /*
+        if drawerBar.isSubMenuShowing {
+            drawerBar.toggleSubmenu {
+                self.drawerBar.toggleMenu()
+            }
+        } else {
+            drawerBar.toggleMenu()
+        }
+        */
+    }
+    
+    
+    //MARK: - Layers View
+    private func setupLayerView() {
+        layersContainerView.addShadow(color: .lightGray, opacity: 0.7, shadowRadius: 2.5, offset: .zero)
+        
+        layersVC = storyboard?.instantiateViewController(identifier: "LayersVC") as? LayersVC
+        layerSettingsVC = storyboard?.instantiateViewController(identifier: "LayerSettingsVC") as? LayerSettingsVC
+        colorPickerVC = storyboard?.instantiateViewController(identifier: "ColorPickerVC") as? ColorPickerVC
+        addLayerVC = storyboard?.instantiateViewController(identifier: "AddLayerVC") as? AddLayerVC
+        
+        //Add as Child:
+        addChild(layersVC)
+        
+        
+        layersContainerView.addSubview(layersVC.view)
+        layersVC.didMove(toParent: self)
+    }
+    
+    
+    
+    
+    
+    @IBAction func layersButtonTapped(_ sender: Any) {
+        toggleLayersView()
+    }
+    
+    func toggleLayersView() {
+        layersContainerView.isHidden = !layersContainerView.isHidden
+        
+        if !layersContainerView.isHidden {
+            if colorPickerVC.isShowing {
+                colorPickerVC.didMove(toParent: self)
+            } else if layerSettingsVC.isShowing {
+                layerSettingsVC.didMove(toParent: self)
+            } else {
+                layersVC.didMove(toParent: self)
+            }
+            let arr = chart.subviews
+            for subview in arr {
+                if subview != layersContainerView && subview != layersButton {
+                    subview.isUserInteractionEnabled = false
                 }
-            } else if !settingsView.frame.contains(location) {
-                settingsView.hide()
+            }
+            for gr in chart!.gestureRecognizers! {
+                gr.isEnabled = false
             }
             
+        } else {
+            let arr = chart.subviews
+            for subview in arr {
+                if subview != layersContainerView && subview != layersButton {
+                    subview.isUserInteractionEnabled = true
+                }
+            }
+            for gr in chart!.gestureRecognizers! {
+                gr.isEnabled = true
+            }
         }
     }
     
     
+    //MARK: - Timeframes
+    private func setupTimeframesContainer() {
+        timeframesContainer.addShadow(color: .lightGray, opacity: 0.7, shadowRadius: 2.5, offset: .zero)
+        
+        timeframeVC = storyboard?.instantiateViewController(identifier: "TimeframeVC") as? TimeframeVC
+        
+        //Add as Child:
+        addChild(timeframeVC)
+        
+        
+        timeframesContainer.addSubview(timeframeVC.view)
+        timeframeVC.view.translatesAutoresizingMaskIntoConstraints = false
+        timeframeVC.view.leadingAnchor.constraint(equalTo: timeframesContainer.leadingAnchor).isActive = true
+        timeframeVC.view.trailingAnchor.constraint(equalTo: timeframesContainer.trailingAnchor).isActive = true
+        timeframeVC.view.topAnchor.constraint(equalTo: timeframesContainer.topAnchor).isActive = true
+        timeframeVC.view.bottomAnchor.constraint(equalTo: timeframesContainer.bottomAnchor).isActive = true
+
+        timeframesContainer.frame = CGRect(x: timeframeBBI.xPositionInBar(), y: chart.frame.origin.y, width: 200, height: 0)
+        timeframeVC.isShowing = false
+        
+        timeframeBBI.title = app.settings.chartTimeframe.pretty()
+        
+    }
+    
+    
+    @IBAction func timeframeBBITapped(_ sender: Any) {
+        toggleTimeframesSelector()
+    }
+    
+    func toggleTimeframesSelector(_ hideCompletion: @escaping () -> Void = {}) {
+        if !timeframeVC.isShowing {
+            timeframeVC.didMove(toParent: self)
+            chart.isUserInteractionEnabled = false
+        } else {
+            UIView.animate(withDuration: app.viewAnimationDuration, animations: {
+                self.timeframesContainer.frame = CGRect(x: self.timeframeBBI.xPositionInBar(), y: self.chart.frame.origin.y, width: 200, height: 0)
+                self.timeframesContainer.layoutIfNeeded()
+            }) { (_) in
+                self.timeframeVC.isShowing = false
+                self.chart.isUserInteractionEnabled = true
+                hideCompletion()
+            }
+            
+        }
+    }
 }

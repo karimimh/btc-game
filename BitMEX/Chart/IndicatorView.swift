@@ -83,11 +83,12 @@ class IndicatorView: UIView {
                 drawRSI(in: rect, using: ctx)
             }
         }
-        if indicator.getRow() > 0 {
-            ctx.setStrokeColor(UIColor.black.cgColor)
-            ctx.setLineWidth(2.0)
-            ctx.strokeLineSegments(between: [CGPoint(x: 0, y: 0), CGPoint(x: rect.width, y: 0)])
-        }
+//        if indicator.getRow() > 0 {
+//            ctx.setStrokeColor(UIColor.black.cgColor)
+//            ctx.setLineWidth(2.0)
+//            ctx.strokeLineSegments(between: [CGPoint(x: 0, y: rect.height), CGPoint(x: rect.width, y: rect.height)])
+//            ctx.strokeLineSegments(between: [CGPoint(x: rect.width, y: 0), CGPoint(x: rect.width, y: rect.height)])
+//        }
         
         //Draw Title
         if indicator.getRow() > 0 && app.settings.showTitles {
@@ -99,7 +100,15 @@ class IndicatorView: UIView {
     }
 
     
-    
+    func getPreviewImage() -> UIImage {
+        let width: CGFloat = 150.0
+        let height: CGFloat = 50.0
+        UIGraphicsBeginImageContext(CGSize(width: width, height: height))
+        self.draw(CGRect(x: 0, y: 0, width: width, height: height))
+        let image =  UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        return image
+    }
     
     //MARK: - Private Methods
     

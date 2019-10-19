@@ -12,7 +12,7 @@ class CheckMarkTVCell: UITableViewCell {
     @IBOutlet weak var label: UILabel!
     @IBOutlet weak var `switch`: UISwitch!
     
-    static let identidier = "CheckMarkTVCell"
+    static let identidier = "CheckMarkTVCell2"
     
     var switchValueChanged: ((Bool) -> Void)?
     
