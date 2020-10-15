@@ -14,17 +14,17 @@ class OrderBookEntry {
     
     //MARK: Properties
     var symbol: String
-    var id: Double
+    var id: Int
     var side: String
-    var size: Double?
+    var size: Int?
     var price: Double?
     
     //MARK: Initialization
-    private init(item: [String: Any]) {
+    init(item: [String: Any]) {
         symbol = item["symbol"] as! String
-        id = item["id"] as! Double
+        id = item["id"] as! Int
         side = item["side"] as! String
-        size = item["size"] as? Double
+        size = item["size"] as? Int
         price = item["price"] as? Double
     }
     
@@ -105,24 +105,90 @@ class OrderBookEntry {
     
     //MARK: - RealTime
     
-    static func subscribeRealTime(auth: Authentication) -> WebSocket {
-        let url = "wss://www.bitmex.com/realtime"
-        let webSocket = WebSocket(url)
+    static func subscribeRealTime(webSocket: WebSocket, auth: Authentication, symbol: String) {
+        let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
+        let api_signature: String = "GET/realtime" + api_expires
+        let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
+        webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
         
-        
-        let args: String = "\"orderBookL2_25\""
+        let args: String = "\"orderBookL2_25:\(symbol)\""
         let message: String = "{\"op\": \"subscribe\", \"args\": [" + args + "]}"
         webSocket.send(text: message)
-        
-        return webSocket
     }
     
-    static func unsubscribeRealTime(webSocket: WebSocket, auth: Authentication) {
-        let args: String = "\"orderBookL2_25\""
+    static func unsubscribeRealTime(webSocket: WebSocket, auth: Authentication, symbol: String) {
+        let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
+        let api_signature: String = "GET/realtime" + api_expires
+        let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
+        webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
+        
+        
+        let args: String = "\"orderBookL2_25:\(symbol)\""
         let message: String = "{\"op\": \"unsubscribe\", \"args\": [" + args + "]}"
         webSocket.send(text: message)
-        webSocket.close()
     }
     
 
+}
+
+
+class OrderBook {
+    var longEntries: [OrderBookEntry] = []
+    var shortEntries: [OrderBookEntry] = []
+    
+    init(entries: [OrderBookEntry]) {
+        setEntries(entries)
+    }
+    
+    private func setEntries(_ entries: [OrderBookEntry]) {
+        longEntries = []
+        shortEntries = []
+        
+        for entry in entries {
+            if entry.side == "Buy" {
+                if entry.size != nil && entry.price != nil {
+                    longEntries.append(entry)
+                }
+            } else if entry.side == "Sell" {
+                if entry.size != nil && entry.price != nil {
+                    shortEntries.append(entry)
+                }
+            }
+        }
+        longEntries.sort { (lhs, rhs) -> Bool in
+            guard let lhsPrice = lhs.price else { return false }
+            guard let rhsPrice = rhs.price else { return true }
+            if lhsPrice <= rhsPrice {
+                return true
+            }
+            return false
+        }
+        longEntries.reverse()
+        shortEntries.sort { (lhs, rhs) -> Bool in
+            guard let lhsPrice = lhs.price else { return false }
+            guard let rhsPrice = rhs.price else { return true }
+            if lhsPrice >= rhsPrice {
+                return true
+            }
+            return false
+        }
+        shortEntries.reverse()
+    }
+    
+    func totalSize(rows: Int) -> Int {
+        var s: Int = 0
+        for i in 0 ..< rows {
+            if let size = longEntries[i].size {
+                s += size
+            }
+        }
+        for i in 0 ..< rows {
+            if let size = shortEntries[i].size {
+                s += size
+            }
+        }
+        return s
+    }
+    
+    
 }

@@ -31,8 +31,11 @@ class ChartVC: UIViewController {
     
     @IBOutlet weak var timeframesContainer: UIView!
     @IBOutlet weak var timeframeBBI: UIBarButtonItem!
+    @IBOutlet weak var symbolButton: UIBarButtonItem!
     var timeframeVC: TimeframeVC!
     var app: App!
+    
+    var viewDidLoadExecuted = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,6 +62,8 @@ class ChartVC: UIViewController {
         
         setupLayerView()
         setupTimeframesContainer()
+        
+        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -69,12 +74,13 @@ class ChartVC: UIViewController {
         }
     }
     
+    
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         app.saveSettings()
-        
     }
+    
     
     
     @IBAction func viewTapped(_ sender: UITapGestureRecognizer) {
@@ -215,4 +221,13 @@ class ChartVC: UIViewController {
             
         }
     }
+    
+    @IBAction func SymbolButtonTapped(_ sender: Any) {
+        let listVC = storyboard?.instantiateViewController(identifier: "ListNavController") as? UINavigationController
+        if let vc = listVC {
+            present(vc, animated: true, completion: nil)
+        }
+    }
+    
+    
 }

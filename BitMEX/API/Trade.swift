@@ -181,6 +181,8 @@ class Trade {
     }
     
     
+    
+    
     static func GET_Bucketed(binSize: String, partial: Bool? = nil, symbol: String? = nil, count: Int? = nil, reverse: Bool? = nil, start: Int? = nil, startTime: String? = nil, endTime: String? = nil, filter: [String: Any]? = nil, columns: [String]? = nil, completion: @escaping ([Bucketed]?, URLResponse?, Error?) -> Void) {
         let scheme = "https"
         let host = "www.bitmex.com"
@@ -332,5 +334,21 @@ class Trade {
             self.homeNotional = homeNotional
             self.foreignNotional = foreignNotional
         }
+    }
+    
+    
+    static func subscribeRealTime(webSocket: WebSocket, symbol: String) {
+        var args: String = "\"trade"
+        args += ":\(symbol)"
+        args += "\""
+        let message: String = "{\"op\": \"subscribe\", \"args\": [" + args + "]}"
+        
+        webSocket.send(text: message)
+    }
+    
+    static func unsubscribeRealTime(webSocket: WebSocket, symbol: String) {
+        let args: String = "\"trades\":\(symbol)\""
+        let message: String = "{\"op\": \"unsubscribe\", \"args\": [" + args + "]}"
+        webSocket.send(text: message)
     }
 }

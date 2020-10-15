@@ -47,7 +47,6 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         if let delegate = UIApplication.shared.delegate as? AppDelegate {
             app = delegate.app
         }
-        webSocket = RealTime.startWebSocket()
         backgroundColor = app.settings.chartBackgroundColor
     }
     
@@ -56,7 +55,6 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         if let delegate = UIApplication.shared.delegate as? AppDelegate {
             app = delegate.app
         }
-        webSocket = RealTime.startWebSocket()
         backgroundColor = app.settings.chartBackgroundColor
     }
     
@@ -64,8 +62,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
     
     //MARK: - Public Methods
     func setupChart() {
-        webSocket?.open()
-        RealTime.unscubscribeAll()
+        app.removeRealtimeSubscription(tableName: "trade")
         priceTracker?.isEnabled = false
         newestCandleX = bounds.width * 0.75
         if drawerBar.isMainMenuShowing {
@@ -85,6 +82,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         
         
         if let instrument = instrument {
+            app.chartVC?.symbolButton.title = instrument.symbol.uppercased()
             Candle.downloadFor(timeframe: timeframe!, instrument: instrument, partialCandle: true, reverse: true, count: 750) { (opCandles, opResponse, opError) in
                 guard opError == nil else {
                     print("ERROR!")
@@ -233,7 +231,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         self.isUserInteractionEnabled = true
         
         priceTracker?.isEnabled = true
-        startTradeWebsocket()
+        activateWebsocket()
         redraw()
     }
     
@@ -252,6 +250,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         self.guidelines.redraw()
         self.crosshair?.redraw()
         self.priceTracker?.redraw()
+        self.app.chartVC?.layersButton.isHidden = false
         
     }
 
@@ -335,81 +334,62 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
     
     
     //MARK: - Websocket
-    var webSocket: WebSocket?
     
-    func startTradeWebsocket() {
-        let  _ = RealTime.subscribe(subscription: RealTime.Subscriptions.trade, symbol: instrument?.symbol)
-        webSocket?.event.message = { msg in
-            guard let message = msg as? String  else {
-                return
-            }
-            guard let data = message.data(using: .utf8) else {
-                return
-            }
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    if let table = json["table"] as? String {
-                        switch table {
-                        case "trade":
-                            if let tradeData = json["data"] as? [[String: Any]] {
-                                let trades = Trade.processJSONString(tradeData)
-                                var volume: Double = 0
-                                var high: Double = -Double.greatestFiniteMagnitude
-                                var low: Double = Double.greatestFiniteMagnitude
-                                var close: Double = 0
-                                var _closeTime: Date?
-                                for i in 0 ..< trades.count {
-                                    let trade = trades[i]
-                                    if trade.symbol != self.instrument!.symbol { continue }
-                                    
-                                    if let v = trade.size {
-                                        volume += v
-                                    }
-                                    if let c = trade.price {
-                                        close = c
-                                    }
-                                    if close > high {
-                                        high = close
-                                    }
-                                    if close < low {
-                                        low = close
-                                    }
-                                    if let ct = Date.fromBitMEXString(str: trade.timestamp) {
-                                        _closeTime = ct
-                                    }
-                                }
-                                guard let closeTime = _closeTime else { return }
-                                
-                                if closeTime.toMillis() < self.candles.first!.nextCandleOpenTime().toMillis() {
-                                    let candle = self.candles.first!
-                                    candle.volume += volume
-                                    candle.close = close
-                                    if low < candle.low {
-                                        candle.low = low
-                                    }
-                                    if high > candle.high {
-                                        candle.high = high
-                                    }
-                                } else {
-                                    let candle = Candle(open: self.candles.first!.close, close: close, high: high, low: low, volume: volume, timeframe: self.timeframe!, closeTime: self.candles.first!.nextCandleOpenTime().dateBy(adding: self.timeframe!))
-                                    self.candles.insert(candle, at: 0)
-                                }
-                                self.indicators.forEach { (indicator) in
-                                    indicator.computeValue(candles: self.candles.reversed())
-                                }
-                                DispatchQueue.main.async {
-                                    self.redraw()
-                                }
-                            }
-                        default:
-                            break
-                        }
-                    }
+    func activateWebsocket() {
+        app.addRealtimeSubscription(arg: "trade:\(app.settings.chartSymbol)", tableName: "trade") { (json) in
+            if let tradeData = json["data"] as? [[String: Any]] {
+                let trades = Trade.processJSONString(tradeData)
+                var volume: Double = 0
+                var high: Double = -Double.greatestFiniteMagnitude
+                var low: Double = Double.greatestFiniteMagnitude
+                var close: Double = 0
+                var _closeTime: Date?
+                for i in 0 ..< trades.count {
+                    let trade = trades[i]
+                    if trade.symbol != self.instrument!.symbol { continue }
                     
+                    if let v = trade.size {
+                        volume += v
+                    }
+                    if let c = trade.price {
+                        close = c
+                    }
+                    if close > high {
+                        high = close
+                    }
+                    if close < low {
+                        low = close
+                    }
+                    if let ct = Date.fromBitMEXString(str: trade.timestamp) {
+                        _closeTime = ct
+                    }
                 }
-            } catch {
+                guard let closeTime = _closeTime else { return }
+                
+                if closeTime.toMillis() < self.candles.first!.nextCandleOpenTime().toMillis() {
+                    let candle = self.candles.first!
+                    candle.volume += volume
+                    candle.close = close
+                    if low < candle.low {
+                        candle.low = low
+                    }
+                    if high > candle.high {
+                        candle.high = high
+                    }
+                } else {
+                    let candle = Candle(open: self.candles.first!.close, close: close, high: high, low: low, volume: volume, timeframe: self.timeframe!, closeTime: self.candles.first!.nextCandleOpenTime().dateBy(adding: self.timeframe!))
+                    self.candles.insert(candle, at: 0)
+                }
+                self.indicators.forEach { (indicator) in
+                    indicator.computeValue(candles: self.candles.reversed())
+                }
+                DispatchQueue.main.async {
+                    self.redraw()
+                }
             }
         }
+        
+        
     }
 
     
@@ -859,7 +839,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
     }
     var wickWidth: CGFloat {
 //        return blockWidth >= 2.0 ? blockWidth * 0.25 : blockWidth * 0.5
-        return blockWidth >= 1.0 ? 1.0 : blockWidth
+        return blockWidth >= 2.0 ? 2.0 : blockWidth
     }
     var blockWidth: CGFloat {
         get {

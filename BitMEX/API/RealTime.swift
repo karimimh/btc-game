@@ -9,67 +9,218 @@
 import Foundation
 
 class RealTime {
-    static var webSocket: WebSocket?
-    private static var subscriptions = [Subscription]()
-    
-    private init() {}
-    static func startWebSocket() -> WebSocket? {
-        webSocket?.close()
-        webSocket = nil
-        let url = "wss://www.bitmex.com/realtime"
-        webSocket = WebSocket(url)
-        return webSocket
-    }
-    
-    static func subscribe(subscription: String, symbol: String? = nil)  -> Subscription? {
-        guard let webSocket = self.webSocket else { return nil }
-        
-        switch subscription {
-        case Subscriptions.trade:
-            var args: String = "\"trade"
-            if let symbol = symbol {
-                args += ":\(symbol)"
-            }
-            args += "\""
-            let message: String = "{\"op\": \"" + Commands.subscribe + "\", \"args\": [" + args + "]}"
-            let sss = Subscription(args: args)
-            subscriptions.append(sss)
-            webSocket.send(text: message)
-            return sss
-        default:
-            //NOT Implemented!
-            break
+
+    static func processPayload(payload: [String: Any], partial: Any? = nil) -> [String: Any]? {
+        guard let _ = payload["table"] as? String else {
+            return nil
         }
         
-        return nil
+        guard let action = payload["action"] as? String else {
+            return nil
+        }
+        
+        switch action {
+        case "partial":
+            guard payload["data"] != nil else {
+                return nil
+            }
+            return payload
+        case "update":
+            guard let partial = partial as? [String: Any] else {
+                return nil
+            }
+            guard let keys = partial["keys"] as? [String] else {
+                return nil
+            }
+            guard let types = partial["types"] as? [String: String] else {
+                return nil
+            }
+            if let data = payload["data"] as? [String: Any] {
+                guard let previousData = partial["data"] as? [String: Any] else {
+                    return nil
+                }
+                if rowMatch(data, previousData, keys: keys, keyTypes: types) {
+                    let newData = updateRow(previousVersion: partial, newVersion: data, types: types)
+                    var result = partial
+                    result["data"] = newData
+                    return result
+                } else {
+                    return nil
+                }
+            } else if let data = payload["data"] as? [[String: Any]]  {
+                guard let previousData = partial["data"] as? [[String: Any]] else {
+                    return nil
+                }
+                var result = previousData
+                for j in 0 ..< previousData.count {
+                    for d in data {
+                        if rowMatch(d, previousData[j], keys: keys, keyTypes: types) {
+                            if let r = updateRow(previousVersion: previousData[j], newVersion: d, types: types) {
+                                result[j] = r
+                            }
+                            break
+                        }
+                    }
+                }
+                var r = partial
+                r["data"] = result
+                return r
+            }
+            return nil
+        case "insert":
+            guard let partial = partial as? [String: Any] else {
+                return nil
+            }
+            if let data = payload["data"] as? [[String: Any]]  {
+                guard var previousData = partial["data"] as? [[String: Any]] else {
+                    return nil
+                }
+                previousData.insert(contentsOf: data, at: 0)
+                var result = partial
+                result["data"] = previousData
+                return result
+            }
+            return partial
+        case "delete":
+            guard let partial = partial as? [String: Any] else {
+                return nil
+            }
+            guard let keys = partial["keys"] as? [String] else {
+                return nil
+            }
+            guard let types = partial["types"] as? [String: String] else {
+                return nil
+            }
+            if let data = payload["data"] as? [[String: Any]]  {
+                guard let previousData = partial["data"] as? [[String: Any]] else {
+                    return nil
+                }
+                var indices = [Int]()
+                for j in 0 ..< data.count {
+                    for i in 0 ..< previousData.count {
+                        if rowMatch(previousData[i], data[j], keys: keys, keyTypes: types) {
+                            indices.append(i)
+                            break
+                        }
+                    }
+                }
+                var newData = [[String: Any]]()
+                for i in 0 ..< previousData.count {
+                    if !indices.contains(i) {
+                        newData.append(previousData[i])
+                    }
+                }
+                
+                
+                var result = partial
+                result["data"] = newData
+                return result
+            }
+            return partial
+        default:
+            return nil
+        }
     }
     
     
-    static func unsubscribe(subscription: Subscription) {
-        guard let webSocket = self.webSocket else { return }
-        
-        for i in 0 ..< subscriptions.count {
-            let sub = subscriptions[i]
-            if sub.args == subscription.args {
-                let message: String = "{\"op\": \"" + Commands.unsubscribe + "\", \"args\": [" + subscription.args + "]}"
-                webSocket.send(text: message)
-                subscriptions.remove(at: i)
+    private static func updateRow(previousVersion row1: [String: Any], newVersion row2: [String: Any], types: [String: String]) -> [String: Any]? {
+        var result = row1
+        for (k, v) in row2 {
+            guard let type = types[k] else {
+                return nil
+            }
+            switch type {
+            case "symbol":
+                fallthrough
+            case "timestamp":
+                fallthrough
+            case "guid":
+                fallthrough
+            case "timespan":
+                fallthrough
+            case "string":
+                if let s = v as? String {
+                    if result[k] == nil {
+                        result[k] = s
+                    } else if !s.isEmpty {
+                        result[k] = s
+                    }
+                }
+            case "float":
+                if let s = v as? Double {
+                    result[k] = s
+                }
+            case "long":
+                fallthrough
+            case "integer":
+                if let s = v as? Int {
+                    result[k] = s
+                }
+            case "boolean":
+                if let s = v as? Bool {
+                    result[k] = s
+                }
+            default:
+                result[k] = nil
+                print("OOPS!")
+                print(row2)
+                print(types)
                 break
             }
         }
-        
-        
+        return result
     }
     
-    
-    static func unscubscribeAll() {
-        guard let webSocket = self.webSocket else { return }
-        
-        for sub in subscriptions {
-            let message: String = "{\"op\": \"" + Commands.unsubscribe + "\", \"args\": [" + sub.args + "]}"
-            webSocket.send(text: message)
+    private static func rowMatch(_ row1: [String: Any], _ row2: [String: Any], keys: [String], keyTypes: [String: String]) -> Bool {
+        for key in keys {
+            guard row1[key] != nil && row2[key] != nil else {
+                return false
+            }
+            guard let keyType = keyTypes[key] else {
+                return false
+            }
+            switch keyType {
+            case "symbol":
+                fallthrough
+            case "guid":
+                fallthrough
+            case "timestamp":
+                fallthrough
+            case "timespan":
+                guard let r1 = row1[key] as? String, let r2 = row2[key] as? String else {
+                    return false
+                }
+                if r1 != r2 {
+                    return false
+                }
+            case "float":
+                guard let r1 = row1[key] as? Double, let r2 = row2[key] as? Double else {
+                    return false
+                }
+                if r1 != r2 {
+                    return false
+                }
+            case "long":
+                fallthrough
+            case "integer":
+                guard let r1 = row1[key] as? Int, let r2 = row2[key] as? Int else {
+                    return false
+                }
+                if r1 != r2 {
+                    return false
+                }
+            case "boolean":
+                guard let r1 = row1[key] as? Bool, let r2 = row2[key] as? Bool else {
+                    return false
+                }
+                if r1 != r2 {
+                    return false
+                }
+            default:
+                break
+            }
         }
-        subscriptions.removeAll()
+        return true
     }
     
     

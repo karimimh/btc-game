@@ -292,16 +292,18 @@ class User {
         
         parameters["token"] = token
         
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
         } catch let err {
             completion(nil, nil, err)
             return
+        }
+        
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -485,16 +487,18 @@ class User {
         parameters["platformAgent"] = platformAgent
         
         
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
+        
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
         } catch let err {
             completion(nil, nil, err)
             return
+        }
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -558,16 +562,16 @@ class User {
         
         
         
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
-        
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
         } catch let err {
             completion(nil, nil, err)
             return
+        }
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -627,16 +631,16 @@ class User {
         parameters["token"] = token
         
         
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
-        
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
         } catch let err {
             completion(nil, nil, err)
             return
+        }
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -893,49 +897,8 @@ class User {
             }
             
             do {
-                if let item = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    let account: Double = item["account"] as! Double
-                    let currency: String = item["currency"] as! String
-                    let riskLimit: Double? = item["riskLimit"] as? Double
-                    let prevState: String? = item["prevState"] as? String
-                    let state: String? = item["state"] as? String
-                    let action: String? = item["action"] as? String
-                    let amount: Double? = item["amount"] as? Double
-                    let pendingCredit: Double? = item["pendingCredit"] as? Double
-                    let pendingDebit: Double? = item["pendingDebit"] as? Double
-                    let confirmedDebit: Double? = item["confirmedDebit"] as? Double
-                    let prevRealisedPnl: Double? = item["prevRealisedPnl"] as? Double
-                    let prevUnrealisedPnl: Double? = item["prevUnrealisedPnl"] as? Double
-                    let grossComm: Double? = item["grossComm"] as? Double
-                    let grossOpenCost: Double? = item["grossOpenCost"] as? Double
-                    let grossOpenPremium: Double? = item["grossOpenPremium"] as? Double
-                    let grossExecCost: Double? = item["grossExecCost"] as? Double
-                    let grossMarkValue: Double? = item["grossMarkValue"] as? Double
-                    let riskValue: Double? = item["riskValue"] as? Double
-                    let taxableMargin: Double? = item["taxableMargin"] as? Double
-                    let initMargin: Double? = item["initMargin"] as? Double
-                    let maintMargin: Double? = item["maintMargin"] as? Double
-                    let sessionMargin: Double? = item["sessionMargin"] as? Double
-                    let targetExcessMargin: Double? = item["targetExcessMargin"] as? Double
-                    let varMargin: Double? = item["varMargin"] as? Double
-                    let realisedPnl: Double? = item["realisedPnl"] as? Double
-                    let unrealisedPnl: Double? = item["unrealisedPnl"] as? Double
-                    let indicativeTax: Double? = item["indicativeTax"] as? Double
-                    let unrealisedProfit: Double? = item["unrealisedProfit"] as? Double
-                    let syntheticMargin: Double? = item["syntheticMargin"] as? Double
-                    let walletBalance: Double? = item["walletBalance"] as? Double
-                    let marginBalance: Double? = item["marginBalance"] as? Double
-                    let marginBalancePcnt: Double? = item["marginBalancePcnt"] as? Double
-                    let marginLeverage: Double? = item["marginLeverage"] as? Double
-                    let marginUsedPcnt: Double? = item["marginUsedPcnt"] as? Double
-                    let excessMargin: Double? = item["excessMargin"] as? Double
-                    let excessMarginPcnt: Double? = item["excessMarginPcnt"] as? Double
-                    let availableMargin: Double? = item["availableMargin"] as? Double
-                    let withdrawableMargin: Double? = item["withdrawableMargin"] as? Double
-                    let timestamp: String? = item["timestamp"] as? String
-                    let grossLastValue: Double? = item["grossLastValue"] as? Double
-                    let commission: Double? = item["commission"] as? Double
-                    let margin = Margin(account: account, currency: currency, riskLimit: riskLimit, prevState: prevState, state: state, action: action, amount: amount, pendingCredit: pendingCredit, pendingDebit: pendingDebit, confirmedDebit: confirmedDebit, prevRealisedPnl: prevRealisedPnl, prevUnrealisedPnl: prevUnrealisedPnl, grossComm: grossComm, grossOpenCost: grossOpenCost, grossOpenPremium: grossOpenPremium, grossExecCost: grossExecCost, grossMarkValue: grossMarkValue, riskValue: riskValue, taxableMargin: taxableMargin, initMargin: initMargin, maintMargin: maintMargin, sessionMargin: sessionMargin, targetExcessMargin: targetExcessMargin, varMargin: varMargin, realisedPnl: realisedPnl, unrealisedPnl: unrealisedPnl, indicativeTax: indicativeTax, unrealisedProfit: unrealisedProfit, syntheticMargin: syntheticMargin, walletBalance: walletBalance, marginBalance: marginBalance, marginBalancePcnt: marginBalancePcnt, marginLeverage: marginLeverage, marginUsedPcnt: marginUsedPcnt, excessMargin: excessMargin, excessMarginPcnt: excessMarginPcnt, availableMargin: availableMargin, withdrawableMargin: withdrawableMargin, timestamp: timestamp, grossLastValue: grossLastValue, commission: commission)
+                if let items = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
+                    let margin = Margin(item: items[0])
                     completion(margin, response, nil)
 
                 } else {
@@ -1026,16 +989,16 @@ class User {
         }
         
         
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
-        
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
         } catch let err {
             completion(nil, nil, err)
             return
+        }
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -1191,16 +1154,17 @@ class User {
         }
         
         
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
         } catch let err {
             completion(nil, nil, err)
             return
+        }
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -1298,32 +1262,7 @@ class User {
             }
             do {
                 if let item = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    let account: Int = item["account"] as! Int
-                    let currency: String = item["currency"] as! String
-                    let prevDeposited: Double? = item["prevDeposited"] as? Double
-                    let prevWithdrawn: Double? = item["prevWithdrawn"] as? Double
-                    let prevTransferIn: Double? = item["prevTransferIn"] as? Double
-                    let prevTransferOut: Double? = item["prevTransferOut"] as? Double
-                    let prevAmount: Double? = item["prevAmount"] as? Double
-                    let prevTimestamp: String? = item["prevTimestamp"] as? String
-                    let deltaDeposited: Double? = item["deltaDeposited"] as? Double
-                    let deltaWithdrawn: Double? = item["deltaWithdrawn"] as? Double
-                    let deltaTransferIn: Double? = item["deltaTransferIn"] as? Double
-                    let deltaTransferOut: Double? = item["deltaTransferOut"] as? Double
-                    let deltaAmount: Double? = item["deltaAmount"] as? Double
-                    let deposited: Double? = item["deposited"] as? Double
-                    let withdrawn: Double? = item["withdrawn"] as? Double
-                    let transferIn: Double? = item["transferIn"] as? Double
-                    let transferOut: Double? = item["transferOut"] as? Double
-                    let amount: Double? = item["amount"] as? Double
-                    let pendingCredit: Double? = item["pendingCredit"] as? Double
-                    let pendingDebit: Double? = item["pendingDebit"] as? Double
-                    let confirmedDebit: Double? = item["confirmedDebit"] as? Double
-                    let timestamp: String? = item["timestamp"] as? String
-                    let addr: String? = item["addr"] as? String
-                    let script: String? = item["script"] as? String
-                    let withdrawalLock: [String]? = item["withdrawalLock"] as? [String]
-                    let wallet = Wallet(account: account, currency: currency, prevDeposited: prevDeposited, prevWithdrawn: prevWithdrawn, prevTransferIn: prevTransferIn, prevTransferOut: prevTransferOut, prevAmount: prevAmount, prevTimestamp: prevTimestamp, deltaDeposited: deltaDeposited, deltaWithdrawn: deltaWithdrawn, deltaTransferIn: deltaTransferIn, deltaTransferOut: deltaTransferOut, deltaAmount: deltaAmount, deposited: deposited, withdrawn: withdrawn, transferIn: transferIn, transferOut: transferOut, amount: amount, pendingCredit: pendingCredit, pendingDebit: pendingDebit, confirmedDebit: confirmedDebit, timestamp: timestamp, addr: addr, script: script, withdrawalLock: withdrawalLock)
+                    let wallet = Wallet(item: item)
                     completion(wallet, response, nil)
                 } else {
                     completion(nil, response, nil)
@@ -1725,51 +1664,52 @@ class User {
     
     
     class Margin {
-        internal init(account: Double, currency: String, riskLimit: Double?, prevState: String?, state: String?, action: String?, amount: Double?, pendingCredit: Double?, pendingDebit: Double?, confirmedDebit: Double?, prevRealisedPnl: Double?, prevUnrealisedPnl: Double?, grossComm: Double?, grossOpenCost: Double?, grossOpenPremium: Double?, grossExecCost: Double?, grossMarkValue: Double?, riskValue: Double?, taxableMargin: Double?, initMargin: Double?, maintMargin: Double?, sessionMargin: Double?, targetExcessMargin: Double?, varMargin: Double?, realisedPnl: Double?, unrealisedPnl: Double?, indicativeTax: Double?, unrealisedProfit: Double?, syntheticMargin: Double?, walletBalance: Double?, marginBalance: Double?, marginBalancePcnt: Double?, marginLeverage: Double?, marginUsedPcnt: Double?, excessMargin: Double?, excessMarginPcnt: Double?, availableMargin: Double?, withdrawableMargin: Double?, timestamp: String?, grossLastValue: Double?, commission: Double?) {
-            self.account = account
-            self.currency = currency
-            self.riskLimit = riskLimit
-            self.prevState = prevState
-            self.state = state
-            self.action = action
-            self.amount = amount
-            self.pendingCredit = pendingCredit
-            self.pendingDebit = pendingDebit
-            self.confirmedDebit = confirmedDebit
-            self.prevRealisedPnl = prevRealisedPnl
-            self.prevUnrealisedPnl = prevUnrealisedPnl
-            self.grossComm = grossComm
-            self.grossOpenCost = grossOpenCost
-            self.grossOpenPremium = grossOpenPremium
-            self.grossExecCost = grossExecCost
-            self.grossMarkValue = grossMarkValue
-            self.riskValue = riskValue
-            self.taxableMargin = taxableMargin
-            self.initMargin = initMargin
-            self.maintMargin = maintMargin
-            self.sessionMargin = sessionMargin
-            self.targetExcessMargin = targetExcessMargin
-            self.varMargin = varMargin
-            self.realisedPnl = realisedPnl
-            self.unrealisedPnl = unrealisedPnl
-            self.indicativeTax = indicativeTax
-            self.unrealisedProfit = unrealisedProfit
-            self.syntheticMargin = syntheticMargin
-            self.walletBalance = walletBalance
-            self.marginBalance = marginBalance
-            self.marginBalancePcnt = marginBalancePcnt
-            self.marginLeverage = marginLeverage
-            self.marginUsedPcnt = marginUsedPcnt
-            self.excessMargin = excessMargin
-            self.excessMarginPcnt = excessMarginPcnt
-            self.availableMargin = availableMargin
-            self.withdrawableMargin = withdrawableMargin
-            self.timestamp = timestamp
-            self.grossLastValue = grossLastValue
-            self.commission = commission
+        internal init(item: [String: Any]) {
+            account = item["account"] as! Int
+            currency = item["currency"] as! String
+            riskLimit = item["riskLimit"] as? Double
+            prevState = item["prevState"] as? String
+            state = item["state"] as? String
+            action = item["action"] as? String
+            amount = item["amount"] as? Double
+            pendingCredit = item["pendingCredit"] as? Double
+            pendingDebit = item["pendingDebit"] as? Double
+            confirmedDebit = item["confirmedDebit"] as? Double
+            prevRealisedPnl = item["prevRealisedPnl"] as? Double
+            prevUnrealisedPnl = item["prevUnrealisedPnl"] as? Double
+            grossComm = item["grossComm"] as? Double
+            grossOpenCost = item["grossOpenCost"] as? Double
+            grossOpenPremium = item["grossOpenPremium"] as? Double
+            grossExecCost = item["grossExecCost"] as? Double
+            grossMarkValue = item["grossMarkValue"] as? Double
+            riskValue = item["riskValue"] as? Double
+            taxableMargin = item["taxableMargin"] as? Double
+            initMargin = item["initMargin"] as? Double
+            maintMargin = item["maintMargin"] as? Double
+            sessionMargin = item["sessionMargin"] as? Double
+            targetExcessMargin = item["targetExcessMargin"] as? Double
+            varMargin = item["varMargin"] as? Double
+            realisedPnl = item["realisedPnl"] as? Double
+            unrealisedPnl = item["unrealisedPnl"] as? Double
+            indicativeTax = item["indicativeTax"] as? Double
+            unrealisedProfit = item["unrealisedProfit"] as? Double
+            syntheticMargin = item["syntheticMargin"] as? Double
+            walletBalance = item["walletBalance"] as? Double
+            marginBalance = item["marginBalance"] as? Double
+            marginBalancePcnt = item["marginBalancePcnt"] as? Double
+            marginLeverage = item["marginLeverage"] as? Double
+            marginUsedPcnt = item["marginUsedPcnt"] as? Double
+            excessMargin = item["excessMargin"] as? Double
+            excessMarginPcnt = item["excessMarginPcnt"] as? Double
+            availableMargin = item["availableMargin"] as? Double
+            withdrawableMargin = item["withdrawableMargin"] as? Double
+            timestamp = item["timestamp"] as? String
+            grossLastValue = item["grossLastValue"] as? Double
+            commission = item["commission"] as? Double
         }
         
-        var account: Double
+        
+        var account: Int
         var currency: String
         var riskLimit: Double?
         var prevState: String?
@@ -1838,33 +1778,34 @@ class User {
     
     
     class Wallet {
-        internal init(account: Int, currency: String, prevDeposited: Double?, prevWithdrawn: Double?, prevTransferIn: Double?, prevTransferOut: Double?, prevAmount: Double?, prevTimestamp: String?, deltaDeposited: Double?, deltaWithdrawn: Double?, deltaTransferIn: Double?, deltaTransferOut: Double?, deltaAmount: Double?, deposited: Double?, withdrawn: Double?, transferIn: Double?, transferOut: Double?, amount: Double?, pendingCredit: Double?, pendingDebit: Double?, confirmedDebit: Double?, timestamp: String?, addr: String?, script: String?, withdrawalLock: [String]?) {
-            self.account = account
-            self.currency = currency
-            self.prevDeposited = prevDeposited
-            self.prevWithdrawn = prevWithdrawn
-            self.prevTransferIn = prevTransferIn
-            self.prevTransferOut = prevTransferOut
-            self.prevAmount = prevAmount
-            self.prevTimestamp = prevTimestamp
-            self.deltaDeposited = deltaDeposited
-            self.deltaWithdrawn = deltaWithdrawn
-            self.deltaTransferIn = deltaTransferIn
-            self.deltaTransferOut = deltaTransferOut
-            self.deltaAmount = deltaAmount
-            self.deposited = deposited
-            self.withdrawn = withdrawn
-            self.transferIn = transferIn
-            self.transferOut = transferOut
-            self.amount = amount
-            self.pendingCredit = pendingCredit
-            self.pendingDebit = pendingDebit
-            self.confirmedDebit = confirmedDebit
-            self.timestamp = timestamp
-            self.addr = addr
-            self.script = script
-            self.withdrawalLock = withdrawalLock
+        init(item: [String: Any]) {
+            account = item["account"] as! Int
+            currency = item["currency"] as! String
+            prevDeposited = item["prevDeposited"] as? Double
+            prevWithdrawn = item["prevWithdrawn"] as? Double
+            prevTransferIn = item["prevTransferIn"] as? Double
+            prevTransferOut = item["prevTransferOut"] as? Double
+            prevAmount = item["prevAmount"] as? Double
+            prevTimestamp = item["prevTimestamp"] as? String
+            deltaDeposited = item["deltaDeposited"] as? Double
+            deltaWithdrawn = item["deltaWithdrawn"] as? Double
+            deltaTransferIn = item["deltaTransferIn"] as? Double
+            deltaTransferOut = item["deltaTransferOut"] as? Double
+            deltaAmount = item["deltaAmount"] as? Double
+            deposited = item["deposited"] as? Double
+            withdrawn = item["withdrawn"] as? Double
+            transferIn = item["transferIn"] as? Double
+            transferOut = item["transferOut"] as? Double
+            amount = item["amount"] as? Double
+            pendingCredit = item["pendingCredit"] as? Double
+            pendingDebit = item["pendingDebit"] as? Double
+            confirmedDebit = item["confirmedDebit"] as? Double
+            timestamp = item["timestamp"] as? String
+            addr = item["addr"] as? String
+            script = item["script"] as? String
+            withdrawalLock = item["withdrawalLock"] as? [String]
         }
+        
         
         var account: Int
         var currency: String
@@ -1954,6 +1895,36 @@ class User {
         var transactTime: String?
         var timestamp: String?
     }
+    
+    
+    //MARK: - RealTime
+    // Only Wallet and Margin depoloyed
+    static func subscribeRealTime(webSocket: WebSocket, auth: Authentication) {
+        let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
+        let api_signature: String = "GET/realtime" + api_expires
+        let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
+        webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
+        
+        
+        let args: String = "[\"wallet\", \"margin\"]"
+        let message: String = "{\"op\": \"subscribe\", \"args\": [" + args + "]}"
+        webSocket.send(text: message)
+        
+    }
+    
+    static func unsubscribeRealTime(webSocket: WebSocket, auth: Authentication) {
+        let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
+        let api_signature: String = "GET/realtime" + api_expires
+        let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
+        webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
+        
+        
+        let args: String = "[\"wallet\", \"margin\"]"
+        let message: String = "{\"op\": \"unsubscribe\", \"args\": [" + args + "]}"
+        webSocket.send(text: message)
+    }
+    
 }
+
 
 

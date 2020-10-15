@@ -50,10 +50,23 @@ class TimeView: UIView {
         
         let ctx = UIGraphicsGetCurrentContext()!
         
-        findTicks()
+        
+        var candleInd = mostImportantCandleDateIndex()!
+        let d_min = getTickAttributedString(text: "20:30").size().width * 2
+        let n_min = Int(d_min / chart.blockWidth)
+//        let N = visibleCandles.count / n_min
+        
+        while candleInd >= 0 {
+            candleInd -= n_min
+        }
+        candleInd += n_min
+        
+        let N = Int((rect.width / (chart.blockWidth)) / CGFloat(n_min))
         
         var stringRects = [CGRect]()
-        for tick in ticks {
+        for i in 0...N {
+            let tick = candleInd + n_min * i
+            
             var x: CGFloat
             if tick < visibleCandles.count {
                 x = visibleCandles[tick].x
@@ -83,6 +96,8 @@ class TimeView: UIView {
             string.draw(in: stringRect)
             verticalGridLines.append(x)
         }
+        
+        
 //        ctx.setLineWidth(2.0)
 //        ctx.strokeLineSegments(between: [CGPoint(x: rect.width, y: 0), CGPoint(x: rect.width, y: rect.height)])
     }
@@ -91,131 +106,243 @@ class TimeView: UIView {
         self.setNeedsDisplay()
     }
     
-    
-    
-//    func processAllCandlesOpenTimes() {
-//        guard let timeframe = chart?.timeframe else { return }
-//        guard let candles: [Candle] = chart?.candles else { return }
-//        
-//        var date: Date = candles.first!.openTime
-//        var i = 0
-//        while blockWidth! * CGFloat(i) < bounds.width {
-//            if i < candles.count {
-//                date = candles[i].openTime
-//            } else {
-//                date = date.nextCandleOpenTime(timeframe: timeframe)
-//            }
-//            let calendar = Calendar(identifier: .gregorian)
-//            let minute = calendar.component(.minute, from: date)
-//            let hour = calendar.component(.hour, from: date)
-//            let day = calendar.component(.day, from: date)
-//            let month = calendar.component(.month, from: date)
-//            let year = calendar.component(.year, from: date)
-//            let weekDay = calendar.component(.weekday, from: date)
-//            let weekOfMonth = calendar.component(.weekOfMonth, from: date)
-//            
-//            
-//            //2 yr
-//            if (year % 2 == 0) && (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1) {
-//                _2y.append(i)
-//            }
-//            //1 yr
-//            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1) {
-//                _1y.append(i)
-//            }
-//            //6M
-//            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1 || month == 7) {
-//                _6M.append(i)
-//            }
-//            //4M
-//            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1 || month == 5 || month == 9) {
-//                _4M.append(i)
-//            }
-//            //3M
-//            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1 || month == 4 || month == 7 || month == 10) {
-//                _3M.append(i)
-//            }
-//            //2M
-//            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1 || month == 3 || month == 5 || month == 7 || month == 9 || month == 11) {
-//                _2M.append(i)
-//            }
-//            //1M
-//            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) {
-//                _1M.append(i)
-//            }
-//            //2w
-//            if (minute % 60 == 0) && (hour % 24 == 0) && (weekDay == 2) && (weekOfMonth % 2 == 1) {
-//                _2w.append(i)
-//            }
-//            //1w
-//            if (minute % 60 == 0) && (hour % 24 == 0) && (weekDay == 2) {
-//                _1w.append(i)
-//            }
-//            //10d
-//            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1 || day == 11 || day == 21) {
-//                _10d.append(i)
-//            }
-//            //5d
-//            if (minute % 60 == 0) && (hour % 24 == 0) && (day % 5 == 1) {
-//                _5d.append(i)
-//            }
-//            //1d
-//            if (minute % 60 == 0) && (hour % 24 == 0) {
-//                _1d.append(i)
-//            }
-//            //12h
-//            if (minute % 60 == 0) && (hour % 12 == 0)  {
-//                _12h.append(i)
-//            }
-//            //6h
-//            if (minute % 60 == 0) && (hour % 6 == 0)  {
-//                _6h.append(i)
-//            }
-//            //4h
-//            if (minute % 60 == 0) && (hour % 4 == 0)  {
-//                _4h.append(i)
-//            }
-//            //3h
-//            if (minute % 60 == 0) && (hour % 3 == 0)  {
-//                _3h.append(i)
-//            }
-//            //2h
-//            if (minute % 60 == 0) && (hour % 2 == 0)  {
-//                _2h.append(i)
-//            }
-//            //1h
-//            if (minute % 60 == 0)  {
-//                _1h.append(i)
-//            }
-//            //30m
-//            if (minute % 30 == 0)  {
-//                _30m.append(i)
-//            }
-//            //15m
-//            if (minute % 15 == 0)  {
-//                _15m.append(i)
-//            }
-//            //10m
-//            if (minute % 10 == 0)  {
-//                _10m.append(i)
-//            }
-//            //5m
-//            if (minute % 5 == 0)  {
-//                _5m.append(i)
-//            }
-//            //3m
-//            if (minute % 3 == 0)  {
-//                _3m.append(i)
-//            }
-//            //2m
-//            if (minute % 2 == 0)  {
-//                _2m.append(i)
-//            }
-//            //1m
-//            _1m.append(i)
-//            i += 1
-//        }
-//    }
+    func mostImportantCandleDateIndex() -> Int? {
+        guard let timeframe = chart?.timeframe else { return nil }
+        guard let visibleCandles: [Candle] = self.visibleCandles else { return nil }
+        
+        var _2y = [Int]()
+        var _1y = [Int]()
+        var _6M = [Int]()
+        var _4M = [Int]()
+        var _3M = [Int]()
+        var _2M = [Int]()
+        var _1M = [Int]()
+        var _2w = [Int]()
+        var _1w = [Int]()
+        var _10d = [Int]()
+        var _5d = [Int]()
+        var _1d = [Int]()
+        var _12h = [Int]()
+        var _6h = [Int]()
+        var _4h = [Int]()
+        var _3h = [Int]()
+        var _2h = [Int]()
+        var _1h = [Int]()
+        var _30m = [Int]()
+        var _15m = [Int]()
+        var _10m = [Int]()
+        var _5m = [Int]()
+        var _3m = [Int]()
+        var _2m = [Int]()
+        var _1m = [Int]()
+        
+        
+        var date: Date = visibleCandles.first!.openTime.localToUTC()
+        var i = 0
+        while blockWidth! * CGFloat(i) < bounds.width {
+            if i < visibleCandles.count {
+                date = visibleCandles[i].openTime.localToUTC()
+            } else {
+                date = date.dateBy(adding: timeframe)
+            }
+            let calendar = Calendar.current
+            let minute = calendar.component(.minute, from: date)
+            let hour = calendar.component(.hour, from: date)
+            let day = calendar.component(.day, from: date)
+            let month = calendar.component(.month, from: date)
+            let year = calendar.component(.year, from: date)
+            let weekDay = calendar.component(.weekday, from: date)
+            let weekOfMonth = calendar.component(.weekOfMonth, from: date)
+            
+            
+            //2 yr
+            if (year % 2 == 0) && (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1) {
+                _2y.append(i)
+            }
+            //1 yr
+            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1) {
+                _1y.append(i)
+            }
+            //6M
+            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1 || month == 7) {
+                _6M.append(i)
+            }
+            //4M
+            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1 || month == 5 || month == 9) {
+                _4M.append(i)
+            }
+            //3M
+            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1 || month == 4 || month == 7 || month == 10) {
+                _3M.append(i)
+            }
+            //2M
+            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1 || month == 3 || month == 5 || month == 7 || month == 9 || month == 11) {
+                _2M.append(i)
+            }
+            //1M
+            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) {
+                _1M.append(i)
+            }
+            //2w
+            if (minute % 60 == 0) && (hour % 24 == 0) && (weekDay == 2) && (weekOfMonth % 2 == 1) {
+                _2w.append(i)
+            }
+            //1w
+            if (minute % 60 == 0) && (hour % 24 == 0) && (weekDay == 2) {
+                _1w.append(i)
+            }
+            //10d
+            if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1 || day == 11 || day == 21) {
+                _10d.append(i)
+            }
+            //5d
+            if (minute % 60 == 0) && (hour % 24 == 0) && (day % 5 == 1) {
+                _5d.append(i)
+            }
+            //1d
+            if (minute % 60 == 0) && (hour % 24 == 0) {
+                _1d.append(i)
+            }
+            //12h
+            if (minute % 60 == 0) && (hour % 12 == 0)  {
+                _12h.append(i)
+            }
+            //6h
+            if (minute % 60 == 0) && (hour % 6 == 0)  {
+                _6h.append(i)
+            }
+            //4h
+            if (minute % 60 == 0) && (hour % 4 == 0)  {
+                _4h.append(i)
+            }
+            //3h
+            if (minute % 60 == 0) && (hour % 3 == 0)  {
+                _3h.append(i)
+            }
+            //2h
+            if (minute % 60 == 0) && (hour % 2 == 0)  {
+                _2h.append(i)
+            }
+            //1h
+            if (minute % 60 == 0)  {
+                _1h.append(i)
+            }
+            //30m
+            if (minute % 30 == 0)  {
+                _30m.append(i)
+            }
+            //15m
+            if (minute % 15 == 0)  {
+                _15m.append(i)
+            }
+            //10m
+            if (minute % 10 == 0)  {
+                _10m.append(i)
+            }
+            //5m
+            if (minute % 5 == 0)  {
+                _5m.append(i)
+            }
+            //3m
+            if (minute % 3 == 0)  {
+                _3m.append(i)
+            }
+            //2m
+            if (minute % 2 == 0)  {
+                _2m.append(i)
+            }
+            //1m
+            _1m.append(i)
+            i += 1
+        }
+
+        if !_2y.isEmpty {
+            return _2y[0]
+        }
+        
+        if !_1y.isEmpty {
+            return _1y[0]
+        }
+        
+        if !_6M.isEmpty {
+            return _6M[0]
+        }
+        
+        if !_4M.isEmpty {
+            return _4M[0]
+        }
+        
+        if !_3M.isEmpty {
+            return _3M[0]
+        }
+        
+        if !_2M.isEmpty {
+            return _2M[0]
+        }
+        
+        if !_1M.isEmpty {
+            return _1M[0]
+        }
+        
+        if !_10d.isEmpty {
+            return _10d[0]
+        }
+        
+        if !_5d.isEmpty {
+            return _5d[0]
+        }
+        
+        if !_1d.isEmpty {
+            return _1d[0]
+        }
+        
+        if !_12h.isEmpty {
+            return _12h[0]
+        }
+        
+        if !_6h.isEmpty {
+            return _6h[0]
+        }
+        
+        if !_4h.isEmpty {
+            return _4h[0]
+        }
+        
+        if !_3h.isEmpty {
+            return _3h[0]
+        }
+        
+        if !_2h.isEmpty {
+            return _2h[0]
+        }
+        
+        if !_1h.isEmpty {
+            return _1h[0]
+        }
+        
+        if !_30m.isEmpty {
+            return _30m[0]
+        }
+        
+        if !_15m.isEmpty {
+            return _15m[0]
+        }
+        
+        if !_5m.isEmpty {
+            return _5m[0]
+        }
+        
+        if !_2m.isEmpty {
+            return _2m[0]
+        }
+        
+        if !_1m.isEmpty {
+            return _1m[0]
+        }
+        
+        return nil
+        
+    }
     
     
     func findTicks() {
@@ -468,7 +595,9 @@ class TimeView: UIView {
         }
         
         
-        let timeLocal = time.utcToLocal()
+//        let timeLocal = time.utcToLocal()
+        let timeLocal = time
+        
         var text = ""
         let minute = Calendar.current.component(.minute, from: time)
         let hour = Calendar.current.component(.hour, from: time)
@@ -489,9 +618,9 @@ class TimeView: UIView {
         } else if (minute % 60 == 0) && (hour % 24 == 0) {
             text = String(dayL)
         } else if (minute % 60 == 0) {
-            text = "\(hourL):\(minuteL)"
+            text = String(format: "%d:%02d", hourL, minuteL)
         } else {
-            text = "\(hourL):\(minuteL)"
+            text = String(format: "%d:%0d", hourL, minuteL)
         }
         return text
     }

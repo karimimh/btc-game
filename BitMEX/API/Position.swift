@@ -112,101 +112,100 @@ class Position {
     var lastValue: Double?
     
     //MARK: Initialization
-    private init(account: Int, symbol: String, currency: String, underlying: String?, quoteCurrency: String?, commission: Double?, initMarginReq: Double?, maintMarginReq: Double?, riskLimit: Double?, leverage: Double?, crossMargin: Bool?, deleveragePercentile: Double?, rebalancedPnl: Double?, prevRealisedPnl: Double?, prevUnrealisedPnl: Double?, prevClosePrice: Double?, openingTimestamp: String?, openingQty: Double?, openingCost: Double?, openingComm: Double?, openOrderBuyQty: Double?, openOrderBuyCost: Double?, openOrderBuyPremium: Double?, openOrderSellQty: Double?, openOrderSellCost: Double?, openOrderSellPremium: Double?, execBuyQty: Double?, execBuyCost: Double?, execSellQty: Double?, execSellCost: Double?, execQty: Double?, execCost: Double?, execComm: Double?, currentTimestamp: String?, currentQty: Double?, currentCost: Double?, currentComm: Double?, realisedCost: Double?, unrealisedCost: Double?, grossOpenCost: Double?, grossOpenPremium: Double?, grossExecCost: Double?, isOpen: Bool?, markPrice: Double?, markValue: Double?, riskValue: Double?, homeNotional: Double?, foreignNotional: Double?, posState: String?, posCost: Double?, posCost2: Double?, posCross: Double?, posInit: Double?, posComm: Double?, posLoss: Double?, posMargin: Double?, posMaint: Double?, posAllowance: Double?, taxableMargin: Double?, initMargin: Double?, maintMargin: Double?, sessionMargin: Double?, targetExcessMargin: Double?, varMargin: Double?, realisedGrossPnl: Double?, realisedTax: Double?, realisedPnl: Double?, unrealisedGrossPnl: Double?, longBankrupt: Double?, shortBankrupt: Double?, taxBase: Double?, indicativeTaxRate: Double?, indicativeTax: Double?, unrealisedTax: Double?, unrealisedPnl: Double?, unrealisedPnlPcnt: Double?, unrealisedRoePcnt: Double?, simpleQty: Double?, simpleCost: Double?, simpleValue: Double?, simplePnl: Double?, simplePnlPcnt: Double?, avgCostPrice: Double?, avgEntryPrice: Double?, breakEvenPrice: Double?, marginCallPrice: Double?, liquidationPrice: Double?, bankruptPrice: Double?, timestamp: String?, lastPrice: Double?, lastValue: Double?) {
-        self.account = account
-        self.symbol = symbol
-        self.currency = currency
-        self.underlying = underlying
-        self.quoteCurrency = quoteCurrency
-        self.commission = commission
-        self.initMarginReq = initMarginReq
-        self.maintMarginReq = maintMarginReq
-        self.riskLimit = riskLimit
-        self.leverage = leverage
-        self.crossMargin = crossMargin
-        self.deleveragePercentile = deleveragePercentile
-        self.rebalancedPnl = rebalancedPnl
-        self.prevRealisedPnl = prevRealisedPnl
-        self.prevUnrealisedPnl = prevUnrealisedPnl
-        self.prevClosePrice = prevClosePrice
-        self.openingTimestamp = openingTimestamp
-        self.openingQty = openingQty
-        self.openingCost = openingCost
-        self.openingComm = openingComm
-        self.openOrderBuyQty = openOrderBuyQty
-        self.openOrderBuyCost = openOrderBuyCost
-        self.openOrderBuyPremium = openOrderBuyPremium
-        self.openOrderSellQty = openOrderSellQty
-        self.openOrderSellCost = openOrderSellCost
-        self.openOrderSellPremium = openOrderSellPremium
-        self.execBuyQty = execBuyQty
-        self.execBuyCost = execBuyCost
-        self.execSellQty = execSellQty
-        self.execSellCost = execSellCost
-        self.execQty = execQty
-        self.execCost = execCost
-        self.execComm = execComm
-        self.currentTimestamp = currentTimestamp
-        self.currentQty = currentQty
-        self.currentCost = currentCost
-        self.currentComm = currentComm
-        self.realisedCost = realisedCost
-        self.unrealisedCost = unrealisedCost
-        self.grossOpenCost = grossOpenCost
-        self.grossOpenPremium = grossOpenPremium
-        self.grossExecCost = grossExecCost
-        self.isOpen = isOpen
-        self.markPrice = markPrice
-        self.markValue = markValue
-        self.riskValue = riskValue
-        self.homeNotional = homeNotional
-        self.foreignNotional = foreignNotional
-        self.posState = posState
-        self.posCost = posCost
-        self.posCost2 = posCost2
-        self.posCross = posCross
-        self.posInit = posInit
-        self.posComm = posComm
-        self.posLoss = posLoss
-        self.posMargin = posMargin
-        self.posMaint = posMaint
-        self.posAllowance = posAllowance
-        self.taxableMargin = taxableMargin
-        self.initMargin = initMargin
-        self.maintMargin = maintMargin
-        self.sessionMargin = sessionMargin
-        self.targetExcessMargin = targetExcessMargin
-        self.varMargin = varMargin
-        self.realisedGrossPnl = realisedGrossPnl
-        self.realisedTax = realisedTax
-        self.realisedPnl = realisedPnl
-        self.unrealisedGrossPnl = unrealisedGrossPnl
-        self.longBankrupt = longBankrupt
-        self.shortBankrupt = shortBankrupt
-        self.taxBase = taxBase
-        self.indicativeTaxRate = indicativeTaxRate
-        self.indicativeTax = indicativeTax
-        self.unrealisedTax = unrealisedTax
-        self.unrealisedPnl = unrealisedPnl
-        self.unrealisedPnlPcnt = unrealisedPnlPcnt
-        self.unrealisedRoePcnt = unrealisedRoePcnt
-        self.simpleQty = simpleQty
-        self.simpleCost = simpleCost
-        self.simpleValue = simpleValue
-        self.simplePnl = simplePnl
-        self.simplePnlPcnt = simplePnlPcnt
-        self.avgCostPrice = avgCostPrice
-        self.avgEntryPrice = avgEntryPrice
-        self.breakEvenPrice = breakEvenPrice
-        self.marginCallPrice = marginCallPrice
-        self.liquidationPrice = liquidationPrice
-        self.bankruptPrice = bankruptPrice
-        self.timestamp = timestamp
-        self.lastPrice = lastPrice
-        self.lastValue = lastValue
-    }
-
     
+    init(json: [String: Any]) {
+        account = json["account"] as! Int
+        symbol = json["symbol"] as! String
+        currency = json["currency"] as! String
+        underlying = json["underlying"] as? String
+        quoteCurrency = json["quoteCurrency"] as? String
+        commission = json["commission"] as? Double
+        initMarginReq = json["initMarginReq"] as? Double
+        maintMarginReq = json["maintMarginReq"] as? Double
+        riskLimit = json["riskLimit"] as? Double
+        leverage = json["leverage"] as? Double
+        crossMargin = json["crossMargin"] as? Bool
+        deleveragePercentile = json["deleveragePercentile"] as? Double
+        rebalancedPnl = json["rebalancedPnl"] as? Double
+        prevRealisedPnl = json["prevRealisedPnl"] as? Double
+        prevUnrealisedPnl = json["prevUnrealisedPnl"] as? Double
+        prevClosePrice = json["prevClosePrice"] as? Double
+        openingTimestamp = json["openingTimestamp"] as? String
+        openingQty = json["openingQty"] as? Double
+        openingCost = json["openingCost"] as? Double
+        openingComm = json["openingComm"] as? Double
+        openOrderBuyQty = json["openOrderBuyQty"] as? Double
+        openOrderBuyCost = json["openOrderBuyCost"] as? Double
+        openOrderBuyPremium = json["openOrderBuyPremium"] as? Double
+        openOrderSellQty = json["openOrderSellQty"] as? Double
+        openOrderSellCost = json["openOrderSellCost"] as? Double
+        openOrderSellPremium = json["openOrderSellPremium"] as? Double
+        execBuyQty = json["execBuyQty"] as? Double
+        execBuyCost = json["execBuyCost"] as? Double
+        execSellQty = json["execSellQty"] as? Double
+        execSellCost = json["execSellCost"] as? Double
+        execQty = json["execQty"] as? Double
+        execCost = json["execCost"] as? Double
+        execComm = json["execComm"] as? Double
+        currentTimestamp = json["currentTimestamp"] as? String
+        currentQty = json["currentQty"] as? Double
+        currentCost = json["currentCost"] as? Double
+        currentComm = json["currentComm"] as? Double
+        realisedCost = json["realisedCost"] as? Double
+        unrealisedCost = json["unrealisedCost"] as? Double
+        grossOpenCost = json["grossOpenCost"] as? Double
+        grossOpenPremium = json["grossOpenPremium"] as? Double
+        grossExecCost = json["grossExecCost"] as? Double
+        isOpen = json["isOpen"] as? Bool
+        markPrice = json["markPrice"] as? Double
+        markValue = json["markValue"] as? Double
+        riskValue = json["riskValue"] as? Double
+        homeNotional = json["homeNotional"] as? Double
+        foreignNotional = json["foreignNotional"] as? Double
+        posState = json["posState"] as? String
+        posCost = json["posCost"] as? Double
+        posCost2 = json["posCost2"] as? Double
+        posCross = json["posCross"] as? Double
+        posInit = json["posInit"] as? Double
+        posComm = json["posComm"] as? Double
+        posLoss = json["posLoss"] as? Double
+        posMargin = json["posMargin"] as? Double
+        posMaint = json["posMaint"] as? Double
+        posAllowance = json["posAllowance"] as? Double
+        taxableMargin = json["taxableMargin"] as? Double
+        initMargin = json["initMargin"] as? Double
+        maintMargin = json["maintMargin"] as? Double
+        sessionMargin = json["sessionMargin"] as? Double
+        targetExcessMargin = json["targetExcessMargin"] as? Double
+        varMargin = json["varMargin"] as? Double
+        realisedGrossPnl = json["realisedGrossPnl"] as? Double
+        realisedTax = json["realisedTax"] as? Double
+        realisedPnl = json["realisedPnl"] as? Double
+        unrealisedGrossPnl = json["unrealisedGrossPnl"] as? Double
+        longBankrupt = json["longBankrupt"] as? Double
+        shortBankrupt = json["shortBankrupt"] as? Double
+        taxBase = json["taxBase"] as? Double
+        indicativeTaxRate = json["indicativeTaxRate"] as? Double
+        indicativeTax = json["indicativeTax"] as? Double
+        unrealisedTax = json["unrealisedTax"] as? Double
+        unrealisedPnl = json["unrealisedPnl"] as? Double
+        unrealisedPnlPcnt = json["unrealisedPnlPcnt"] as? Double
+        unrealisedRoePcnt = json["unrealisedRoePcnt"] as? Double
+        simpleQty = json["simpleQty"] as? Double
+        simpleCost = json["simpleCost"] as? Double
+        simpleValue = json["simpleValue"] as? Double
+        simplePnl = json["simplePnl"] as? Double
+        simplePnlPcnt = json["simplePnlPcnt"] as? Double
+        avgCostPrice = json["avgCostPrice"] as? Double
+        avgEntryPrice = json["avgEntryPrice"] as? Double
+        breakEvenPrice = json["breakEvenPrice"] as? Double
+        marginCallPrice = json["marginCallPrice"] as? Double
+        liquidationPrice = json["liquidationPrice"] as? Double
+        bankruptPrice = json["bankruptPrice"] as? Double
+        timestamp = json["timestamp"] as? String
+        lastPrice = json["lastPrice"] as? Double
+        lastValue = json["lastValue"] as? Double
+    }
     
     //MARK: Types
     struct Columns {
@@ -367,98 +366,7 @@ class Position {
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
                     var result = [Position]()
                     for item in json {
-                        let account: Int = item["account"] as! Int
-                        let symbol: String = item["symbol"] as! String
-                        let currency: String = item["currency"] as! String
-                        let underlying: String? = item["underlying"] as? String
-                        let quoteCurrency: String? = item["quoteCurrency"] as? String
-                        let commission: Double? = item["commission"] as? Double
-                        let initMarginReq: Double? = item["initMarginReq"] as? Double
-                        let maintMarginReq: Double? = item["maintMarginReq"] as? Double
-                        let riskLimit: Double? = item["riskLimit"] as? Double
-                        let leverage: Double? = item["leverage"] as? Double
-                        let crossMargin: Bool? = item["crossMargin"] as? Bool
-                        let deleveragePercentile: Double? = item["deleveragePercentile"] as? Double
-                        let rebalancedPnl: Double? = item["rebalancedPnl"] as? Double
-                        let prevRealisedPnl: Double? = item["prevRealisedPnl"] as? Double
-                        let prevUnrealisedPnl: Double? = item["prevUnrealisedPnl"] as? Double
-                        let prevClosePrice: Double? = item["prevClosePrice"] as? Double
-                        let openingTimestamp: String? = item["openingTimestamp"] as? String
-                        let openingQty: Double? = item["openingQty"] as? Double
-                        let openingCost: Double? = item["openingCost"] as? Double
-                        let openingComm: Double? = item["openingComm"] as? Double
-                        let openOrderBuyQty: Double? = item["openOrderBuyQty"] as? Double
-                        let openOrderBuyCost: Double? = item["openOrderBuyCost"] as? Double
-                        let openOrderBuyPremium: Double? = item["openOrderBuyPremium"] as? Double
-                        let openOrderSellQty: Double? = item["openOrderSellQty"] as? Double
-                        let openOrderSellCost: Double? = item["openOrderSellCost"] as? Double
-                        let openOrderSellPremium: Double? = item["openOrderSellPremium"] as? Double
-                        let execBuyQty: Double? = item["execBuyQty"] as? Double
-                        let execBuyCost: Double? = item["execBuyCost"] as? Double
-                        let execSellQty: Double? = item["execSellQty"] as? Double
-                        let execSellCost: Double? = item["execSellCost"] as? Double
-                        let execQty: Double? = item["execQty"] as? Double
-                        let execCost: Double? = item["execCost"] as? Double
-                        let execComm: Double? = item["execComm"] as? Double
-                        let currentTimestamp: String? = item["currentTimestamp"] as? String
-                        let currentQty: Double? = item["currentQty"] as? Double
-                        let currentCost: Double? = item["currentCost"] as? Double
-                        let currentComm: Double? = item["currentComm"] as? Double
-                        let realisedCost: Double? = item["realisedCost"] as? Double
-                        let unrealisedCost: Double? = item["unrealisedCost"] as? Double
-                        let grossOpenCost: Double? = item["grossOpenCost"] as? Double
-                        let grossOpenPremium: Double? = item["grossOpenPremium"] as? Double
-                        let grossExecCost: Double? = item["grossExecCost"] as? Double
-                        let isOpen: Bool? = item["isOpen"] as? Bool
-                        let markPrice: Double? = item["markPrice"] as? Double
-                        let markValue: Double? = item["markValue"] as? Double
-                        let riskValue: Double? = item["riskValue"] as? Double
-                        let homeNotional: Double? = item["homeNotional"] as? Double
-                        let foreignNotional: Double? = item["foreignNotional"] as? Double
-                        let posState: String? = item["posState"] as? String
-                        let posCost: Double? = item["posCost"] as? Double
-                        let posCost2: Double? = item["posCost2"] as? Double
-                        let posCross: Double? = item["posCross"] as? Double
-                        let posInit: Double? = item["posInit"] as? Double
-                        let posComm: Double? = item["posComm"] as? Double
-                        let posLoss: Double? = item["posLoss"] as? Double
-                        let posMargin: Double? = item["posMargin"] as? Double
-                        let posMaint: Double? = item["posMaint"] as? Double
-                        let posAllowance: Double? = item["posAllowance"] as? Double
-                        let taxableMargin: Double? = item["taxableMargin"] as? Double
-                        let initMargin: Double? = item["initMargin"] as? Double
-                        let maintMargin: Double? = item["maintMargin"] as? Double
-                        let sessionMargin: Double? = item["sessionMargin"] as? Double
-                        let targetExcessMargin: Double? = item["targetExcessMargin"] as? Double
-                        let varMargin: Double? = item["varMargin"] as? Double
-                        let realisedGrossPnl: Double? = item["realisedGrossPnl"] as? Double
-                        let realisedTax: Double? = item["realisedTax"] as? Double
-                        let realisedPnl: Double? = item["realisedPnl"] as? Double
-                        let unrealisedGrossPnl: Double? = item["unrealisedGrossPnl"] as? Double
-                        let longBankrupt: Double? = item["longBankrupt"] as? Double
-                        let shortBankrupt: Double? = item["shortBankrupt"] as? Double
-                        let taxBase: Double? = item["taxBase"] as? Double
-                        let indicativeTaxRate: Double? = item["indicativeTaxRate"] as? Double
-                        let indicativeTax: Double? = item["indicativeTax"] as? Double
-                        let unrealisedTax: Double? = item["unrealisedTax"] as? Double
-                        let unrealisedPnl: Double? = item["unrealisedPnl"] as? Double
-                        let unrealisedPnlPcnt: Double? = item["unrealisedPnlPcnt"] as? Double
-                        let unrealisedRoePcnt: Double? = item["unrealisedRoePcnt"] as? Double
-                        let simpleQty: Double? = item["simpleQty"] as? Double
-                        let simpleCost: Double? = item["simpleCost"] as? Double
-                        let simpleValue: Double? = item["simpleValue"] as? Double
-                        let simplePnl: Double? = item["simplePnl"] as? Double
-                        let simplePnlPcnt: Double? = item["simplePnlPcnt"] as? Double
-                        let avgCostPrice: Double? = item["avgCostPrice"] as? Double
-                        let avgEntryPrice: Double? = item["avgEntryPrice"] as? Double
-                        let breakEvenPrice: Double? = item["breakEvenPrice"] as? Double
-                        let marginCallPrice: Double? = item["marginCallPrice"] as? Double
-                        let liquidationPrice: Double? = item["liquidationPrice"] as? Double
-                        let bankruptPrice: Double? = item["bankruptPrice"] as? Double
-                        let timestamp: String? = item["timestamp"] as? String
-                        let lastPrice: Double? = item["lastPrice"] as? Double
-                        let lastValue: Double? = item["lastValue"] as? Double
-                        let position = Position(account: account, symbol: symbol, currency: currency, underlying: underlying, quoteCurrency: quoteCurrency, commission: commission, initMarginReq: initMarginReq, maintMarginReq: maintMarginReq, riskLimit: riskLimit, leverage: leverage, crossMargin: crossMargin, deleveragePercentile: deleveragePercentile, rebalancedPnl: rebalancedPnl, prevRealisedPnl: prevRealisedPnl, prevUnrealisedPnl: prevUnrealisedPnl, prevClosePrice: prevClosePrice, openingTimestamp: openingTimestamp, openingQty: openingQty, openingCost: openingCost, openingComm: openingComm, openOrderBuyQty: openOrderBuyQty, openOrderBuyCost: openOrderBuyCost, openOrderBuyPremium: openOrderBuyPremium, openOrderSellQty: openOrderSellQty, openOrderSellCost: openOrderSellCost, openOrderSellPremium: openOrderSellPremium, execBuyQty: execBuyQty, execBuyCost: execBuyCost, execSellQty: execSellQty, execSellCost: execSellCost, execQty: execQty, execCost: execCost, execComm: execComm, currentTimestamp: currentTimestamp, currentQty: currentQty, currentCost: currentCost, currentComm: currentComm, realisedCost: realisedCost, unrealisedCost: unrealisedCost, grossOpenCost: grossOpenCost, grossOpenPremium: grossOpenPremium, grossExecCost: grossExecCost, isOpen: isOpen, markPrice: markPrice, markValue: markValue, riskValue: riskValue, homeNotional: homeNotional, foreignNotional: foreignNotional, posState: posState, posCost: posCost, posCost2: posCost2, posCross: posCross, posInit: posInit, posComm: posComm, posLoss: posLoss, posMargin: posMargin, posMaint: posMaint, posAllowance: posAllowance, taxableMargin: taxableMargin, initMargin: initMargin, maintMargin: maintMargin, sessionMargin: sessionMargin, targetExcessMargin: targetExcessMargin, varMargin: varMargin, realisedGrossPnl: realisedGrossPnl, realisedTax: realisedTax, realisedPnl: realisedPnl, unrealisedGrossPnl: unrealisedGrossPnl, longBankrupt: longBankrupt, shortBankrupt: shortBankrupt, taxBase: taxBase, indicativeTaxRate: indicativeTaxRate, indicativeTax: indicativeTax, unrealisedTax: unrealisedTax, unrealisedPnl: unrealisedPnl, unrealisedPnlPcnt: unrealisedPnlPcnt, unrealisedRoePcnt: unrealisedRoePcnt, simpleQty: simpleQty, simpleCost: simpleCost, simpleValue: simpleValue, simplePnl: simplePnl, simplePnlPcnt: simplePnlPcnt, avgCostPrice: avgCostPrice, avgEntryPrice: avgEntryPrice, breakEvenPrice: breakEvenPrice, marginCallPrice: marginCallPrice, liquidationPrice: liquidationPrice, bankruptPrice: bankruptPrice, timestamp: timestamp, lastPrice: lastPrice, lastValue: lastValue)
+                        let position = Position(json: item)
                         result.append(position)
                     }
                     completion(result, response, nil)
@@ -492,17 +400,19 @@ class Position {
         
         var request = URLRequest(url: urlComponents.url!)
         request.httpMethod = "POST"
+        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
         } catch let err {
             completion(nil, nil, err)
             return
+        }
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -524,98 +434,7 @@ class Position {
             }
             do {
                 if let item = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    let account: Int = item["account"] as! Int
-                    let symbol: String = item["symbol"] as! String
-                    let currency: String = item["currency"] as! String
-                    let underlying: String? = item["underlying"] as? String
-                    let quoteCurrency: String? = item["quoteCurrency"] as? String
-                    let commission: Double? = item["commission"] as? Double
-                    let initMarginReq: Double? = item["initMarginReq"] as? Double
-                    let maintMarginReq: Double? = item["maintMarginReq"] as? Double
-                    let riskLimit: Double? = item["riskLimit"] as? Double
-                    let leverage: Double? = item["leverage"] as? Double
-                    let crossMargin: Bool? = item["crossMargin"] as? Bool
-                    let deleveragePercentile: Double? = item["deleveragePercentile"] as? Double
-                    let rebalancedPnl: Double? = item["rebalancedPnl"] as? Double
-                    let prevRealisedPnl: Double? = item["prevRealisedPnl"] as? Double
-                    let prevUnrealisedPnl: Double? = item["prevUnrealisedPnl"] as? Double
-                    let prevClosePrice: Double? = item["prevClosePrice"] as? Double
-                    let openingTimestamp: String? = item["openingTimestamp"] as? String
-                    let openingQty: Double? = item["openingQty"] as? Double
-                    let openingCost: Double? = item["openingCost"] as? Double
-                    let openingComm: Double? = item["openingComm"] as? Double
-                    let openOrderBuyQty: Double? = item["openOrderBuyQty"] as? Double
-                    let openOrderBuyCost: Double? = item["openOrderBuyCost"] as? Double
-                    let openOrderBuyPremium: Double? = item["openOrderBuyPremium"] as? Double
-                    let openOrderSellQty: Double? = item["openOrderSellQty"] as? Double
-                    let openOrderSellCost: Double? = item["openOrderSellCost"] as? Double
-                    let openOrderSellPremium: Double? = item["openOrderSellPremium"] as? Double
-                    let execBuyQty: Double? = item["execBuyQty"] as? Double
-                    let execBuyCost: Double? = item["execBuyCost"] as? Double
-                    let execSellQty: Double? = item["execSellQty"] as? Double
-                    let execSellCost: Double? = item["execSellCost"] as? Double
-                    let execQty: Double? = item["execQty"] as? Double
-                    let execCost: Double? = item["execCost"] as? Double
-                    let execComm: Double? = item["execComm"] as? Double
-                    let currentTimestamp: String? = item["currentTimestamp"] as? String
-                    let currentQty: Double? = item["currentQty"] as? Double
-                    let currentCost: Double? = item["currentCost"] as? Double
-                    let currentComm: Double? = item["currentComm"] as? Double
-                    let realisedCost: Double? = item["realisedCost"] as? Double
-                    let unrealisedCost: Double? = item["unrealisedCost"] as? Double
-                    let grossOpenCost: Double? = item["grossOpenCost"] as? Double
-                    let grossOpenPremium: Double? = item["grossOpenPremium"] as? Double
-                    let grossExecCost: Double? = item["grossExecCost"] as? Double
-                    let isOpen: Bool? = item["isOpen"] as? Bool
-                    let markPrice: Double? = item["markPrice"] as? Double
-                    let markValue: Double? = item["markValue"] as? Double
-                    let riskValue: Double? = item["riskValue"] as? Double
-                    let homeNotional: Double? = item["homeNotional"] as? Double
-                    let foreignNotional: Double? = item["foreignNotional"] as? Double
-                    let posState: String? = item["posState"] as? String
-                    let posCost: Double? = item["posCost"] as? Double
-                    let posCost2: Double? = item["posCost2"] as? Double
-                    let posCross: Double? = item["posCross"] as? Double
-                    let posInit: Double? = item["posInit"] as? Double
-                    let posComm: Double? = item["posComm"] as? Double
-                    let posLoss: Double? = item["posLoss"] as? Double
-                    let posMargin: Double? = item["posMargin"] as? Double
-                    let posMaint: Double? = item["posMaint"] as? Double
-                    let posAllowance: Double? = item["posAllowance"] as? Double
-                    let taxableMargin: Double? = item["taxableMargin"] as? Double
-                    let initMargin: Double? = item["initMargin"] as? Double
-                    let maintMargin: Double? = item["maintMargin"] as? Double
-                    let sessionMargin: Double? = item["sessionMargin"] as? Double
-                    let targetExcessMargin: Double? = item["targetExcessMargin"] as? Double
-                    let varMargin: Double? = item["varMargin"] as? Double
-                    let realisedGrossPnl: Double? = item["realisedGrossPnl"] as? Double
-                    let realisedTax: Double? = item["realisedTax"] as? Double
-                    let realisedPnl: Double? = item["realisedPnl"] as? Double
-                    let unrealisedGrossPnl: Double? = item["unrealisedGrossPnl"] as? Double
-                    let longBankrupt: Double? = item["longBankrupt"] as? Double
-                    let shortBankrupt: Double? = item["shortBankrupt"] as? Double
-                    let taxBase: Double? = item["taxBase"] as? Double
-                    let indicativeTaxRate: Double? = item["indicativeTaxRate"] as? Double
-                    let indicativeTax: Double? = item["indicativeTax"] as? Double
-                    let unrealisedTax: Double? = item["unrealisedTax"] as? Double
-                    let unrealisedPnl: Double? = item["unrealisedPnl"] as? Double
-                    let unrealisedPnlPcnt: Double? = item["unrealisedPnlPcnt"] as? Double
-                    let unrealisedRoePcnt: Double? = item["unrealisedRoePcnt"] as? Double
-                    let simpleQty: Double? = item["simpleQty"] as? Double
-                    let simpleCost: Double? = item["simpleCost"] as? Double
-                    let simpleValue: Double? = item["simpleValue"] as? Double
-                    let simplePnl: Double? = item["simplePnl"] as? Double
-                    let simplePnlPcnt: Double? = item["simplePnlPcnt"] as? Double
-                    let avgCostPrice: Double? = item["avgCostPrice"] as? Double
-                    let avgEntryPrice: Double? = item["avgEntryPrice"] as? Double
-                    let breakEvenPrice: Double? = item["breakEvenPrice"] as? Double
-                    let marginCallPrice: Double? = item["marginCallPrice"] as? Double
-                    let liquidationPrice: Double? = item["liquidationPrice"] as? Double
-                    let bankruptPrice: Double? = item["bankruptPrice"] as? Double
-                    let timestamp: String? = item["timestamp"] as? String
-                    let lastPrice: Double? = item["lastPrice"] as? Double
-                    let lastValue: Double? = item["lastValue"] as? Double
-                    let position = Position(account: account, symbol: symbol, currency: currency, underlying: underlying, quoteCurrency: quoteCurrency, commission: commission, initMarginReq: initMarginReq, maintMarginReq: maintMarginReq, riskLimit: riskLimit, leverage: leverage, crossMargin: crossMargin, deleveragePercentile: deleveragePercentile, rebalancedPnl: rebalancedPnl, prevRealisedPnl: prevRealisedPnl, prevUnrealisedPnl: prevUnrealisedPnl, prevClosePrice: prevClosePrice, openingTimestamp: openingTimestamp, openingQty: openingQty, openingCost: openingCost, openingComm: openingComm, openOrderBuyQty: openOrderBuyQty, openOrderBuyCost: openOrderBuyCost, openOrderBuyPremium: openOrderBuyPremium, openOrderSellQty: openOrderSellQty, openOrderSellCost: openOrderSellCost, openOrderSellPremium: openOrderSellPremium, execBuyQty: execBuyQty, execBuyCost: execBuyCost, execSellQty: execSellQty, execSellCost: execSellCost, execQty: execQty, execCost: execCost, execComm: execComm, currentTimestamp: currentTimestamp, currentQty: currentQty, currentCost: currentCost, currentComm: currentComm, realisedCost: realisedCost, unrealisedCost: unrealisedCost, grossOpenCost: grossOpenCost, grossOpenPremium: grossOpenPremium, grossExecCost: grossExecCost, isOpen: isOpen, markPrice: markPrice, markValue: markValue, riskValue: riskValue, homeNotional: homeNotional, foreignNotional: foreignNotional, posState: posState, posCost: posCost, posCost2: posCost2, posCross: posCross, posInit: posInit, posComm: posComm, posLoss: posLoss, posMargin: posMargin, posMaint: posMaint, posAllowance: posAllowance, taxableMargin: taxableMargin, initMargin: initMargin, maintMargin: maintMargin, sessionMargin: sessionMargin, targetExcessMargin: targetExcessMargin, varMargin: varMargin, realisedGrossPnl: realisedGrossPnl, realisedTax: realisedTax, realisedPnl: realisedPnl, unrealisedGrossPnl: unrealisedGrossPnl, longBankrupt: longBankrupt, shortBankrupt: shortBankrupt, taxBase: taxBase, indicativeTaxRate: indicativeTaxRate, indicativeTax: indicativeTax, unrealisedTax: unrealisedTax, unrealisedPnl: unrealisedPnl, unrealisedPnlPcnt: unrealisedPnlPcnt, unrealisedRoePcnt: unrealisedRoePcnt, simpleQty: simpleQty, simpleCost: simpleCost, simpleValue: simpleValue, simplePnl: simplePnl, simplePnlPcnt: simplePnlPcnt, avgCostPrice: avgCostPrice, avgEntryPrice: avgEntryPrice, breakEvenPrice: breakEvenPrice, marginCallPrice: marginCallPrice, liquidationPrice: liquidationPrice, bankruptPrice: bankruptPrice, timestamp: timestamp, lastPrice: lastPrice, lastValue: lastValue)
+                    let position = Position(json: item)
                     completion(position, response, nil)
                 } else {
                     completion(nil, response, nil)
@@ -647,17 +466,19 @@ class Position {
         
         var request = URLRequest(url: urlComponents.url!)
         request.httpMethod = "POST"
+        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
         } catch let err {
             completion(nil, nil, err)
             return
+        }
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -679,98 +500,7 @@ class Position {
             }
             do {
                 if let item = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    let account: Int = item["account"] as! Int
-                    let symbol: String = item["symbol"] as! String
-                    let currency: String = item["currency"] as! String
-                    let underlying: String? = item["underlying"] as? String
-                    let quoteCurrency: String? = item["quoteCurrency"] as? String
-                    let commission: Double? = item["commission"] as? Double
-                    let initMarginReq: Double? = item["initMarginReq"] as? Double
-                    let maintMarginReq: Double? = item["maintMarginReq"] as? Double
-                    let riskLimit: Double? = item["riskLimit"] as? Double
-                    let leverage: Double? = item["leverage"] as? Double
-                    let crossMargin: Bool? = item["crossMargin"] as? Bool
-                    let deleveragePercentile: Double? = item["deleveragePercentile"] as? Double
-                    let rebalancedPnl: Double? = item["rebalancedPnl"] as? Double
-                    let prevRealisedPnl: Double? = item["prevRealisedPnl"] as? Double
-                    let prevUnrealisedPnl: Double? = item["prevUnrealisedPnl"] as? Double
-                    let prevClosePrice: Double? = item["prevClosePrice"] as? Double
-                    let openingTimestamp: String? = item["openingTimestamp"] as? String
-                    let openingQty: Double? = item["openingQty"] as? Double
-                    let openingCost: Double? = item["openingCost"] as? Double
-                    let openingComm: Double? = item["openingComm"] as? Double
-                    let openOrderBuyQty: Double? = item["openOrderBuyQty"] as? Double
-                    let openOrderBuyCost: Double? = item["openOrderBuyCost"] as? Double
-                    let openOrderBuyPremium: Double? = item["openOrderBuyPremium"] as? Double
-                    let openOrderSellQty: Double? = item["openOrderSellQty"] as? Double
-                    let openOrderSellCost: Double? = item["openOrderSellCost"] as? Double
-                    let openOrderSellPremium: Double? = item["openOrderSellPremium"] as? Double
-                    let execBuyQty: Double? = item["execBuyQty"] as? Double
-                    let execBuyCost: Double? = item["execBuyCost"] as? Double
-                    let execSellQty: Double? = item["execSellQty"] as? Double
-                    let execSellCost: Double? = item["execSellCost"] as? Double
-                    let execQty: Double? = item["execQty"] as? Double
-                    let execCost: Double? = item["execCost"] as? Double
-                    let execComm: Double? = item["execComm"] as? Double
-                    let currentTimestamp: String? = item["currentTimestamp"] as? String
-                    let currentQty: Double? = item["currentQty"] as? Double
-                    let currentCost: Double? = item["currentCost"] as? Double
-                    let currentComm: Double? = item["currentComm"] as? Double
-                    let realisedCost: Double? = item["realisedCost"] as? Double
-                    let unrealisedCost: Double? = item["unrealisedCost"] as? Double
-                    let grossOpenCost: Double? = item["grossOpenCost"] as? Double
-                    let grossOpenPremium: Double? = item["grossOpenPremium"] as? Double
-                    let grossExecCost: Double? = item["grossExecCost"] as? Double
-                    let isOpen: Bool? = item["isOpen"] as? Bool
-                    let markPrice: Double? = item["markPrice"] as? Double
-                    let markValue: Double? = item["markValue"] as? Double
-                    let riskValue: Double? = item["riskValue"] as? Double
-                    let homeNotional: Double? = item["homeNotional"] as? Double
-                    let foreignNotional: Double? = item["foreignNotional"] as? Double
-                    let posState: String? = item["posState"] as? String
-                    let posCost: Double? = item["posCost"] as? Double
-                    let posCost2: Double? = item["posCost2"] as? Double
-                    let posCross: Double? = item["posCross"] as? Double
-                    let posInit: Double? = item["posInit"] as? Double
-                    let posComm: Double? = item["posComm"] as? Double
-                    let posLoss: Double? = item["posLoss"] as? Double
-                    let posMargin: Double? = item["posMargin"] as? Double
-                    let posMaint: Double? = item["posMaint"] as? Double
-                    let posAllowance: Double? = item["posAllowance"] as? Double
-                    let taxableMargin: Double? = item["taxableMargin"] as? Double
-                    let initMargin: Double? = item["initMargin"] as? Double
-                    let maintMargin: Double? = item["maintMargin"] as? Double
-                    let sessionMargin: Double? = item["sessionMargin"] as? Double
-                    let targetExcessMargin: Double? = item["targetExcessMargin"] as? Double
-                    let varMargin: Double? = item["varMargin"] as? Double
-                    let realisedGrossPnl: Double? = item["realisedGrossPnl"] as? Double
-                    let realisedTax: Double? = item["realisedTax"] as? Double
-                    let realisedPnl: Double? = item["realisedPnl"] as? Double
-                    let unrealisedGrossPnl: Double? = item["unrealisedGrossPnl"] as? Double
-                    let longBankrupt: Double? = item["longBankrupt"] as? Double
-                    let shortBankrupt: Double? = item["shortBankrupt"] as? Double
-                    let taxBase: Double? = item["taxBase"] as? Double
-                    let indicativeTaxRate: Double? = item["indicativeTaxRate"] as? Double
-                    let indicativeTax: Double? = item["indicativeTax"] as? Double
-                    let unrealisedTax: Double? = item["unrealisedTax"] as? Double
-                    let unrealisedPnl: Double? = item["unrealisedPnl"] as? Double
-                    let unrealisedPnlPcnt: Double? = item["unrealisedPnlPcnt"] as? Double
-                    let unrealisedRoePcnt: Double? = item["unrealisedRoePcnt"] as? Double
-                    let simpleQty: Double? = item["simpleQty"] as? Double
-                    let simpleCost: Double? = item["simpleCost"] as? Double
-                    let simpleValue: Double? = item["simpleValue"] as? Double
-                    let simplePnl: Double? = item["simplePnl"] as? Double
-                    let simplePnlPcnt: Double? = item["simplePnlPcnt"] as? Double
-                    let avgCostPrice: Double? = item["avgCostPrice"] as? Double
-                    let avgEntryPrice: Double? = item["avgEntryPrice"] as? Double
-                    let breakEvenPrice: Double? = item["breakEvenPrice"] as? Double
-                    let marginCallPrice: Double? = item["marginCallPrice"] as? Double
-                    let liquidationPrice: Double? = item["liquidationPrice"] as? Double
-                    let bankruptPrice: Double? = item["bankruptPrice"] as? Double
-                    let timestamp: String? = item["timestamp"] as? String
-                    let lastPrice: Double? = item["lastPrice"] as? Double
-                    let lastValue: Double? = item["lastValue"] as? Double
-                    let position = Position(account: account, symbol: symbol, currency: currency, underlying: underlying, quoteCurrency: quoteCurrency, commission: commission, initMarginReq: initMarginReq, maintMarginReq: maintMarginReq, riskLimit: riskLimit, leverage: leverage, crossMargin: crossMargin, deleveragePercentile: deleveragePercentile, rebalancedPnl: rebalancedPnl, prevRealisedPnl: prevRealisedPnl, prevUnrealisedPnl: prevUnrealisedPnl, prevClosePrice: prevClosePrice, openingTimestamp: openingTimestamp, openingQty: openingQty, openingCost: openingCost, openingComm: openingComm, openOrderBuyQty: openOrderBuyQty, openOrderBuyCost: openOrderBuyCost, openOrderBuyPremium: openOrderBuyPremium, openOrderSellQty: openOrderSellQty, openOrderSellCost: openOrderSellCost, openOrderSellPremium: openOrderSellPremium, execBuyQty: execBuyQty, execBuyCost: execBuyCost, execSellQty: execSellQty, execSellCost: execSellCost, execQty: execQty, execCost: execCost, execComm: execComm, currentTimestamp: currentTimestamp, currentQty: currentQty, currentCost: currentCost, currentComm: currentComm, realisedCost: realisedCost, unrealisedCost: unrealisedCost, grossOpenCost: grossOpenCost, grossOpenPremium: grossOpenPremium, grossExecCost: grossExecCost, isOpen: isOpen, markPrice: markPrice, markValue: markValue, riskValue: riskValue, homeNotional: homeNotional, foreignNotional: foreignNotional, posState: posState, posCost: posCost, posCost2: posCost2, posCross: posCross, posInit: posInit, posComm: posComm, posLoss: posLoss, posMargin: posMargin, posMaint: posMaint, posAllowance: posAllowance, taxableMargin: taxableMargin, initMargin: initMargin, maintMargin: maintMargin, sessionMargin: sessionMargin, targetExcessMargin: targetExcessMargin, varMargin: varMargin, realisedGrossPnl: realisedGrossPnl, realisedTax: realisedTax, realisedPnl: realisedPnl, unrealisedGrossPnl: unrealisedGrossPnl, longBankrupt: longBankrupt, shortBankrupt: shortBankrupt, taxBase: taxBase, indicativeTaxRate: indicativeTaxRate, indicativeTax: indicativeTax, unrealisedTax: unrealisedTax, unrealisedPnl: unrealisedPnl, unrealisedPnlPcnt: unrealisedPnlPcnt, unrealisedRoePcnt: unrealisedRoePcnt, simpleQty: simpleQty, simpleCost: simpleCost, simpleValue: simpleValue, simplePnl: simplePnl, simplePnlPcnt: simplePnlPcnt, avgCostPrice: avgCostPrice, avgEntryPrice: avgEntryPrice, breakEvenPrice: breakEvenPrice, marginCallPrice: marginCallPrice, liquidationPrice: liquidationPrice, bankruptPrice: bankruptPrice, timestamp: timestamp, lastPrice: lastPrice, lastValue: lastValue)
+                    let position = Position(json: item)
                     completion(position, response, nil)
                 } else {
                     completion(nil, response, nil)
@@ -805,10 +535,7 @@ class Position {
         var request = URLRequest(url: urlComponents.url!)
         request.httpMethod = "POST"
         
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
+        
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
@@ -816,6 +543,14 @@ class Position {
             completion(nil, nil, err)
             return
         }
+        
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             guard error == nil else {
                 completion(nil, response, error)
@@ -835,98 +570,7 @@ class Position {
             }
             do {
                 if let item = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    let account: Int = item["account"] as! Int
-                    let symbol: String = item["symbol"] as! String
-                    let currency: String = item["currency"] as! String
-                    let underlying: String? = item["underlying"] as? String
-                    let quoteCurrency: String? = item["quoteCurrency"] as? String
-                    let commission: Double? = item["commission"] as? Double
-                    let initMarginReq: Double? = item["initMarginReq"] as? Double
-                    let maintMarginReq: Double? = item["maintMarginReq"] as? Double
-                    let riskLimit: Double? = item["riskLimit"] as? Double
-                    let leverage: Double? = item["leverage"] as? Double
-                    let crossMargin: Bool? = item["crossMargin"] as? Bool
-                    let deleveragePercentile: Double? = item["deleveragePercentile"] as? Double
-                    let rebalancedPnl: Double? = item["rebalancedPnl"] as? Double
-                    let prevRealisedPnl: Double? = item["prevRealisedPnl"] as? Double
-                    let prevUnrealisedPnl: Double? = item["prevUnrealisedPnl"] as? Double
-                    let prevClosePrice: Double? = item["prevClosePrice"] as? Double
-                    let openingTimestamp: String? = item["openingTimestamp"] as? String
-                    let openingQty: Double? = item["openingQty"] as? Double
-                    let openingCost: Double? = item["openingCost"] as? Double
-                    let openingComm: Double? = item["openingComm"] as? Double
-                    let openOrderBuyQty: Double? = item["openOrderBuyQty"] as? Double
-                    let openOrderBuyCost: Double? = item["openOrderBuyCost"] as? Double
-                    let openOrderBuyPremium: Double? = item["openOrderBuyPremium"] as? Double
-                    let openOrderSellQty: Double? = item["openOrderSellQty"] as? Double
-                    let openOrderSellCost: Double? = item["openOrderSellCost"] as? Double
-                    let openOrderSellPremium: Double? = item["openOrderSellPremium"] as? Double
-                    let execBuyQty: Double? = item["execBuyQty"] as? Double
-                    let execBuyCost: Double? = item["execBuyCost"] as? Double
-                    let execSellQty: Double? = item["execSellQty"] as? Double
-                    let execSellCost: Double? = item["execSellCost"] as? Double
-                    let execQty: Double? = item["execQty"] as? Double
-                    let execCost: Double? = item["execCost"] as? Double
-                    let execComm: Double? = item["execComm"] as? Double
-                    let currentTimestamp: String? = item["currentTimestamp"] as? String
-                    let currentQty: Double? = item["currentQty"] as? Double
-                    let currentCost: Double? = item["currentCost"] as? Double
-                    let currentComm: Double? = item["currentComm"] as? Double
-                    let realisedCost: Double? = item["realisedCost"] as? Double
-                    let unrealisedCost: Double? = item["unrealisedCost"] as? Double
-                    let grossOpenCost: Double? = item["grossOpenCost"] as? Double
-                    let grossOpenPremium: Double? = item["grossOpenPremium"] as? Double
-                    let grossExecCost: Double? = item["grossExecCost"] as? Double
-                    let isOpen: Bool? = item["isOpen"] as? Bool
-                    let markPrice: Double? = item["markPrice"] as? Double
-                    let markValue: Double? = item["markValue"] as? Double
-                    let riskValue: Double? = item["riskValue"] as? Double
-                    let homeNotional: Double? = item["homeNotional"] as? Double
-                    let foreignNotional: Double? = item["foreignNotional"] as? Double
-                    let posState: String? = item["posState"] as? String
-                    let posCost: Double? = item["posCost"] as? Double
-                    let posCost2: Double? = item["posCost2"] as? Double
-                    let posCross: Double? = item["posCross"] as? Double
-                    let posInit: Double? = item["posInit"] as? Double
-                    let posComm: Double? = item["posComm"] as? Double
-                    let posLoss: Double? = item["posLoss"] as? Double
-                    let posMargin: Double? = item["posMargin"] as? Double
-                    let posMaint: Double? = item["posMaint"] as? Double
-                    let posAllowance: Double? = item["posAllowance"] as? Double
-                    let taxableMargin: Double? = item["taxableMargin"] as? Double
-                    let initMargin: Double? = item["initMargin"] as? Double
-                    let maintMargin: Double? = item["maintMargin"] as? Double
-                    let sessionMargin: Double? = item["sessionMargin"] as? Double
-                    let targetExcessMargin: Double? = item["targetExcessMargin"] as? Double
-                    let varMargin: Double? = item["varMargin"] as? Double
-                    let realisedGrossPnl: Double? = item["realisedGrossPnl"] as? Double
-                    let realisedTax: Double? = item["realisedTax"] as? Double
-                    let realisedPnl: Double? = item["realisedPnl"] as? Double
-                    let unrealisedGrossPnl: Double? = item["unrealisedGrossPnl"] as? Double
-                    let longBankrupt: Double? = item["longBankrupt"] as? Double
-                    let shortBankrupt: Double? = item["shortBankrupt"] as? Double
-                    let taxBase: Double? = item["taxBase"] as? Double
-                    let indicativeTaxRate: Double? = item["indicativeTaxRate"] as? Double
-                    let indicativeTax: Double? = item["indicativeTax"] as? Double
-                    let unrealisedTax: Double? = item["unrealisedTax"] as? Double
-                    let unrealisedPnl: Double? = item["unrealisedPnl"] as? Double
-                    let unrealisedPnlPcnt: Double? = item["unrealisedPnlPcnt"] as? Double
-                    let unrealisedRoePcnt: Double? = item["unrealisedRoePcnt"] as? Double
-                    let simpleQty: Double? = item["simpleQty"] as? Double
-                    let simpleCost: Double? = item["simpleCost"] as? Double
-                    let simpleValue: Double? = item["simpleValue"] as? Double
-                    let simplePnl: Double? = item["simplePnl"] as? Double
-                    let simplePnlPcnt: Double? = item["simplePnlPcnt"] as? Double
-                    let avgCostPrice: Double? = item["avgCostPrice"] as? Double
-                    let avgEntryPrice: Double? = item["avgEntryPrice"] as? Double
-                    let breakEvenPrice: Double? = item["breakEvenPrice"] as? Double
-                    let marginCallPrice: Double? = item["marginCallPrice"] as? Double
-                    let liquidationPrice: Double? = item["liquidationPrice"] as? Double
-                    let bankruptPrice: Double? = item["bankruptPrice"] as? Double
-                    let timestamp: String? = item["timestamp"] as? String
-                    let lastPrice: Double? = item["lastPrice"] as? Double
-                    let lastValue: Double? = item["lastValue"] as? Double
-                    let position = Position(account: account, symbol: symbol, currency: currency, underlying: underlying, quoteCurrency: quoteCurrency, commission: commission, initMarginReq: initMarginReq, maintMarginReq: maintMarginReq, riskLimit: riskLimit, leverage: leverage, crossMargin: crossMargin, deleveragePercentile: deleveragePercentile, rebalancedPnl: rebalancedPnl, prevRealisedPnl: prevRealisedPnl, prevUnrealisedPnl: prevUnrealisedPnl, prevClosePrice: prevClosePrice, openingTimestamp: openingTimestamp, openingQty: openingQty, openingCost: openingCost, openingComm: openingComm, openOrderBuyQty: openOrderBuyQty, openOrderBuyCost: openOrderBuyCost, openOrderBuyPremium: openOrderBuyPremium, openOrderSellQty: openOrderSellQty, openOrderSellCost: openOrderSellCost, openOrderSellPremium: openOrderSellPremium, execBuyQty: execBuyQty, execBuyCost: execBuyCost, execSellQty: execSellQty, execSellCost: execSellCost, execQty: execQty, execCost: execCost, execComm: execComm, currentTimestamp: currentTimestamp, currentQty: currentQty, currentCost: currentCost, currentComm: currentComm, realisedCost: realisedCost, unrealisedCost: unrealisedCost, grossOpenCost: grossOpenCost, grossOpenPremium: grossOpenPremium, grossExecCost: grossExecCost, isOpen: isOpen, markPrice: markPrice, markValue: markValue, riskValue: riskValue, homeNotional: homeNotional, foreignNotional: foreignNotional, posState: posState, posCost: posCost, posCost2: posCost2, posCross: posCross, posInit: posInit, posComm: posComm, posLoss: posLoss, posMargin: posMargin, posMaint: posMaint, posAllowance: posAllowance, taxableMargin: taxableMargin, initMargin: initMargin, maintMargin: maintMargin, sessionMargin: sessionMargin, targetExcessMargin: targetExcessMargin, varMargin: varMargin, realisedGrossPnl: realisedGrossPnl, realisedTax: realisedTax, realisedPnl: realisedPnl, unrealisedGrossPnl: unrealisedGrossPnl, longBankrupt: longBankrupt, shortBankrupt: shortBankrupt, taxBase: taxBase, indicativeTaxRate: indicativeTaxRate, indicativeTax: indicativeTax, unrealisedTax: unrealisedTax, unrealisedPnl: unrealisedPnl, unrealisedPnlPcnt: unrealisedPnlPcnt, unrealisedRoePcnt: unrealisedRoePcnt, simpleQty: simpleQty, simpleCost: simpleCost, simpleValue: simpleValue, simplePnl: simplePnl, simplePnlPcnt: simplePnlPcnt, avgCostPrice: avgCostPrice, avgEntryPrice: avgEntryPrice, breakEvenPrice: breakEvenPrice, marginCallPrice: marginCallPrice, liquidationPrice: liquidationPrice, bankruptPrice: bankruptPrice, timestamp: timestamp, lastPrice: lastPrice, lastValue: lastValue)
+                    let position = Position(json: item)
                     completion(position, response, nil)
                 } else {
                     completion(nil, response, nil)
@@ -962,16 +606,18 @@ class Position {
         var request = URLRequest(url: urlComponents.url!)
         request.httpMethod = "POST"
         
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
+        
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
         } catch let err {
             completion(nil, nil, err)
             return
+        }
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
@@ -993,98 +639,7 @@ class Position {
             }
             do {
                 if let item = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    let account: Int = item["account"] as! Int
-                    let symbol: String = item["symbol"] as! String
-                    let currency: String = item["currency"] as! String
-                    let underlying: String? = item["underlying"] as? String
-                    let quoteCurrency: String? = item["quoteCurrency"] as? String
-                    let commission: Double? = item["commission"] as? Double
-                    let initMarginReq: Double? = item["initMarginReq"] as? Double
-                    let maintMarginReq: Double? = item["maintMarginReq"] as? Double
-                    let riskLimit: Double? = item["riskLimit"] as? Double
-                    let leverage: Double? = item["leverage"] as? Double
-                    let crossMargin: Bool? = item["crossMargin"] as? Bool
-                    let deleveragePercentile: Double? = item["deleveragePercentile"] as? Double
-                    let rebalancedPnl: Double? = item["rebalancedPnl"] as? Double
-                    let prevRealisedPnl: Double? = item["prevRealisedPnl"] as? Double
-                    let prevUnrealisedPnl: Double? = item["prevUnrealisedPnl"] as? Double
-                    let prevClosePrice: Double? = item["prevClosePrice"] as? Double
-                    let openingTimestamp: String? = item["openingTimestamp"] as? String
-                    let openingQty: Double? = item["openingQty"] as? Double
-                    let openingCost: Double? = item["openingCost"] as? Double
-                    let openingComm: Double? = item["openingComm"] as? Double
-                    let openOrderBuyQty: Double? = item["openOrderBuyQty"] as? Double
-                    let openOrderBuyCost: Double? = item["openOrderBuyCost"] as? Double
-                    let openOrderBuyPremium: Double? = item["openOrderBuyPremium"] as? Double
-                    let openOrderSellQty: Double? = item["openOrderSellQty"] as? Double
-                    let openOrderSellCost: Double? = item["openOrderSellCost"] as? Double
-                    let openOrderSellPremium: Double? = item["openOrderSellPremium"] as? Double
-                    let execBuyQty: Double? = item["execBuyQty"] as? Double
-                    let execBuyCost: Double? = item["execBuyCost"] as? Double
-                    let execSellQty: Double? = item["execSellQty"] as? Double
-                    let execSellCost: Double? = item["execSellCost"] as? Double
-                    let execQty: Double? = item["execQty"] as? Double
-                    let execCost: Double? = item["execCost"] as? Double
-                    let execComm: Double? = item["execComm"] as? Double
-                    let currentTimestamp: String? = item["currentTimestamp"] as? String
-                    let currentQty: Double? = item["currentQty"] as? Double
-                    let currentCost: Double? = item["currentCost"] as? Double
-                    let currentComm: Double? = item["currentComm"] as? Double
-                    let realisedCost: Double? = item["realisedCost"] as? Double
-                    let unrealisedCost: Double? = item["unrealisedCost"] as? Double
-                    let grossOpenCost: Double? = item["grossOpenCost"] as? Double
-                    let grossOpenPremium: Double? = item["grossOpenPremium"] as? Double
-                    let grossExecCost: Double? = item["grossExecCost"] as? Double
-                    let isOpen: Bool? = item["isOpen"] as? Bool
-                    let markPrice: Double? = item["markPrice"] as? Double
-                    let markValue: Double? = item["markValue"] as? Double
-                    let riskValue: Double? = item["riskValue"] as? Double
-                    let homeNotional: Double? = item["homeNotional"] as? Double
-                    let foreignNotional: Double? = item["foreignNotional"] as? Double
-                    let posState: String? = item["posState"] as? String
-                    let posCost: Double? = item["posCost"] as? Double
-                    let posCost2: Double? = item["posCost2"] as? Double
-                    let posCross: Double? = item["posCross"] as? Double
-                    let posInit: Double? = item["posInit"] as? Double
-                    let posComm: Double? = item["posComm"] as? Double
-                    let posLoss: Double? = item["posLoss"] as? Double
-                    let posMargin: Double? = item["posMargin"] as? Double
-                    let posMaint: Double? = item["posMaint"] as? Double
-                    let posAllowance: Double? = item["posAllowance"] as? Double
-                    let taxableMargin: Double? = item["taxableMargin"] as? Double
-                    let initMargin: Double? = item["initMargin"] as? Double
-                    let maintMargin: Double? = item["maintMargin"] as? Double
-                    let sessionMargin: Double? = item["sessionMargin"] as? Double
-                    let targetExcessMargin: Double? = item["targetExcessMargin"] as? Double
-                    let varMargin: Double? = item["varMargin"] as? Double
-                    let realisedGrossPnl: Double? = item["realisedGrossPnl"] as? Double
-                    let realisedTax: Double? = item["realisedTax"] as? Double
-                    let realisedPnl: Double? = item["realisedPnl"] as? Double
-                    let unrealisedGrossPnl: Double? = item["unrealisedGrossPnl"] as? Double
-                    let longBankrupt: Double? = item["longBankrupt"] as? Double
-                    let shortBankrupt: Double? = item["shortBankrupt"] as? Double
-                    let taxBase: Double? = item["taxBase"] as? Double
-                    let indicativeTaxRate: Double? = item["indicativeTaxRate"] as? Double
-                    let indicativeTax: Double? = item["indicativeTax"] as? Double
-                    let unrealisedTax: Double? = item["unrealisedTax"] as? Double
-                    let unrealisedPnl: Double? = item["unrealisedPnl"] as? Double
-                    let unrealisedPnlPcnt: Double? = item["unrealisedPnlPcnt"] as? Double
-                    let unrealisedRoePcnt: Double? = item["unrealisedRoePcnt"] as? Double
-                    let simpleQty: Double? = item["simpleQty"] as? Double
-                    let simpleCost: Double? = item["simpleCost"] as? Double
-                    let simpleValue: Double? = item["simpleValue"] as? Double
-                    let simplePnl: Double? = item["simplePnl"] as? Double
-                    let simplePnlPcnt: Double? = item["simplePnlPcnt"] as? Double
-                    let avgCostPrice: Double? = item["avgCostPrice"] as? Double
-                    let avgEntryPrice: Double? = item["avgEntryPrice"] as? Double
-                    let breakEvenPrice: Double? = item["breakEvenPrice"] as? Double
-                    let marginCallPrice: Double? = item["marginCallPrice"] as? Double
-                    let liquidationPrice: Double? = item["liquidationPrice"] as? Double
-                    let bankruptPrice: Double? = item["bankruptPrice"] as? Double
-                    let timestamp: String? = item["timestamp"] as? String
-                    let lastPrice: Double? = item["lastPrice"] as? Double
-                    let lastValue: Double? = item["lastValue"] as? Double
-                    let position = Position(account: account, symbol: symbol, currency: currency, underlying: underlying, quoteCurrency: quoteCurrency, commission: commission, initMarginReq: initMarginReq, maintMarginReq: maintMarginReq, riskLimit: riskLimit, leverage: leverage, crossMargin: crossMargin, deleveragePercentile: deleveragePercentile, rebalancedPnl: rebalancedPnl, prevRealisedPnl: prevRealisedPnl, prevUnrealisedPnl: prevUnrealisedPnl, prevClosePrice: prevClosePrice, openingTimestamp: openingTimestamp, openingQty: openingQty, openingCost: openingCost, openingComm: openingComm, openOrderBuyQty: openOrderBuyQty, openOrderBuyCost: openOrderBuyCost, openOrderBuyPremium: openOrderBuyPremium, openOrderSellQty: openOrderSellQty, openOrderSellCost: openOrderSellCost, openOrderSellPremium: openOrderSellPremium, execBuyQty: execBuyQty, execBuyCost: execBuyCost, execSellQty: execSellQty, execSellCost: execSellCost, execQty: execQty, execCost: execCost, execComm: execComm, currentTimestamp: currentTimestamp, currentQty: currentQty, currentCost: currentCost, currentComm: currentComm, realisedCost: realisedCost, unrealisedCost: unrealisedCost, grossOpenCost: grossOpenCost, grossOpenPremium: grossOpenPremium, grossExecCost: grossExecCost, isOpen: isOpen, markPrice: markPrice, markValue: markValue, riskValue: riskValue, homeNotional: homeNotional, foreignNotional: foreignNotional, posState: posState, posCost: posCost, posCost2: posCost2, posCross: posCross, posInit: posInit, posComm: posComm, posLoss: posLoss, posMargin: posMargin, posMaint: posMaint, posAllowance: posAllowance, taxableMargin: taxableMargin, initMargin: initMargin, maintMargin: maintMargin, sessionMargin: sessionMargin, targetExcessMargin: targetExcessMargin, varMargin: varMargin, realisedGrossPnl: realisedGrossPnl, realisedTax: realisedTax, realisedPnl: realisedPnl, unrealisedGrossPnl: unrealisedGrossPnl, longBankrupt: longBankrupt, shortBankrupt: shortBankrupt, taxBase: taxBase, indicativeTaxRate: indicativeTaxRate, indicativeTax: indicativeTax, unrealisedTax: unrealisedTax, unrealisedPnl: unrealisedPnl, unrealisedPnlPcnt: unrealisedPnlPcnt, unrealisedRoePcnt: unrealisedRoePcnt, simpleQty: simpleQty, simpleCost: simpleCost, simpleValue: simpleValue, simplePnl: simplePnl, simplePnlPcnt: simplePnlPcnt, avgCostPrice: avgCostPrice, avgEntryPrice: avgEntryPrice, breakEvenPrice: breakEvenPrice, marginCallPrice: marginCallPrice, liquidationPrice: liquidationPrice, bankruptPrice: bankruptPrice, timestamp: timestamp, lastPrice: lastPrice, lastValue: lastValue)
+                    let position = Position(json: item)
                     completion(position, response, nil)
                 } else {
                     completion(nil, response, nil)
@@ -1095,4 +650,33 @@ class Position {
         }
         task.resume()
     }
+    
+    
+    //MARK: - RealTime
+    
+    static func subscribeRealTime(webSocket: WebSocket, auth: Authentication) {
+        let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
+        let api_signature: String = "GET/realtime" + api_expires
+        let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
+        webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
+        
+        
+        let args: String = "\"position\""
+        let message: String = "{\"op\": \"subscribe\", \"args\": [" + args + "]}"
+        webSocket.send(text: message)
+    }
+    
+    static func unsubscribeRealTime(webSocket: WebSocket, auth: Authentication) {
+        let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
+        let api_signature: String = "GET/realtime" + api_expires
+        let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
+        webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
+        
+        
+        let args: String = "\"position\""
+        let message: String = "{\"op\": \"unsubscribe\", \"args\": [" + args + "]}"
+        webSocket.send(text: message)
+    }
+    
+
 }

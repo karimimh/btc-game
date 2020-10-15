@@ -19,12 +19,37 @@ class App {
         return chartVC?.chart
     }
     var chartVC: ChartVC?
+    var accountVC: AccountVC?
+    var tradeVC: TradeVC?
+    
     var chartNeedsSetupOnViewAppeared = true
     
     var viewAnimationDuration = 0.15
     //MARK: Convinience Properties
     static var BullColor = UIColor.fromHex(hex: "#26A69A")
     static var BearColor = UIColor.fromHex(hex: "#EF5350")
+    
+    var webSocket = WebSocket("wss://www.bitmex.com/realtime")
+    var authentication: Authentication? {
+        didSet {
+            if let vc = tradeVC {
+                vc.initWebsocket()
+            }
+            if let vc = accountVC {
+                vc.initWebSocket()
+            }
+            if let vc = chartVC {
+                vc.chart.activateWebsocket()
+            }
+        }
+    }
+    
+    var insX = 0
+    var margX = 0
+    
+    private var realtimeTableCompletion: [String: [([String: Any]) -> Void]] = [:]
+    private var realtimeSubscriptionArgs: [String] = []
+    private var partials: [String: [String: Any]?] = [:]
 
     
     //MARK: - Initialization
@@ -38,6 +63,117 @@ class App {
     
     
     //MARK: - Methods
+    func addRealtimeSubscription(arg :String, tableName: String, completion: @escaping ([String: Any]) -> Void) {
+        let args = realtimeSubscriptionArgs
+        let completions = realtimeTableCompletion
+        let _partials = partials
+        
+        var tableNames: [String] = []
+        for (k, _) in realtimeTableCompletion {
+            tableNames.append(k)
+        }
+        unsubscribeRealTime(tableNames: tableNames)
+        
+        realtimeSubscriptionArgs = args
+        realtimeTableCompletion = completions
+        partials = _partials
+        
+        if var comps = realtimeTableCompletion[tableName] {
+            comps.append(completion)
+            realtimeTableCompletion[tableName] = comps
+        } else {
+            realtimeTableCompletion[tableName] = [completion]
+            realtimeSubscriptionArgs.append(arg)
+            partials[tableName] = nil
+        }
+        subscribeRealTime()
+    }
+    
+    func removeRealtimeSubscription(tableName: String) {
+        if partials[tableName] == nil || realtimeTableCompletion[tableName] == nil {
+            return
+        }
+        unsubscribeRealTime(tableNames: [tableName])
+    }
+    
+    
+    func subscribeRealTime() {
+        if let auth = self.authentication {
+            let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
+            let api_signature: String = "GET/realtime" + api_expires
+            let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
+            webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
+        }
+        
+        let message: String = "{\"op\": \"subscribe\", \"args\": " + realtimeSubscriptionArgs.description + "}"
+        webSocket.send(text: message)
+        
+        webSocket.event.message = { msg in
+            guard let message = msg as? String  else {
+                return
+            }
+            guard let data = message.data(using: .utf8) else {
+                return
+            }
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions()) as? [String: Any] {
+                    if let table = json["table"] as? String {
+                        guard let completions = self.realtimeTableCompletion[table] else { return }
+                        
+                        if table == "trade" {
+                            completions[0](json)
+                        } else {
+                            self.partials[table] = RealTime.processPayload(payload: json, partial: self.partials[table] ?? nil)
+                            
+                            for completion in completions {
+                                if let p = self.partials[table]! as [String: Any]? {
+                                    completion(p)
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch {
+            }
+        }
+    }
+    
+    private func unsubscribeRealTime(tableNames: [String]) {
+        if realtimeSubscriptionArgs.isEmpty { return }
+        if let auth = self.authentication {
+            let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
+            let api_signature: String = "GET/realtime" + api_expires
+            let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
+            webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
+        }
+        
+        var a: [String] = []
+        for tableName in tableNames {
+            for arg in realtimeSubscriptionArgs {
+                if arg.contains(tableName) {
+                    a.append(arg)
+                }
+            }
+        }
+        
+        let message: String = "{\"op\": \"unsubscribe\", \"args\": " + a.description + "}"
+        webSocket.send(text: message)
+        
+        
+        for tableName in tableNames {
+            realtimeTableCompletion[tableName] = nil
+            partials[tableName] = nil
+        }
+        realtimeSubscriptionArgs.removeAll { (s) -> Bool in
+            for arg in a {
+                if s == arg {
+                    return true
+                }
+            }
+            return false
+        }
+    }
+    
     func getInstrument(_ symbol: String) -> Instrument? {
         for instrument in activeInstruments {
             if instrument.symbol.lowercased() == symbol.lowercased() {
@@ -149,14 +285,19 @@ class Settings: NSObject, NSCoding {
         Indicator.fromSystem(name: .ma, row: 0, height: 100.0, withInputs: [Indicator.InputKey.length: 200], andStyle: [Indicator.StyleKey.color: UIColor.fromHex(hex: "#EB1E61"), Indicator.StyleKey.lineWidth: CGFloat(2.0), Indicator.StyleKey.zIndex: 4.0]),
         Indicator.fromSystem(name: .rsi, row: 1, height: 20.0)]
     
-    var sortBy = SortBy.DEFAULT
-    var sortDirection = SortDirection.ASCENDING
+    var sortBy = SortBy.VOLUME
+    var sortDirection = SortDirection.DESCENDING
+    
+    
+    
+    var accountApiKey: String = "aKWQfFXJqFM0sZ7Zts14_1u6"
+    var accountApiSecret: String = "ILi7K_G1fYdRn79QcJFRlZ3jOGvchX5PnWrkd4Q37E8SSdv9"
     
     var app: App? {
         return (UIApplication.shared.delegate as? AppDelegate)?.app
     }
     
-    init(sortBy: Int?, sortDirection: Int?, bullCandleColor: UIColor?, bearCandleColor: UIColor?, chartAutoScale: Bool?, chartLogScale: Bool?, chartSymbol: String?, chartTimeframe: String?, chartBlockWidth: CGFloat?, chartLatestX: CGFloat?, chartHighestPrice: Double?, chartLowestPrice: Double?, chartIndicators: [Indicator]?, chartTopMargin: Double?, chartBottomMargin: Double?, priceLineColor: UIColor?, chartBackgroundColor: UIColor?, gridLinesColor: UIColor?, crosshairColor: UIColor?, showTitles: Bool?) {
+    init(sortBy: Int?, sortDirection: Int?, bullCandleColor: UIColor?, bearCandleColor: UIColor?, chartAutoScale: Bool?, chartLogScale: Bool?, chartSymbol: String?, chartTimeframe: String?, chartBlockWidth: CGFloat?, chartLatestX: CGFloat?, chartHighestPrice: Double?, chartLowestPrice: Double?, chartIndicators: [Indicator]?, chartTopMargin: Double?, chartBottomMargin: Double?, priceLineColor: UIColor?, chartBackgroundColor: UIColor?, gridLinesColor: UIColor?, crosshairColor: UIColor?, showTitles: Bool?, accountApiKey: String?, accountApiSecret: String?) {
         if let q = sortBy, let s = SortBy(rawValue: q) { self.sortBy = s}
         if let q = sortDirection, let s = SortDirection(rawValue: q) { self.sortDirection = s}
         if let q = bullCandleColor { self.bullCandleColor = q}
@@ -177,7 +318,8 @@ class Settings: NSObject, NSCoding {
         if let q = gridLinesColor { self.gridLinesColor = q}
         if let q = crosshairColor { self.crosshairColor = q}
         if let q = showTitles { self.showTitles = q}
-        
+        if let q = accountApiKey { self.accountApiKey = q}
+        if let q = accountApiSecret { self.accountApiSecret = q}
         super.init()
         self.chartIndicators = sort(indicators: self.chartIndicators)
     }
@@ -209,6 +351,8 @@ class Settings: NSObject, NSCoding {
         static let gridLinesColor = "gridLinesColor"
         static let crosshairColor = "crosshairColor"
         static let showTitles = "showTitles"
+        static let accountApiKey = "accountApiKey"
+        static let accountApiSecret = "accountApiSecret"
         
     }
     
@@ -234,7 +378,8 @@ class Settings: NSObject, NSCoding {
         aCoder.encode(gridLinesColor, forKey: Key.gridLinesColor)
         aCoder.encode(crosshairColor, forKey: Key.crosshairColor)
         aCoder.encode(showTitles, forKey: Key.showTitles)
-        
+        aCoder.encode(accountApiKey, forKey: Key.accountApiKey)
+        aCoder.encode(accountApiSecret, forKey: Key.accountApiSecret)
     }
     
     
@@ -259,7 +404,10 @@ class Settings: NSObject, NSCoding {
         let gridLinesColor: UIColor? = decoder.containsValue(forKey: Key.gridLinesColor) ? decoder.decodeObject(forKey: Key.gridLinesColor) as? UIColor : nil
         let crosshairColor: UIColor? = decoder.containsValue(forKey: Key.crosshairColor) ? decoder.decodeObject(forKey: Key.crosshairColor) as? UIColor : nil
         let showTitles: Bool? = decoder.containsValue(forKey: Key.showTitles) ? decoder.decodeBool(forKey: Key.showTitles) : nil
-        self.init(sortBy: sortBy, sortDirection: sortDirection, bullCandleColor: bullCandleColor, bearCandleColor: bearCandleColor, chartAutoScale: chartAutoScale, chartLogScale: chartLogScale, chartSymbol: chartSymbol, chartTimeframe: chartTimeframe, chartBlockWidth: chartBlockWidth, chartLatestX: chartLatestX, chartHighestPrice: chartHighestPrice, chartLowestPrice: chartLowestPrice, chartIndicators: chartIndicators, chartTopMargin: chartTopMargin, chartBottomMargin: chartBottomMargin, priceLineColor: priceLineColor, chartBackgroundColor: chartBackgroundColor, gridLinesColor: gridLinesColor, crosshairColor: crosshairColor, showTitles: showTitles)
+        let accountApiKey: String? = decoder.containsValue(forKey: Key.accountApiKey) ? decoder.decodeObject(forKey: Key.accountApiKey) as? String : nil
+        let accountApiSecret: String? = decoder.containsValue(forKey: Key.accountApiSecret) ? decoder.decodeObject(forKey: Key.accountApiSecret) as? String : nil
+        
+        self.init(sortBy: sortBy, sortDirection: sortDirection, bullCandleColor: bullCandleColor, bearCandleColor: bearCandleColor, chartAutoScale: chartAutoScale, chartLogScale: chartLogScale, chartSymbol: chartSymbol, chartTimeframe: chartTimeframe, chartBlockWidth: chartBlockWidth, chartLatestX: chartLatestX, chartHighestPrice: chartHighestPrice, chartLowestPrice: chartLowestPrice, chartIndicators: chartIndicators, chartTopMargin: chartTopMargin, chartBottomMargin: chartBottomMargin, priceLineColor: priceLineColor, chartBackgroundColor: chartBackgroundColor, gridLinesColor: gridLinesColor, crosshairColor: crosshairColor, showTitles: showTitles, accountApiKey: accountApiKey, accountApiSecret: accountApiSecret)
         
     }
     

@@ -10,51 +10,14 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    
+    var app: App = App()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         
-//        let bitmex_address = "3BMEXBFzETdyet2yGkTzUPSh4jNGLEyDZT"
         
-//        let api_key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOnsiaWQiOjI3MjksImVtYWlsIjoiYm1oa2FyaW1pQGdtYWlsLmNvbSJ9LCJzY29wZXMiOlsidXNlciIsImJvdCJdLCJpc3MiOiJleGlyLnRlY2giLCJpYXQiOjE1Njg0NzE1MTV9.OQrtvklbbeNQk3vs5mehZWKWbxFgHFdkxqQ0BcfcZh8"
-        
-//        let account = Authentication(apiKey: "_DaiWo0EvxCs2MoOqHpu74BY", apiSecret: "JqKATUG0tqRFBubQW05QNbdEXsxJOMPQiAuVXtqXQpmmfwNp")
-//        APIKey.GET(authentication: account) { (optionalAPIKeys, optionalResponse, optionalError) in
-//            guard optionalError == nil else {
-//                print(optionalError!.localizedDescription)
-//                return
-//            }
-//            guard optionalResponse != nil else {
-//                print("No Response!")
-//                return
-//            }
-//            if let response = optionalResponse as? HTTPURLResponse {
-//                if response.statusCode == 200 {
-//                    if let apiKeys = optionalAPIKeys {
-//                        for apiKey in apiKeys {
-//                            print(apiKey.id)
-//                            print(apiKey.name)
-//                            print(apiKey.nonce)
-//                            print(apiKey.secret)
-//                            print(apiKey.userId)
-//                            if let t = apiKey.created {
-//                                print(t)
-//                            }
-//                            if let t = apiKey.enabled {
-//                                print(t)
-//                            }
-//                            if let t = apiKey.cidr {
-//                                print(t)
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    print(response.description)
-//                }
-//            } else {
-//                print("Bad Response!")
-//            }
-//        }
         
         
 //        POST_RequestWithdrawal(api_key: api_key, currency: "btc", amount: 0.001, address: bitmex_address) { (json, optionalResponse, optionalError) in
@@ -79,10 +42,13 @@ class ViewController: UIViewController {
 //            }
 //        }
         
-        let app = App()
         
         if let delegate = UIApplication.shared.delegate as? AppDelegate {
             delegate.app = app
+        }
+        
+        if !app.settings.accountApiKey.isEmpty {
+            app.authentication = Authentication(apiKey: app.settings.accountApiKey, apiSecret: app.settings.accountApiSecret)
         }
         
         Instrument.GET_Active() { (optionalInstruments, optionalResponse, optionalError) in
@@ -97,7 +63,7 @@ class ViewController: UIViewController {
             if let response = optionalResponse as? HTTPURLResponse {
                 if response.statusCode == 200 {
                     if let instruments = optionalInstruments {
-                        app.activeInstruments = instruments
+                        self.app.activeInstruments = instruments
                         self.presentTheViewController()
                     }
                 } else {
@@ -195,6 +161,17 @@ class ViewController: UIViewController {
 
 
     private func presentTheViewController() {
+        self.app.addRealtimeSubscription(arg: "instrument:\(app.settings.chartSymbol)", tableName: "instrument") { (json) in
+            if let data = json["data"] as? [[String: Any]] {
+                let instrument = Instrument(item: data[0])
+                for i in 0 ..< self.app.activeInstruments.count {
+                    if self.app.activeInstruments[i].symbol == instrument.symbol {
+                        self.app.activeInstruments[i] = instrument
+                        break
+                    }
+                }
+            }
+        }
         DispatchQueue.main.async {
             self.performSegue(withIdentifier: "showTabbarVCSegue", sender: self)
         }

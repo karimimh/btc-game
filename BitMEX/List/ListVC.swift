@@ -75,7 +75,10 @@ class ListVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSo
         app.chartNeedsSetupOnViewAppeared = true
         app.settings.chartLatestX = UIScreen.main.bounds.width * 0.75
         app.saveSettings()
-        tabBarController?.selectedIndex = 1
+        
+        self.dismiss(animated: true) {
+            self.app.chart?.setupChart()
+        }
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

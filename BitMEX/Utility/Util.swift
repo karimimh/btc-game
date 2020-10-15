@@ -11,6 +11,7 @@ import Darwin
 import CommonCrypto
 
 class Util {
+    
     static func createGradientImage(color1: UIColor, color2: UIColor, width: CGFloat, height: CGFloat) -> UIImage {
         UIGraphicsBeginImageContext(CGSize(width: width, height: height))
         let ctx = UIGraphicsGetCurrentContext()
@@ -809,3 +810,34 @@ extension UIBarButtonItem {
     }
     
 }
+
+
+extension Formatter {
+    static let scientific: NumberFormatter = {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .scientific
+        formatter.positiveFormat = "0.###E+0"
+        formatter.exponentSymbol = "e"
+        return formatter
+    }()
+}
+
+extension Numeric {
+    var scientificFormatted: String {
+        return Formatter.scientific.string(for: self) ?? ""
+    }
+}
+
+
+extension UIViewController {
+    func hideKeyboardWhenTappedAround() {
+        let tap: UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+}
+

@@ -54,41 +54,43 @@ class Order {
     
     
     //MARK: Initialization
-    private init(orderID: String, clOrdID: String?, clOrdLinkID: String?, account: Double?, symbol: String?, side: String?, simpleOrderQty: Double?, orderQty: Double?, price: Double?, displayQty: Double?, stopPx: Double?, pegOffsetValue: Double?, pegPriceType: String?, currency: String?, settlCurrency: String?, ordType: String?, timeInForce: String?, execInst: String?, contingencyType: String?, exDestination: String?, ordStatus: String?, triggered: String?, workingIndicator: Bool?, ordRejReason: String?, simpleLeavesQty: Double?, leavesQty: Double?, simpleCumQty: Double?, cumQty: Double?, avgPx: Double?, multiLegReportingType: String?, text: String?, transactTime: String?, timestamp: String?) {
-        self.orderID = orderID
-        self.clOrdID = clOrdID
-        self.clOrdLinkID = clOrdLinkID
-        self.account = account
-        self.symbol = symbol
-        self.side = side
-        self.simpleOrderQty = simpleOrderQty
-        self.orderQty = orderQty
-        self.price = price
-        self.displayQty = displayQty
-        self.stopPx = stopPx
-        self.pegOffsetValue = pegOffsetValue
-        self.pegPriceType = pegPriceType
-        self.currency = currency
-        self.settlCurrency = settlCurrency
-        self.ordType = ordType
-        self.timeInForce = timeInForce
-        self.execInst = execInst
-        self.contingencyType = contingencyType
-        self.exDestination = exDestination
-        self.ordStatus = ordStatus
-        self.triggered = triggered
-        self.workingIndicator = workingIndicator
-        self.ordRejReason = ordRejReason
-        self.simpleLeavesQty = simpleLeavesQty
-        self.leavesQty = leavesQty
-        self.simpleCumQty = simpleCumQty
-        self.cumQty = cumQty
-        self.avgPx = avgPx
-        self.multiLegReportingType = multiLegReportingType
-        self.text = text
-        self.transactTime = transactTime
-        self.timestamp = timestamp
+    init(item: [String: Any]) {
+        orderID = item["orderID"] as! String
+        clOrdID = item["clOrdID"] as? String
+        clOrdLinkID = item["clOrdLinkID"] as? String
+        account = item["account"] as? Double
+        symbol = item["symbol"] as? String
+        side = item["side"] as? String
+        simpleOrderQty = item["simpleOrderQty"] as? Double
+        orderQty = item["orderQty"] as? Double
+        price = item["price"] as? Double
+        displayQty = item["displayQty"] as? Double
+        stopPx = item["stopPx"] as? Double
+        pegOffsetValue = item["pegOffsetValue"] as? Double
+        pegPriceType = item["pegPriceType"] as? String
+        currency = item["currency"] as? String
+        settlCurrency = item["settlCurrency"] as? String
+        ordType = item["ordType"] as? String
+        timeInForce = item["timeInForce"] as? String
+        execInst = item["execInst"] as? String
+        contingencyType = item["contingencyType"] as? String
+        exDestination = item["exDestination"] as? String
+        ordStatus = item["ordStatus"] as? String
+        triggered = item["triggered"] as? String
+        workingIndicator = item["workingIndicator"] as? Bool
+        ordRejReason = item["ordRejReason"] as? String
+        simpleLeavesQty = item["simpleLeavesQty"] as? Double
+        leavesQty = item["leavesQty"] as? Double
+        simpleCumQty = item["simpleCumQty"] as? Double
+        cumQty = item["cumQty"] as? Double
+        avgPx = item["avgPx"] as? Double
+        multiLegReportingType = item["multiLegReportingType"] as? String
+        text = item["text"] as? String
+        transactTime = item["transactTime"] as? String
+        timestamp = item["timestamp"] as? String
     }
+    
+    
     
     //MARK: Types
     struct Columns {
@@ -218,6 +220,7 @@ class Order {
             }
             if let httpResponse = response as? HTTPURLResponse {
                 if httpResponse.statusCode != 200 {
+                    
                     completion(nil, response, nil)
                 }
             } else {
@@ -232,40 +235,7 @@ class Order {
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
                     var result = [Order]()
                     for item in json {
-                        let orderID: String = item["orderID"] as! String
-                        let clOrdID: String? = item["clOrdID"] as? String
-                        let clOrdLinkID: String? = item["clOrdLinkID"] as? String
-                        let account: Double? = item["account"] as? Double
-                        let symbol: String? = item["symbol"] as? String
-                        let side: String? = item["side"] as? String
-                        let simpleOrderQty: Double? = item["simpleOrderQty"] as? Double
-                        let orderQty: Double? = item["orderQty"] as? Double
-                        let price: Double? = item["price"] as? Double
-                        let displayQty: Double? = item["displayQty"] as? Double
-                        let stopPx: Double? = item["stopPx"] as? Double
-                        let pegOffsetValue: Double? = item["pegOffsetValue"] as? Double
-                        let pegPriceType: String? = item["pegPriceType"] as? String
-                        let currency: String? = item["currency"] as? String
-                        let settlCurrency: String? = item["settlCurrency"] as? String
-                        let ordType: String? = item["ordType"] as? String
-                        let timeInForce: String? = item["timeInForce"] as? String
-                        let execInst: String? = item["execInst"] as? String
-                        let contingencyType: String? = item["contingencyType"] as? String
-                        let exDestination: String? = item["exDestination"] as? String
-                        let ordStatus: String? = item["ordStatus"] as? String
-                        let triggered: String? = item["triggered"] as? String
-                        let workingIndicator: Bool? = item["workingIndicator"] as? Bool
-                        let ordRejReason: String? = item["ordRejReason"] as? String
-                        let simpleLeavesQty: Double? = item["simpleLeavesQty"] as? Double
-                        let leavesQty: Double? = item["leavesQty"] as? Double
-                        let simpleCumQty: Double? = item["simpleCumQty"] as? Double
-                        let cumQty: Double? = item["cumQty"] as? Double
-                        let avgPx: Double? = item["avgPx"] as? Double
-                        let multiLegReportingType: String? = item["multiLegReportingType"] as? String
-                        let text: String? = item["text"] as? String
-                        let transactTime: String? = item["transactTime"] as? String
-                        let timestamp: String? = item["timestamp"] as? String
-                        let order = Order(orderID: orderID, clOrdID: clOrdID, clOrdLinkID: clOrdLinkID, account: account, symbol: symbol, side: side, simpleOrderQty: simpleOrderQty, orderQty: orderQty, price: price, displayQty: displayQty, stopPx: stopPx, pegOffsetValue: pegOffsetValue, pegPriceType: pegPriceType, currency: currency, settlCurrency: settlCurrency, ordType: ordType, timeInForce: timeInForce, execInst: execInst, contingencyType: contingencyType, exDestination: exDestination, ordStatus: ordStatus, triggered: triggered, workingIndicator: workingIndicator, ordRejReason: ordRejReason, simpleLeavesQty: simpleLeavesQty, leavesQty: leavesQty, simpleCumQty: simpleCumQty, cumQty: cumQty, avgPx: avgPx, multiLegReportingType: multiLegReportingType, text: text, transactTime: transactTime, timestamp: timestamp)
+                        let order = Order(item: item)
                         result.append(order)
                     }
                     completion(result, response, nil)
@@ -300,17 +270,20 @@ class Order {
         }
         
         if let orderQty = orderQty {
-            parameters["orderQty"] = orderQty
+            let q = String(format: "%d", Int(orderQty))
+            parameters["orderQty"] = Double(q)
         }
         
         if let price = price {
-            parameters["price"] = price
+            let q = String(format: "%.1f", price)
+            parameters["price"] = Double(q)
         }
         if let displayQty = displayQty {
             parameters["displayQty"] = displayQty
         }
         if let stopPx = stopPx {
-            parameters["stopPx"] = stopPx
+            let q = String(format: "%.1f", stopPx)
+            parameters["stopPx"] = Double(q)
         }
         if let clOrdID = clOrdID {
             parameters["clOrdID"] = clOrdID
@@ -339,13 +312,8 @@ class Order {
         var request = URLRequest(url: urlComponents.url!)
         request.httpMethod = "POST"
         request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Accept")
+//        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Accept")
         
-        
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
         
         
         do {
@@ -354,6 +322,13 @@ class Order {
             completion(nil, nil, err)
             return
         }
+        
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             guard error == nil else {
@@ -375,40 +350,7 @@ class Order {
             }
             do {
                 if let item = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    let orderID: String = item["orderID"] as! String
-                    let clOrdID: String? = item["clOrdID"] as? String
-                    let clOrdLinkID: String? = item["clOrdLinkID"] as? String
-                    let account: Double? = item["account"] as? Double
-                    let symbol: String? = item["symbol"] as? String
-                    let side: String? = item["side"] as? String
-                    let simpleOrderQty: Double? = item["simpleOrderQty"] as? Double
-                    let orderQty: Double? = item["orderQty"] as? Double
-                    let price: Double? = item["price"] as? Double
-                    let displayQty: Double? = item["displayQty"] as? Double
-                    let stopPx: Double? = item["stopPx"] as? Double
-                    let pegOffsetValue: Double? = item["pegOffsetValue"] as? Double
-                    let pegPriceType: String? = item["pegPriceType"] as? String
-                    let currency: String? = item["currency"] as? String
-                    let settlCurrency: String? = item["settlCurrency"] as? String
-                    let ordType: String? = item["ordType"] as? String
-                    let timeInForce: String? = item["timeInForce"] as? String
-                    let execInst: String? = item["execInst"] as? String
-                    let contingencyType: String? = item["contingencyType"] as? String
-                    let exDestination: String? = item["exDestination"] as? String
-                    let ordStatus: String? = item["ordStatus"] as? String
-                    let triggered: String? = item["triggered"] as? String
-                    let workingIndicator: Bool? = item["workingIndicator"] as? Bool
-                    let ordRejReason: String? = item["ordRejReason"] as? String
-                    let simpleLeavesQty: Double? = item["simpleLeavesQty"] as? Double
-                    let leavesQty: Double? = item["leavesQty"] as? Double
-                    let simpleCumQty: Double? = item["simpleCumQty"] as? Double
-                    let cumQty: Double? = item["cumQty"] as? Double
-                    let avgPx: Double? = item["avgPx"] as? Double
-                    let multiLegReportingType: String? = item["multiLegReportingType"] as? String
-                    let text: String? = item["text"] as? String
-                    let transactTime: String? = item["transactTime"] as? String
-                    let timestamp: String? = item["timestamp"] as? String
-                    let order = Order(orderID: orderID, clOrdID: clOrdID, clOrdLinkID: clOrdLinkID, account: account, symbol: symbol, side: side, simpleOrderQty: simpleOrderQty, orderQty: orderQty, price: price, displayQty: displayQty, stopPx: stopPx, pegOffsetValue: pegOffsetValue, pegPriceType: pegPriceType, currency: currency, settlCurrency: settlCurrency, ordType: ordType, timeInForce: timeInForce, execInst: execInst, contingencyType: contingencyType, exDestination: exDestination, ordStatus: ordStatus, triggered: triggered, workingIndicator: workingIndicator, ordRejReason: ordRejReason, simpleLeavesQty: simpleLeavesQty, leavesQty: leavesQty, simpleCumQty: simpleCumQty, cumQty: cumQty, avgPx: avgPx, multiLegReportingType: multiLegReportingType, text: text, transactTime: transactTime, timestamp: timestamp)
+                    let order = Order(item: item)
                     completion(order, response, nil)
                     return
                 } else {
@@ -456,17 +398,21 @@ class Order {
         }
         
         if let orderQty = orderQty {
-            parameters["orderQty"] = orderQty
+            let q = String(format: "%d", Int(orderQty))
+            parameters["orderQty"] = Double(q)
         }
+        
         if let leavesQty = leavesQty {
             parameters["leavesQty"] = leavesQty
         }
         
         if let price = price {
-            parameters["price"] = price
+            let q = String(format: "%.1f", price)
+            parameters["price"] = Double(q)
         }
         if let stopPx = stopPx {
-            parameters["stopPx"] = stopPx
+            let q = String(format: "%.1f", stopPx)
+            parameters["stopPx"] = Double(q)
         }
         if let pegOffsetValue = pegOffsetValue {
             parameters["pegOffsetValue"] = pegOffsetValue
@@ -479,11 +425,7 @@ class Order {
         
         var request = URLRequest(url: urlComponents.url!)
         request.httpMethod = "PUT"
-        
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
+        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
@@ -491,6 +433,12 @@ class Order {
             completion(nil, nil, err)
             return
         }
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
+        
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             guard error == nil else {
@@ -510,41 +458,8 @@ class Order {
                 return
             }
             do {
-                if let item = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                    let orderID: String = item["orderID"] as! String
-                    let clOrdID: String? = item["clOrdID"] as? String
-                    let clOrdLinkID: String? = item["clOrdLinkID"] as? String
-                    let account: Double? = item["account"] as? Double
-                    let symbol: String? = item["symbol"] as? String
-                    let side: String? = item["side"] as? String
-                    let simpleOrderQty: Double? = item["simpleOrderQty"] as? Double
-                    let orderQty: Double? = item["orderQty"] as? Double
-                    let price: Double? = item["price"] as? Double
-                    let displayQty: Double? = item["displayQty"] as? Double
-                    let stopPx: Double? = item["stopPx"] as? Double
-                    let pegOffsetValue: Double? = item["pegOffsetValue"] as? Double
-                    let pegPriceType: String? = item["pegPriceType"] as? String
-                    let currency: String? = item["currency"] as? String
-                    let settlCurrency: String? = item["settlCurrency"] as? String
-                    let ordType: String? = item["ordType"] as? String
-                    let timeInForce: String? = item["timeInForce"] as? String
-                    let execInst: String? = item["execInst"] as? String
-                    let contingencyType: String? = item["contingencyType"] as? String
-                    let exDestination: String? = item["exDestination"] as? String
-                    let ordStatus: String? = item["ordStatus"] as? String
-                    let triggered: String? = item["triggered"] as? String
-                    let workingIndicator: Bool? = item["workingIndicator"] as? Bool
-                    let ordRejReason: String? = item["ordRejReason"] as? String
-                    let simpleLeavesQty: Double? = item["simpleLeavesQty"] as? Double
-                    let leavesQty: Double? = item["leavesQty"] as? Double
-                    let simpleCumQty: Double? = item["simpleCumQty"] as? Double
-                    let cumQty: Double? = item["cumQty"] as? Double
-                    let avgPx: Double? = item["avgPx"] as? Double
-                    let multiLegReportingType: String? = item["multiLegReportingType"] as? String
-                    let text: String? = item["text"] as? String
-                    let transactTime: String? = item["transactTime"] as? String
-                    let timestamp: String? = item["timestamp"] as? String
-                    let order = Order(orderID: orderID, clOrdID: clOrdID, clOrdLinkID: clOrdLinkID, account: account, symbol: symbol, side: side, simpleOrderQty: simpleOrderQty, orderQty: orderQty, price: price, displayQty: displayQty, stopPx: stopPx, pegOffsetValue: pegOffsetValue, pegPriceType: pegPriceType, currency: currency, settlCurrency: settlCurrency, ordType: ordType, timeInForce: timeInForce, execInst: execInst, contingencyType: contingencyType, exDestination: exDestination, ordStatus: ordStatus, triggered: triggered, workingIndicator: workingIndicator, ordRejReason: ordRejReason, simpleLeavesQty: simpleLeavesQty, leavesQty: leavesQty, simpleCumQty: simpleCumQty, cumQty: cumQty, avgPx: avgPx, multiLegReportingType: multiLegReportingType, text: text, transactTime: transactTime, timestamp: timestamp)
+                if let item = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
+                    let order = Order(item: item[0])
                     completion(order, response, nil)
                 } else {
                     completion(nil, response, nil)
@@ -576,32 +491,37 @@ class Order {
         var parameters: [String: Any] = [:]
         
         if let orderID = orderID {
-            parameters["orderID"] = orderID
+            if !orderID.isEmpty {
+                parameters["orderID"] = orderID
+            }
         }
-        
         if let clOrdID = clOrdID {
-            parameters["clOrdID"] = clOrdID
+            if !clOrdID.isEmpty {
+                parameters["clOrdID"] = clOrdID
+            }
         }
         
         if let text = text {
-            parameters["text"] = text
+            if !text.isEmpty {
+                parameters["text"] = text
+            }
         }
         
         
         
         var request = URLRequest(url: urlComponents.url!)
         request.httpMethod = "DELETE"
-        
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
-        
+        request.setValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
         } catch let err {
             completion(nil, nil, err)
             return
+        }
+        
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
         
         
@@ -626,40 +546,7 @@ class Order {
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
                     var result = [Order]()
                     for item in json {
-                        let orderID: String = item["orderID"] as! String
-                        let clOrdID: String? = item["clOrdID"] as? String
-                        let clOrdLinkID: String? = item["clOrdLinkID"] as? String
-                        let account: Double? = item["account"] as? Double
-                        let symbol: String? = item["symbol"] as? String
-                        let side: String? = item["side"] as? String
-                        let simpleOrderQty: Double? = item["simpleOrderQty"] as? Double
-                        let orderQty: Double? = item["orderQty"] as? Double
-                        let price: Double? = item["price"] as? Double
-                        let displayQty: Double? = item["displayQty"] as? Double
-                        let stopPx: Double? = item["stopPx"] as? Double
-                        let pegOffsetValue: Double? = item["pegOffsetValue"] as? Double
-                        let pegPriceType: String? = item["pegPriceType"] as? String
-                        let currency: String? = item["currency"] as? String
-                        let settlCurrency: String? = item["settlCurrency"] as? String
-                        let ordType: String? = item["ordType"] as? String
-                        let timeInForce: String? = item["timeInForce"] as? String
-                        let execInst: String? = item["execInst"] as? String
-                        let contingencyType: String? = item["contingencyType"] as? String
-                        let exDestination: String? = item["exDestination"] as? String
-                        let ordStatus: String? = item["ordStatus"] as? String
-                        let triggered: String? = item["triggered"] as? String
-                        let workingIndicator: Bool? = item["workingIndicator"] as? Bool
-                        let ordRejReason: String? = item["ordRejReason"] as? String
-                        let simpleLeavesQty: Double? = item["simpleLeavesQty"] as? Double
-                        let leavesQty: Double? = item["leavesQty"] as? Double
-                        let simpleCumQty: Double? = item["simpleCumQty"] as? Double
-                        let cumQty: Double? = item["cumQty"] as? Double
-                        let avgPx: Double? = item["avgPx"] as? Double
-                        let multiLegReportingType: String? = item["multiLegReportingType"] as? String
-                        let text: String? = item["text"] as? String
-                        let transactTime: String? = item["transactTime"] as? String
-                        let timestamp: String? = item["timestamp"] as? String
-                        let order = Order(orderID: orderID, clOrdID: clOrdID, clOrdLinkID: clOrdLinkID, account: account, symbol: symbol, side: side, simpleOrderQty: simpleOrderQty, orderQty: orderQty, price: price, displayQty: displayQty, stopPx: stopPx, pegOffsetValue: pegOffsetValue, pegPriceType: pegPriceType, currency: currency, settlCurrency: settlCurrency, ordType: ordType, timeInForce: timeInForce, execInst: execInst, contingencyType: contingencyType, exDestination: exDestination, ordStatus: ordStatus, triggered: triggered, workingIndicator: workingIndicator, ordRejReason: ordRejReason, simpleLeavesQty: simpleLeavesQty, leavesQty: leavesQty, simpleCumQty: simpleCumQty, cumQty: cumQty, avgPx: avgPx, multiLegReportingType: multiLegReportingType, text: text, transactTime: transactTime, timestamp: timestamp)
+                        let order = Order(item: item)
                         result.append(order)
                     }
                     completion(result, response, nil)
@@ -708,10 +595,7 @@ class Order {
         var request = URLRequest(url: urlComponents.url!)
         request.httpMethod = "DELETE"
         
-        let headers = authentication.getHeaders(for: request)
-        for (key, value) in headers {
-            request.setValue(value, forHTTPHeaderField: key)
-        }
+        
         
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: parameters, options: JSONSerialization.WritingOptions())
@@ -720,6 +604,10 @@ class Order {
             return
         }
         
+        let headers = authentication.getHeaders(for: request)
+        for (key, value) in headers {
+            request.setValue(value, forHTTPHeaderField: key)
+        }
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             guard error == nil else {
@@ -742,40 +630,7 @@ class Order {
                 if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [[String: Any]] {
                     var result = [Order]()
                     for item in json {
-                        let orderID: String = item["orderID"] as! String
-                        let clOrdID: String? = item["clOrdID"] as? String
-                        let clOrdLinkID: String? = item["clOrdLinkID"] as? String
-                        let account: Double? = item["account"] as? Double
-                        let symbol: String? = item["symbol"] as? String
-                        let side: String? = item["side"] as? String
-                        let simpleOrderQty: Double? = item["simpleOrderQty"] as? Double
-                        let orderQty: Double? = item["orderQty"] as? Double
-                        let price: Double? = item["price"] as? Double
-                        let displayQty: Double? = item["displayQty"] as? Double
-                        let stopPx: Double? = item["stopPx"] as? Double
-                        let pegOffsetValue: Double? = item["pegOffsetValue"] as? Double
-                        let pegPriceType: String? = item["pegPriceType"] as? String
-                        let currency: String? = item["currency"] as? String
-                        let settlCurrency: String? = item["settlCurrency"] as? String
-                        let ordType: String? = item["ordType"] as? String
-                        let timeInForce: String? = item["timeInForce"] as? String
-                        let execInst: String? = item["execInst"] as? String
-                        let contingencyType: String? = item["contingencyType"] as? String
-                        let exDestination: String? = item["exDestination"] as? String
-                        let ordStatus: String? = item["ordStatus"] as? String
-                        let triggered: String? = item["triggered"] as? String
-                        let workingIndicator: Bool? = item["workingIndicator"] as? Bool
-                        let ordRejReason: String? = item["ordRejReason"] as? String
-                        let simpleLeavesQty: Double? = item["simpleLeavesQty"] as? Double
-                        let leavesQty: Double? = item["leavesQty"] as? Double
-                        let simpleCumQty: Double? = item["simpleCumQty"] as? Double
-                        let cumQty: Double? = item["cumQty"] as? Double
-                        let avgPx: Double? = item["avgPx"] as? Double
-                        let multiLegReportingType: String? = item["multiLegReportingType"] as? String
-                        let text: String? = item["text"] as? String
-                        let transactTime: String? = item["transactTime"] as? String
-                        let timestamp: String? = item["timestamp"] as? String
-                        let order = Order(orderID: orderID, clOrdID: clOrdID, clOrdLinkID: clOrdLinkID, account: account, symbol: symbol, side: side, simpleOrderQty: simpleOrderQty, orderQty: orderQty, price: price, displayQty: displayQty, stopPx: stopPx, pegOffsetValue: pegOffsetValue, pegPriceType: pegPriceType, currency: currency, settlCurrency: settlCurrency, ordType: ordType, timeInForce: timeInForce, execInst: execInst, contingencyType: contingencyType, exDestination: exDestination, ordStatus: ordStatus, triggered: triggered, workingIndicator: workingIndicator, ordRejReason: ordRejReason, simpleLeavesQty: simpleLeavesQty, leavesQty: leavesQty, simpleCumQty: simpleCumQty, cumQty: cumQty, avgPx: avgPx, multiLegReportingType: multiLegReportingType, text: text, transactTime: transactTime, timestamp: timestamp)
+                        let order = Order(item: item)
                         result.append(order)
                     }
                     completion(result, response, nil)
@@ -788,4 +643,32 @@ class Order {
         }
         task.resume()
     }
+    
+    
+    //MARK: - RealTime
+    
+    static func subscribeRealTime(webSocket: WebSocket, auth: Authentication) {
+        let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
+        let api_signature: String = "GET/realtime" + api_expires
+        let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
+        webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
+        
+        
+        let args: String = "\"order\""
+        let message: String = "{\"op\": \"subscribe\", \"args\": [" + args + "]}"
+        webSocket.send(text: message)
+    }
+    
+    static func unsubscribeRealTime(webSocket: WebSocket, auth: Authentication) {
+        let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
+        let api_signature: String = "GET/realtime" + api_expires
+        let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
+        webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
+        
+        
+        let args: String = "\"order\""
+        let message: String = "{\"op\": \"unsubscribe\", \"args\": [" + args + "]}"
+        webSocket.send(text: message)
+    }
+    
 }
