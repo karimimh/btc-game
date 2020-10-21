@@ -839,5 +839,57 @@ extension UIViewController {
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
+    
+    
+    
+    func alertDialog(title: String = "Error", message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: { action in
+            alert.dismiss(animated: true, completion: nil)
+        }))
+        self.present(alert, animated: true, completion: nil)
+    }
 }
 
+
+extension UILabel {
+    func flashPrice(newText: String, previousText: String? = nil) {
+        var _prevText: String?
+        if previousText == nil {
+            _prevText = self.text
+        } else {
+            _prevText = previousText
+        }
+        
+        guard let prevText = _prevText else {
+            self.text = newText
+            return
+        }
+        
+        guard newText != prevText else {
+            self.text = newText
+            return
+        }
+        
+        guard let prevPrice = Double(prevText) else {
+            self.text = newText
+            return
+        }
+        
+        guard let newPrice = Double(newText) else {
+            self.text = newText
+            return
+        }
+        
+        let isGreen = newPrice > prevPrice
+        
+        let prevTextColor = textColor
+        
+        UIView.animate(withDuration: 1.0) {
+            self.text = newText
+            self.textColor = isGreen ? UIColor.systemGreen : UIColor.systemRed
+        } completion: { (_) in
+            self.textColor = prevTextColor
+        }
+    }
+}

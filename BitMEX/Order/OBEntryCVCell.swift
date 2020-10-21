@@ -1,18 +1,18 @@
 //
-//  OBLongEntryCVCell.swift
+//  OBEntryCVCell.swift
 //  BitMEX
 //
-//  Created by Behnam Karimi on 7/15/1399 AP.
+//  Created by Behnam Karimi on 7/28/1399 AP.
 //  Copyright © 1399 AP Behnam Karimi. All rights reserved.
 //
 
 import UIKit
 
-class OBLongEntryCVCell: UICollectionViewCell {
-    @IBOutlet weak var amountLabel: UILabel!
-    @IBOutlet weak var progressView: OrderBookProgressView!
+class OBEntryCVCell: UICollectionViewCell {
     
     @IBOutlet weak var priceLabel: UILabel!
+    @IBOutlet weak var amountLabel: UILabel!
+    @IBOutlet weak var progressView: OrderBookProgressView!
     
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -23,7 +23,5 @@ class OBLongEntryCVCell: UICollectionViewCell {
         progressView.setNeedsDisplay()
         amountLabel.setNeedsDisplay()
         priceLabel.setNeedsDisplay()
-        contentView.backgroundColor = App.BullColor.withAlphaComponent(0.5)
-        
     }
 }

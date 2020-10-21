@@ -37,6 +37,8 @@ class ChartVC: UIViewController {
     
     var viewDidLoadExecuted = false
     
+    var activeDropDown: DropDownTVCell?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         if let delegate = UIApplication.shared.delegate as? AppDelegate {
@@ -92,9 +94,11 @@ class ChartVC: UIViewController {
             }
         } else if !layersContainerView.isHidden && !layersButton.frame.contains(location) {
             layersContainerView.endEditing(true)
-            if chart.isContextMenuShowing {
-                if !chart.buttonContainer.frame.contains(location) {
-                    chart.hideContextMenu()
+            if let dd = self.activeDropDown {
+                if dd.isContextMenuShowing {
+                    if !dd.buttonContainer.frame.contains(location) {
+                        dd.hideContextMenu()
+                    }
                 }
             } else if !layersContainerView.frame.contains(location) {
                 toggleLayersView()

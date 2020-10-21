@@ -19,8 +19,9 @@ class App {
         return chartVC?.chart
     }
     var chartVC: ChartVC?
-    var accountVC: AccountVC?
-    var tradeVC: TradeVC?
+    var orderVC: OrderVC?
+    var viewController: ViewController?
+    var tabBarVC: UITabBarController?
     
     var chartNeedsSetupOnViewAppeared = true
     
@@ -32,11 +33,8 @@ class App {
     var webSocket = WebSocket("wss://www.bitmex.com/realtime")
     var authentication: Authentication? {
         didSet {
-            if let vc = tradeVC {
+            if let vc = orderVC {
                 vc.initWebsocket()
-            }
-            if let vc = accountVC {
-                vc.initWebSocket()
             }
             if let vc = chartVC {
                 vc.chart.activateWebsocket()
@@ -44,12 +42,20 @@ class App {
         }
     }
     
+    var user: User?
+    var walletHistory: [User.WalletHistory]?
+    var wallet: User.Wallet?
+    var margin: User.Margin?
+    var position: [Position]?
+    var orders: [Order]?
+    
     var insX = 0
     var margX = 0
     
-    private var realtimeTableCompletion: [String: [([String: Any]) -> Void]] = [:]
+    var websocketCompletions: [String: [([String: Any]) -> Void]] = [:]
     private var realtimeSubscriptionArgs: [String] = []
     private var partials: [String: [String: Any]?] = [:]
+    
 
     
     //MARK: - Initialization
@@ -63,38 +69,34 @@ class App {
     
     
     //MARK: - Methods
-    func addRealtimeSubscription(arg :String, tableName: String, completion: @escaping ([String: Any]) -> Void) {
-        let args = realtimeSubscriptionArgs
-        let completions = realtimeTableCompletion
-        let _partials = partials
-        
-        var tableNames: [String] = []
-        for (k, _) in realtimeTableCompletion {
-            tableNames.append(k)
+    func resetWebSocket() {
+        if !websocketCompletions.isEmpty {
+            var tableNames: [String] = []
+            for (k, _) in websocketCompletions {
+                tableNames.append(k)
+            }
+            unsubscribeRealTime()
+            webSocket = WebSocket("wss://www.bitmex.com/realtime")
         }
-        unsubscribeRealTime(tableNames: tableNames)
+        partials.removeAll()
+        realtimeSubscriptionArgs.removeAll()
+        websocketCompletions.removeAll()
         
-        realtimeSubscriptionArgs = args
-        realtimeTableCompletion = completions
-        partials = _partials
-        
-        if var comps = realtimeTableCompletion[tableName] {
-            comps.append(completion)
-            realtimeTableCompletion[tableName] = comps
-        } else {
-            realtimeTableCompletion[tableName] = [completion]
-            realtimeSubscriptionArgs.append(arg)
-            partials[tableName] = nil
+        realtimeSubscriptionArgs = ["instrument:\(settings.chartSymbol)", "position", "wallet", "margin", "order", "orderBookL2_25:\(settings.chartSymbol)", "trade:\(settings.chartSymbol)"]
+        for arg in realtimeSubscriptionArgs {
+            websocketCompletions[arg] = []
         }
         subscribeRealTime()
     }
     
-    func removeRealtimeSubscription(tableName: String) {
-        if partials[tableName] == nil || realtimeTableCompletion[tableName] == nil {
-            return
+    func removeLatestWebsocketCompletion(arg: String) {
+        if websocketCompletions[arg] != nil {
+            if !websocketCompletions[arg]!.isEmpty {
+                websocketCompletions[arg]!.removeLast()
+            }
         }
-        unsubscribeRealTime(tableNames: [tableName])
     }
+    
     
     
     func subscribeRealTime() {
@@ -118,10 +120,12 @@ class App {
             do {
                 if let json = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions()) as? [String: Any] {
                     if let table = json["table"] as? String {
-                        guard let completions = self.realtimeTableCompletion[table] else { return }
-                        
+                        let comps = self.websocketCompletions.first { (element) -> Bool in
+                            return element.key.split(separator: ":")[0] == table
+                        }?.value
+                        guard let completions = comps else { return }
                         if table == "trade" {
-                            completions[0](json)
+                            completions.first?(json)
                         } else {
                             self.partials[table] = RealTime.processPayload(payload: json, partial: self.partials[table] ?? nil)
                             
@@ -138,7 +142,7 @@ class App {
         }
     }
     
-    private func unsubscribeRealTime(tableNames: [String]) {
+    private func unsubscribeRealTime() {
         if realtimeSubscriptionArgs.isEmpty { return }
         if let auth = self.authentication {
             let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
@@ -147,31 +151,10 @@ class App {
             webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
         }
         
-        var a: [String] = []
-        for tableName in tableNames {
-            for arg in realtimeSubscriptionArgs {
-                if arg.contains(tableName) {
-                    a.append(arg)
-                }
-            }
-        }
         
-        let message: String = "{\"op\": \"unsubscribe\", \"args\": " + a.description + "}"
+        let message: String = "{\"op\": \"unsubscribe\", \"args\": " + realtimeSubscriptionArgs.description + "}"
         webSocket.send(text: message)
-        
-        
-        for tableName in tableNames {
-            realtimeTableCompletion[tableName] = nil
-            partials[tableName] = nil
-        }
-        realtimeSubscriptionArgs.removeAll { (s) -> Bool in
-            for arg in a {
-                if s == arg {
-                    return true
-                }
-            }
-            return false
-        }
+        webSocket.close()
     }
     
     func getInstrument(_ symbol: String) -> Instrument? {

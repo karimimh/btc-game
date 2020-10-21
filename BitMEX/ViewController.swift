@@ -17,40 +17,84 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         
         
-        
-        
-        
-//        POST_RequestWithdrawal(api_key: api_key, currency: "btc", amount: 0.001, address: bitmex_address) { (json, optionalResponse, optionalError) in
-//            guard optionalError == nil else {
-//                print(optionalError!.localizedDescription)
-//                return
-//            }
-//            guard optionalResponse != nil else {
-//                print("No Response!")
-//                return
-//            }
-//            if let response = optionalResponse as? HTTPURLResponse {
-//                if response.statusCode == 200 {
-//                    if let json = json {
-//                        print(json)
-//                    }
-//                } else {
-//                    print(response.description)
-//                }
-//            } else {
-//                print("Bad Response!")
-//            }
-//        }
-        
-        
         if let delegate = UIApplication.shared.delegate as? AppDelegate {
             delegate.app = app
         }
         
+        app.viewController = self
+        
         if !app.settings.accountApiKey.isEmpty {
             app.authentication = Authentication(apiKey: app.settings.accountApiKey, apiSecret: app.settings.accountApiSecret)
+            downloadData()
+        } else {
+            if let loginVC = storyboard?.instantiateViewController(identifier: "LoginVC") as? LoginVC {
+                loginVC.dissmissCompletion = {
+                    self.downloadData()
+                }
+                self.present(loginVC, animated: true, completion: nil)
+            }
         }
         
+        
+        
+        
+
+    }
+
+    func downloadData() {
+        self.getInstruments { (optionalInstruments) in
+            if let instruments = optionalInstruments {
+                self.app.activeInstruments = instruments
+                self.getUser { (u) in
+                    if u != nil {
+                        self.app.user = u
+                        self.getWalletHistory { (wh) in
+                            self.app.walletHistory = wh
+                            self.getWallet { (w) in
+                                self.app.wallet = w
+                                self.getMargin { (m) in
+                                    self.app.margin = m
+                                    self.getPosition { (p) in
+                                        self.app.position = p
+                                        self.getOrders { (o) in
+                                            self.app.orders = o
+                                            self.presentTheViewController()
+                                            
+                                        }
+                                    }
+                                }
+                            }
+                            
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func presentTheViewController() {
+        app.resetWebSocket()
+        self.app.websocketCompletions["instrument:\(app.settings.chartSymbol)"]?.append({ (json) in
+            if let data = json["data"] as? [[String: Any]] {
+                let instrument = Instrument(item: data[0])
+                for i in 0 ..< self.app.activeInstruments.count {
+                    if self.app.activeInstruments[i].symbol == instrument.symbol {
+                        self.app.activeInstruments[i] = instrument
+                        break
+                    }
+                }
+            }
+        })
+            
+        DispatchQueue.main.async {
+            self.performSegue(withIdentifier: "showTabbarVCSegue", sender: self)
+        }
+    }
+    
+    
+    
+    
+    func getInstruments(completion: @escaping (([Instrument]?) -> Void)) {
         Instrument.GET_Active() { (optionalInstruments, optionalResponse, optionalError) in
             guard optionalError == nil else {
                 print(optionalError!.localizedDescription)
@@ -62,10 +106,7 @@ class ViewController: UIViewController {
             }
             if let response = optionalResponse as? HTTPURLResponse {
                 if response.statusCode == 200 {
-                    if let instruments = optionalInstruments {
-                        self.app.activeInstruments = instruments
-                        self.presentTheViewController()
-                    }
+                    completion(optionalInstruments)
                 } else {
                     print(response.description)
                 }
@@ -73,109 +114,188 @@ class ViewController: UIViewController {
                 print("Bad Response!")
             }
         }
-        
-        
-        
-        
-        
-//        Announcement.GETUrgent(authentication: account, columns: [Announcement.Columns.title, Announcement.Columns.content, Announcement.Columns.date]) { (optionalAnnouncements, optionalResponse, optionalError) in
-//            guard optionalError == nil else {
-//                print(optionalError!.localizedDescription)
-//                return
-//            }
-//            guard optionalResponse != nil else {
-//                print("No Response!")
-//                return
-//            }
-//            if let response = optionalResponse as? HTTPURLResponse {
-//                if response.statusCode == 200 {
-//                    if let announcements = optionalAnnouncements {
-//                        for announcement in announcements {
-//                            print(announcement.title!, ": ", announcement.content!)
-//                        }
-//                    }
-//                } else {
-//                    print(response.description)
-//                }
-//            } else {
-//                print("Bad Response!")
-//            }
-//        }
-        
-//        let filter: [String: Any] = ["execType": ["Settlement", "Trade"]]
-//        Execution.GETTradeHistory(authentication: account, symbol: "XBTUSD", count: 100, reverse: true, startTime: "2014-12-26 11:00", endTime: "2018-12-20 13:00", filter: filter, columns: [Execution.Columns.account, Execution.Columns.execType]) { (optionalExecution, optionalResponse, optionalError) in
-//            guard optionalError == nil else {
-//                print(optionalError!.localizedDescription)
-//                return
-//            }
-//            guard optionalResponse != nil else {
-//                print("No Response!")
-//                return
-//            }
-//            if let response = optionalResponse as? HTTPURLResponse {
-//                print(response.statusCode)
-//                if response.statusCode == 200 {
-//                    if let executions = optionalExecution {
-//                        for execution in executions {
-//                            print(execution.execID)
-//                        }
-//                    }
-//                } else {
-//                    print(response.description)
-//                }
-//            } else {
-//                print("Bad Response!")
-//            }
-//        }
-        
-//        let filter: [String: Any] = ["symbol": "XBTUSD"]
-//        Funding.GET(count: 100, reverse: true, start: 5, startTime: "2014-12-26 11:00", endTime: "2018-12-20 13:00", filter: filter) { (optionalFunding, optionalResponse, optionalError) in
-//            guard optionalError == nil else {
-//                print(optionalError!.localizedDescription)
-//                return
-//            }
-//            guard optionalResponse != nil else {
-//                print("No Response!")
-//                return
-//            }
-//            if let response = optionalResponse as? HTTPURLResponse {
-//                print(response.statusCode)
-//                if response.statusCode == 200 {
-//                    if let fundings = optionalFunding {
-//                        for funding in fundings {
-//                            print(funding.symbol, ": ", funding.fundingRate ?? "", "\t\t", funding.timestamp)
-//                        }
-//                    }
-//                } else {
-//                    print(response.description)
-//                }
-//            } else {
-//                print("Bad Response!")
-//            }
-//        }
-        
-        
-        
-
     }
-
-
-    private func presentTheViewController() {
-        self.app.addRealtimeSubscription(arg: "instrument:\(app.settings.chartSymbol)", tableName: "instrument") { (json) in
-            if let data = json["data"] as? [[String: Any]] {
-                let instrument = Instrument(item: data[0])
-                for i in 0 ..< self.app.activeInstruments.count {
-                    if self.app.activeInstruments[i].symbol == instrument.symbol {
-                        self.app.activeInstruments[i] = instrument
-                        break
-                    }
+    
+    
+    func getUser(completion: @escaping (User?) -> Void) {
+        User.GET(authentication: self.app.authentication!) { (optionalUser, optionalResponse, optionalError) in
+            guard optionalError == nil else {
+                print(optionalError!.localizedDescription)
+                completion(nil)
+                return
+            }
+            guard optionalResponse != nil else {
+                print("No Response!")
+                completion(nil)
+                return
+            }
+            if let response = optionalResponse as? HTTPURLResponse {
+                if response.statusCode == 200 {
+                    completion(optionalUser)
+                } else {
+                    print(response.description)
+                    completion(nil)
+                    return
                 }
+            } else {
+                print("Bad Response!")
+                completion(nil)
+                return
             }
         }
-        DispatchQueue.main.async {
-            self.performSegue(withIdentifier: "showTabbarVCSegue", sender: self)
+        
+    }//۰۱۵۶۰۰۵۰۰۲۵۶۱۲۶
+    
+    
+    func getWallet(completion: @escaping (User.Wallet?) -> Void) {
+        User.GET_Wallet(authentication: app.authentication!) { (optionalWallet, optionalResponse, optionalError) in
+            guard optionalError == nil else {
+                print(optionalError!.localizedDescription)
+                completion(nil)
+                return
+            }
+            guard optionalResponse != nil else {
+                print("No Response!")
+                completion(nil)
+                return
+            }
+            if let response = optionalResponse as? HTTPURLResponse {
+                if response.statusCode == 200 {
+                    completion(optionalWallet)
+                } else {
+                    print(response.description)
+                    completion(nil)
+                    return
+                }
+            } else {
+                print("Bad Response!")
+                completion(nil)
+                return
+            }
         }
     }
+    
+    
+    func getWalletHistory(completion: @escaping ([User.WalletHistory]?) -> Void) {
+        User.GET_WalletHistory(authentication: app.authentication!) { (optionalWalletHistory, optionalResponse, optionalError) in
+            guard optionalError == nil else {
+                print(optionalError!.localizedDescription)
+                completion(nil)
+                return
+            }
+            guard optionalResponse != nil else {
+                print("No Response!")
+                completion(nil)
+                return
+            }
+            if let response = optionalResponse as? HTTPURLResponse {
+                if response.statusCode == 200 {
+                    completion(optionalWalletHistory)
+                } else {
+                    print(response.description)
+                    completion(nil)
+                    return
+                }
+            } else {
+                print("Bad Response!")
+                completion(nil)
+                return
+            }
+        }
+    }
+    
+    
+    func getMargin(completion: @escaping (User.Margin?) -> Void) {
+        User.GET_Margin(authentication: app.authentication!, currency: "XBT") { (optionalMargin, optionalResponse, optionalError) in
+            guard optionalError == nil else {
+                print(optionalError!.localizedDescription)
+                completion(nil)
+                return
+            }
+            guard optionalResponse != nil else {
+                print("No Response!")
+                completion(nil)
+                return
+            }
+            if let response = optionalResponse as? HTTPURLResponse {
+                if response.statusCode == 200 {
+                    completion(optionalMargin)
+                } else {
+                    print(response.description)
+                    completion(nil)
+                    return
+                }
+            } else {
+                print("Bad Response!")
+                completion(nil)
+                return
+            }
+        }
+    }
+    
+    func getPosition(completion: @escaping ([Position]?) -> Void) {
+        Position.GET(authentication: app.authentication!) { (optionalPosition, optionalResponse, optionalError) in
+            guard optionalError == nil else {
+                print(optionalError!.localizedDescription)
+                completion(nil)
+                return
+            }
+            guard optionalResponse != nil else {
+                print("No Response!")
+                completion(nil)
+                return
+            }
+            if let response = optionalResponse as? HTTPURLResponse {
+                if response.statusCode == 200 {
+                    completion(optionalPosition)
+                } else {
+                    print(response.description)
+                    completion(nil)
+                    return
+                }
+            } else {
+                print("Bad Response!")
+                completion(nil)
+                return
+            }
+        }
+    }
+
+    func getOrders(completion: @escaping ([Order]?) -> Void) {
+        Order.GET(authentication: app.authentication!) { (optionalOrder, optionalResponse, optionalError) in
+            guard optionalError == nil else {
+                print(optionalError!.localizedDescription)
+                completion(nil)
+                return
+            }
+            guard optionalResponse != nil else {
+                print("No Response!")
+                completion(nil)
+                return
+            }
+            if let response = optionalResponse as? HTTPURLResponse {
+                if response.statusCode == 200 {
+                    completion(optionalOrder)
+                } else {
+                    print(response.description)
+                    completion(nil)
+                    return
+                }
+            } else {
+                print("Bad Response!")
+                completion(nil)
+                return
+            }
+            
+        }
+        
+    }
+    
+    
+    
+    
+    
+    //-------------------
     
     
     

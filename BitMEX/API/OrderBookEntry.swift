@@ -136,6 +136,7 @@ class OrderBook {
     var longEntries: [OrderBookEntry] = []
     var shortEntries: [OrderBookEntry] = []
     
+    
     init(entries: [OrderBookEntry]) {
         setEntries(entries)
     }
@@ -174,6 +175,42 @@ class OrderBook {
         }
         shortEntries.reverse()
     }
+    
+    
+    
+    func getLongEntries(gap: Double = 0.5) -> [OrderBookEntry] {
+        let m = Int(gap / 0.5)
+        var result = [OrderBookEntry]()
+        
+        var i = 0
+        while i < longEntries.count {
+            if i % m == 0 {
+                result.append(longEntries[i])
+            } else {
+                result[result.count - 1].size = longEntries[i].size! + result[result.count - 1].size!
+                result[result.count - 1].price = longEntries[i].price
+            }
+            i += 1
+        }
+        return result
+    }
+    
+    func getShortEntries(gap: Double = 0.5) -> [OrderBookEntry] {
+        let m = Int(gap / 0.5)
+        var result = [OrderBookEntry]()
+        
+        var i = 0
+        while i < shortEntries.count {
+            if i % m == 0 {
+                result.append(shortEntries[i])
+            } else {
+                result[result.count - 1].size = shortEntries[i].size! + result[result.count - 1].size!
+            }
+            i += 1
+        }
+        return result
+    }
+    
     
     func totalSize(rows: Int) -> Int {
         var s: Int = 0

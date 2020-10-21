@@ -42,6 +42,7 @@ class TextFieldTVCell: UITableViewCell, UITextFieldDelegate {
         return true
     }
     
+    
     func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
         textFieldValueChangedCompletion?(textField.text)
         textField.resignFirstResponder()

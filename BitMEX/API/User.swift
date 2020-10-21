@@ -403,7 +403,6 @@ class User {
     
     
     static func GET_Commission(authentication: Authentication, completion: @escaping (UserCommission?, URLResponse?, Error?) -> Void) {
-        
         let scheme = "https"
         let host = "www.bitmex.com"
         let path = "/api/v1" + endpoint_commission
@@ -1694,12 +1693,12 @@ class User {
             indicativeTax = item["indicativeTax"] as? Double
             unrealisedProfit = item["unrealisedProfit"] as? Double
             syntheticMargin = item["syntheticMargin"] as? Double
-            walletBalance = item["walletBalance"] as? Double
-            marginBalance = item["marginBalance"] as? Double
+            walletBalance = item["walletBalance"] as? Int
+            marginBalance = item["marginBalance"] as? Int
             marginBalancePcnt = item["marginBalancePcnt"] as? Double
             marginLeverage = item["marginLeverage"] as? Double
             marginUsedPcnt = item["marginUsedPcnt"] as? Double
-            excessMargin = item["excessMargin"] as? Double
+            excessMargin = item["excessMargin"] as? Int
             excessMarginPcnt = item["excessMarginPcnt"] as? Double
             availableMargin = item["availableMargin"] as? Double
             withdrawableMargin = item["withdrawableMargin"] as? Double
@@ -1738,12 +1737,12 @@ class User {
         var indicativeTax: Double?
         var unrealisedProfit: Double?
         var syntheticMargin: Double?
-        var walletBalance: Double?
-        var marginBalance: Double?
+        var walletBalance: Int?
+        var marginBalance: Int?
         var marginBalancePcnt: Double?
         var marginLeverage: Double?
         var marginUsedPcnt: Double?
-        var excessMargin: Double?
+        var excessMargin: Int?
         var excessMarginPcnt: Double?
         var availableMargin: Double?
         var withdrawableMargin: Double?

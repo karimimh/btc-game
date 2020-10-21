@@ -8,7 +8,7 @@
 
 import UIKit
 
-class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
+class Chart: UIView {
     
     
     //MARK: - Properties
@@ -41,6 +41,9 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
     var app: App!
     
     
+    var lastExecTime: Date = Date()
+    var websocketTimer: Timer?
+    
     //MARK: - Initialization
     required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
@@ -58,11 +61,21 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
         backgroundColor = app.settings.chartBackgroundColor
     }
     
-    
+    @objc func websocketCheck() {
+        let now = Date()
+        
+        let timeInterval = now.timeIntervalSince1970 - lastExecTime.timeIntervalSince1970
+        
+        if timeInterval >= 6.0 {
+            websocketTimer?.invalidate()
+            setupChart()
+        }
+    }
     
     //MARK: - Public Methods
     func setupChart() {
-        app.removeRealtimeSubscription(tableName: "trade")
+        app.resetWebSocket()
+        websocketTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(websocketCheck), userInfo: self, repeats: true)
         priceTracker?.isEnabled = false
         newestCandleX = bounds.width * 0.75
         if drawerBar.isMainMenuShowing {
@@ -262,6 +275,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
     //MARK: Download Older Candles
     var isDownloadingOlderCandles = false
     var CHARTSHOULDNOTBEREDRAWN = false
+    
     func downloadOlderCandles() {
         if isDownloadingOlderCandles {
             return
@@ -336,8 +350,12 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
     //MARK: - Websocket
     
     func activateWebsocket() {
-        app.addRealtimeSubscription(arg: "trade:\(app.settings.chartSymbol)", tableName: "trade") { (json) in
+        self.lastExecTime = Date()
+        
+        app.websocketCompletions["trade:\(app.settings.chartSymbol)"]?.append({ (json) in
             if let tradeData = json["data"] as? [[String: Any]] {
+                self.lastExecTime = Date()
+                
                 let trades = Trade.processJSONString(tradeData)
                 var volume: Double = 0
                 var high: Double = -Double.greatestFiniteMagnitude
@@ -387,7 +405,7 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
                     self.redraw()
                 }
             }
-        }
+        })
         
         
     }
@@ -588,144 +606,6 @@ class Chart: UIView, UITableViewDelegate, UITableViewDataSource {
     
     
     
-    
-    //MARK: - Manual Context Menu
-    var buttonContainer: UIView!
-    var innerButtonContainer: UIView!
-    private var selectedTitle = ""
-    private var buttonHeight: CGFloat = 30.0
-    private var buttonWidth: CGFloat = 10.0
-    private var buttonCount: CGFloat {
-        return menuTitles.count.cgFloat
-    }
-    private var menuTitles = [String]()
-    private var menuItemSelectedCompletion: ((String) -> Void)?
-    private var animationDuration = 0.3
-    
-    func showContextMenu(at location: CGPoint, withTitles: [String], selectedTitle: String, andCompletion: @escaping (String) -> Void) {
-        buttonHeight = 30.0
-        buttonWidth = 10.0
-        self.selectedTitle = selectedTitle
-        menuTitles = withTitles
-        menuItemSelectedCompletion = andCompletion
-        
-        for title in menuTitles {
-            let str = title.asAttributedString(color: .black, font: UIFont.systemFont(ofSize: 15.0))
-            if str.size().width > buttonWidth {
-                buttonWidth = str.size().width
-            }
-            if str.size().height > buttonHeight {
-                buttonHeight = str.size().height
-            }
-        }
-        
-        buttonWidth += 20.0
-        buttonHeight += 15.0
-        
-        let menuHeight = buttonCount * buttonHeight
-        var y = location.y
-        let x = location.x
-        
-        
-        
-        if menuHeight + y > bounds.height {
-            y = bounds.height - menuHeight
-            if y < 0 {
-                y = 0
-            }
-            buttonContainer = UIView(frame: CGRect(x: x, y: y, width: buttonWidth, height: 0))
-        } else {
-            buttonContainer = UIView(frame: CGRect(x: x, y: y, width: buttonWidth, height: 0))
-        }
-        
-        innerButtonContainer = UITableView(frame: CGRect(origin: .zero, size: CGSize(width: buttonWidth, height: 0)), style: .plain)
-        (innerButtonContainer as! UITableView).delegate = self
-        (innerButtonContainer as! UITableView).dataSource = self
-        (innerButtonContainer as! UITableView).contentInset = .zero
-        (innerButtonContainer as! UITableView).separatorInset = .zero
-        (innerButtonContainer as! UITableView).register(UINib(nibName: "SimpleTVCell", bundle: nil), forCellReuseIdentifier: "SimpleTVCell")
-        buttonContainer.addSubview(innerButtonContainer)
-        
-        
-        innerButtonContainer.translatesAutoresizingMaskIntoConstraints = false
-        innerButtonContainer.leadingAnchor.constraint(equalTo: buttonContainer.leadingAnchor).isActive = true
-        innerButtonContainer.trailingAnchor.constraint(equalTo: buttonContainer.trailingAnchor).isActive = true
-        innerButtonContainer.topAnchor.constraint(equalTo: buttonContainer.topAnchor).isActive = true
-        innerButtonContainer.bottomAnchor.constraint(equalTo: buttonContainer.bottomAnchor).isActive = true
-        
-        
-        innerButtonContainer.backgroundColor = .white
-        
-        
-        addSubview(buttonContainer)
-        buttonContainer.addShadow(color: .lightGray, opacity: 1.0, shadowRadius: 3.0, offset: CGSize(width: -3.0, height: 3.0))
-        
-        buttonContainer.alpha = 0.0
-        
-        toggleContextMenu()
-        
-    }
-    
-    func hideContextMenu(completion: @escaping () -> Void = {}) {
-        toggleContextMenu(completion: completion)
-    }
-    
-    
-    var isContextMenuShowing = false
-    private func toggleContextMenu(completion: @escaping (() -> Void) = {}) {
-        if !isContextMenuShowing {
-            isContextMenuShowing = !isContextMenuShowing
-            UIView.animate(withDuration: animationDuration, animations: {
-                let f = self.buttonContainer.frame
-                var menuHeight = self.buttonCount * self.buttonHeight
-                if menuHeight + f.origin.y > self.bounds.height {
-                    menuHeight = self.bounds.height - f.origin.y
-                }
-                self.buttonContainer.frame = CGRect(x: f.origin.x, y: f.origin.y, width: self.buttonWidth, height: menuHeight)
-                self.buttonContainer.alpha = 1.0
-                self.layoutIfNeeded()
-            }) { (_) in
-                completion()
-            }
-        } else {
-            UIView.animate(withDuration: animationDuration, animations: {
-                let f = self.buttonContainer.frame
-                self.buttonContainer.frame = CGRect(x: f.origin.x, y: f.origin.y, width: self.buttonWidth, height: 0)
-                self.buttonContainer.alpha = 0.0
-                self.layoutIfNeeded()
-            }) { (_) in
-                self.buttonContainer.removeFromSuperview()
-                self.isContextMenuShowing = !self.isContextMenuShowing
-                completion()
-            }
-        }
-        
-        
-    }
-    
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return menuTitles.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "SimpleTVCell", for: indexPath) as! SimpleTVCell
-        cell.lbl.text = menuTitles[indexPath.row]
-        if menuTitles[indexPath.row] == selectedTitle {
-            cell.backgroundColor = .systemBlue
-        }
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return buttonHeight
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        toggleContextMenu {
-            self.menuItemSelectedCompletion?(self.menuTitles[indexPath.row])
-        }
-    }
     
     
     

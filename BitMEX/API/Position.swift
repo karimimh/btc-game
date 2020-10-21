@@ -93,7 +93,7 @@ class Position {
     var indicativeTaxRate: Double?
     var indicativeTax: Double?
     var unrealisedTax: Double?
-    var unrealisedPnl: Double?
+    var unrealisedPnl: Int?
     var unrealisedPnlPcnt: Double?
     var unrealisedRoePcnt: Double?
     var simpleQty: Double?
@@ -188,7 +188,7 @@ class Position {
         indicativeTaxRate = json["indicativeTaxRate"] as? Double
         indicativeTax = json["indicativeTax"] as? Double
         unrealisedTax = json["unrealisedTax"] as? Double
-        unrealisedPnl = json["unrealisedPnl"] as? Double
+        unrealisedPnl = json["unrealisedPnl"] as? Int
         unrealisedPnlPcnt = json["unrealisedPnlPcnt"] as? Double
         unrealisedRoePcnt = json["unrealisedRoePcnt"] as? Double
         simpleQty = json["simpleQty"] as? Double

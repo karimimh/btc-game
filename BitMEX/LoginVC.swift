@@ -15,6 +15,9 @@ class LoginVC: UIViewController {
     @IBOutlet weak var loginButton: UIButton!
     
     
+    var dissmissCompletion: (() -> Void)?
+    
+    
     //MARK: Properties
     var app: App!
     
@@ -60,7 +63,7 @@ class LoginVC: UIViewController {
                                 DispatchQueue.main.async {
                                     self.setButtonText()
                                     self.dismiss(animated: true) {
-                                        self.app.accountVC?.initWebSocket()
+                                        self.dissmissCompletion?()
                                     }
                                 }
                             } else {
@@ -84,7 +87,7 @@ class LoginVC: UIViewController {
                 DispatchQueue.main.async {
                     self.setButtonText()
                     self.dismiss(animated: true) {
-                        self.app.accountVC?.initWebSocket()
+                        self.app.viewController?.downloadData()
                         
                     }
                 }

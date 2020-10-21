@@ -139,6 +139,7 @@ extension LayerSettingsVC: UITableViewDataSource, UITableViewDelegate {
                 return cell
             } else if key.contains(Indicator.InputKey.method) {
                 let cell = tableView.dequeueReusableCell(withIdentifier: DropDownTVCell.identidier, for: indexPath) as! DropDownTVCell
+                cell.context = app.chart
                 cell.label.text = key.capitalized
                 cell.menuTitles = Indicator.Method.all()
                 cell.mainButton.setTitle(value as? String, for: .normal)
@@ -160,6 +161,7 @@ extension LayerSettingsVC: UITableViewDataSource, UITableViewDelegate {
                 return cell
             } else if key.contains(Indicator.InputKey.source) {
                 let cell = tableView.dequeueReusableCell(withIdentifier: DropDownTVCell.identidier, for: indexPath) as! DropDownTVCell
+                cell.context = app.chart
                 cell.label.text = key.capitalized
                 cell.menuTitles = Indicator.Source.all()
                 cell.mainButton.setTitle(value as? String, for: .normal)
