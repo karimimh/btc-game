@@ -137,15 +137,15 @@ class TimeView: UIView {
         var _1m = [Int]()
         
         
-        var date: Date = visibleCandles.first!.openTime.localToUTC()
+        var date: Date = visibleCandles.first!.openTime
         var i = 0
         while blockWidth! * CGFloat(i) < bounds.width {
             if i < visibleCandles.count {
-                date = visibleCandles[i].openTime.localToUTC()
+                date = visibleCandles[i].openTime
             } else {
                 date = date.dateBy(adding: timeframe)
             }
-            let calendar = Calendar.current
+            let calendar = App.myCalendar
             let minute = calendar.component(.minute, from: date)
             let hour = calendar.component(.hour, from: date)
             let day = calendar.component(.day, from: date)
@@ -379,15 +379,15 @@ class TimeView: UIView {
         var _1m = [Int]()
         
         
-        var date: Date = visibleCandles.first!.openTime.localToUTC()
+        var date: Date = visibleCandles.first!.openTime
         var i = 0
         while blockWidth! * CGFloat(i) < bounds.width {
             if i < visibleCandles.count {
-                date = visibleCandles[i].openTime.localToUTC()
+                date = visibleCandles[i].openTime
             } else {
                 date = date.dateBy(adding: timeframe)
             }
-            let calendar = Calendar.current
+            let calendar = App.myCalendar
             let minute = calendar.component(.minute, from: date)
             let hour = calendar.component(.hour, from: date)
             let day = calendar.component(.day, from: date)
@@ -586,41 +586,34 @@ class TimeView: UIView {
         
         var time: Date
         if tick < visibleCandles.count {
-            time = visibleCandles[tick].openTime.localToUTC()
+            time = visibleCandles[tick].openTime
         } else {
-            time = visibleCandles.last!.openTime.localToUTC()
+            time = visibleCandles.last!.openTime
             for _ in visibleCandles.count ... tick {
                 time = time.dateBy(adding: timeframe)
             }
         }
         
         
-//        let timeLocal = time.utcToLocal()
-        let timeLocal = time
         
         var text = ""
-        let minute = Calendar.current.component(.minute, from: time)
-        let hour = Calendar.current.component(.hour, from: time)
-        let day = Calendar.current.component(.day, from: time)
-        let month = Calendar.current.component(.month, from: time)
-        
-        let dayL = Calendar.current.component(.day, from: timeLocal)
-        let monthL = Calendar.current.component(.month, from: timeLocal)
-        let yearL = Calendar.current.component(.year, from: timeLocal)
-        let minuteL = Calendar.current.component(.minute, from: timeLocal)
-        let hourL = Calendar.current.component(.hour, from: timeLocal)
+        let minute = App.myCalendar.component(.minute, from: time)
+        let hour = App.myCalendar.component(.hour, from: time)
+        let day = App.myCalendar.component(.day, from: time)
+        let month = App.myCalendar.component(.month, from: time)
+        let year = App.myCalendar.component(.year, from: time)
         
         if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) && (month == 1) {
-            text = String(yearL)
+            text = String(year)
         } else if (minute % 60 == 0) && (hour % 24 == 0) && (day == 1) {
-            text = Calendar.current.monthSymbols[monthL - 1]
+            text = App.myCalendar.monthSymbols[month - 1]
             text = String(text[text.startIndex ..< text.index(text.startIndex, offsetBy: 3)])
         } else if (minute % 60 == 0) && (hour % 24 == 0) {
-            text = String(dayL)
+            text = String(day)
         } else if (minute % 60 == 0) {
-            text = String(format: "%d:%02d", hourL, minuteL)
+            text = String(format: "%d:%02d", hour, minute)
         } else {
-            text = String(format: "%d:%0d", hourL, minuteL)
+            text = String(format: "%d:%0d", hour, minute)
         }
         return text
     }

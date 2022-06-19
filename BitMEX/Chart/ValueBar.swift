@@ -59,8 +59,8 @@ class ValueBar: UIView {
                 }
                 tickPrices.append(p)
             }
-            if width > chart.valueBarWidth {
-                chart.valueBarWidth = width
+            if width + 5.0 > chart.valueBarWidth {
+                chart.valueBarWidth = width + 5.0
             }
         }
     }
@@ -85,21 +85,12 @@ class ValueBar: UIView {
 //        ctx.strokeLineSegments(between: [CGPoint(x: 0, y: rect.height), CGPoint(x: rect.width, y: rect.height)])
         ctx.setLineWidth(1.0)
         
-        let L: Decimal = lowestValue
-        let H: Decimal = highestValue
-        
-//        if let t = self.topMargin, let b = self.bottomMargin {
-//            let c1: Double = b / (100.0 - b - t)
-//            L = lowestValue - (highestValue - lowestValue) * c1.decimalValue
-//            let c2: Double = (100.0 - b) / (100.0 - b - t)
-//            H = lowestValue + (highestValue - lowestValue) * c2.decimalValue
-//        }
         
         for i in 0..<tickPrices.count {
             let string = tickStrings[i]
             let price = tickPrices[i]
             let stringSize = string.size()
-            let y = self.y(price: price.doubleValue, highestPrice: H.doubleValue, lowestPrice: L.doubleValue, topMargin: topMargin ?? 0, bottomMargin: bottomMargin ?? 0, logScale: logScale)
+            let y = self.y(price: price.doubleValue, highestPrice: highestValue.doubleValue, lowestPrice: lowestValue.doubleValue, topMargin: topMargin ?? 0, bottomMargin: bottomMargin ?? 0, logScale: logScale)
             let stringRect = CGRect(x: 6, y: y - stringSize.height / 2, width: stringSize.width, height: stringSize.height)
             horizontalGridLines.append(y)
             ctx.strokeLineSegments(between: [CGPoint(x: 1, y: y), CGPoint(x: 6, y: y)])
@@ -131,15 +122,10 @@ class ValueBar: UIView {
         tickPrices.removeAll()
         var width: CGFloat = 0
         
-        let L: Decimal = lowestValue
-        let H: Decimal = highestValue
         
-//        if let t = self.topMargin, let b = self.bottomMargin {
-//            let c1: Double = b / (100.0 - b - t)
-//            L = lowestValue - (highestValue - lowestValue) * c1.decimalValue
-//            let c2: Double = (100.0 - b) / (100.0 - b - t)
-//            H = lowestValue + (highestValue - lowestValue) * c2.decimalValue
-//        }
+        let L: Decimal = Decimal(Double(self.pb(highestPrice: highestValue.doubleValue, lowestPrice: lowestValue.doubleValue, topMargin: topMargin ?? 0, bottomMargin: bottomMargin ?? 0, logScale: logScale)))
+        let H: Decimal = Decimal(Double(self.pt(highestPrice: highestValue.doubleValue, lowestPrice: lowestValue.doubleValue, topMargin: topMargin ?? 0, bottomMargin: bottomMargin ?? 0, logScale: logScale)))
+        
         
         let m = Int((L / tickGap).doubleValue)
         
@@ -161,17 +147,17 @@ class ValueBar: UIView {
             }
             tickPrices.append(p)
         }
-        if width > chart.valueBarWidth {
-            chart.valueBarWidth = width
+        if width + 5.0 > chart.valueBarWidth {
+            chart.valueBarWidth = width + 5.0
         }
     }
     
     
     private func calculateTickGap() {
-        let diff = (highestValue - lowestValue)
-//        if let t = topMargin, let b = bottomMargin {
-//            diff *= Decimal(100.0 / (100.0 - (t + b)))
-//        }
+        let L: Decimal = Decimal(Double(self.pb(highestPrice: highestValue.doubleValue, lowestPrice: lowestValue.doubleValue, topMargin: topMargin ?? 0, bottomMargin: bottomMargin ?? 0, logScale: logScale)))
+        let H: Decimal = Decimal(Double(self.pt(highestPrice: highestValue.doubleValue, lowestPrice: lowestValue.doubleValue, topMargin: topMargin ?? 0, bottomMargin: bottomMargin ?? 0, logScale: logScale)))
+        
+        let diff = (H - L)
         
         let n = diff / tickSize
         

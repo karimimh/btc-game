@@ -26,7 +26,7 @@ class Trade {
     var foreignNotional: Double?
     
     //MARK: Initialization
-    private init(timestamp: String, symbol: String, side: String?, size: Double?, price: Double?, tickDirection: String?, trdMatchID: String?, grossValue: Double?, homeNotional: Double?, foreignNotional: Double?) {
+    init(timestamp: String, symbol: String, side: String?, size: Double?, price: Double?, tickDirection: String?, trdMatchID: String?, grossValue: Double?, homeNotional: Double?, foreignNotional: Double?) {
         self.timestamp = timestamp
         self.symbol = symbol
         self.side = side
@@ -121,7 +121,14 @@ class Trade {
                 return
             }
             if let httpResponse = response as? HTTPURLResponse {
-                if httpResponse.statusCode != 200 {
+                if httpResponse.statusCode == 429 {
+                    if let retryAfter = httpResponse.value(forHTTPHeaderField: "Retry-After") {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + Double(retryAfter)!) {
+                            Trade.GET(symbol: symbol, count: count, reverse: reverse, start: start, startTime: startTime, endTime: endTime, filter: filter, columns: columns, completion: completion)
+                        }
+                        return
+                    }
+                } else if httpResponse.statusCode != 200 {
                     completion(nil, response, nil)
                 }
             } else {
@@ -255,7 +262,14 @@ class Trade {
                 return
             }
             if let httpResponse = response as? HTTPURLResponse {
-                if httpResponse.statusCode != 200 {
+                if httpResponse.statusCode == 429 {
+                    if let retryAfter = httpResponse.value(forHTTPHeaderField: "Retry-After") {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + Double(retryAfter)!) {
+                            Trade.GET_Bucketed(binSize: binSize, partial: partial, symbol: symbol, count: count, reverse: reverse, start: start, startTime: startTime, endTime: endTime, filter: filter, columns: columns, completion: completion)
+                        }
+                        return
+                    }
+                } else if httpResponse.statusCode != 200 {
                     completion(nil, response, nil)
                 }
             } else {

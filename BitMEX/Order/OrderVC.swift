@@ -8,25 +8,18 @@
 
 import UIKit
 
-class OrderVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+class OrderVC: UIViewController {
     
     @IBOutlet weak var topLeftView: UIView!
     @IBOutlet weak var costLabel: UILabel!
     @IBOutlet weak var availableBalanceLabel: UILabel!
     @IBOutlet weak var longButton: UIButton!
     @IBOutlet weak var shortButton: UIButton!
-    @IBOutlet weak var orderBookCV: UICollectionView!
     @IBOutlet weak var tradeOptionsTV: UITableView!
     
     
     //MARK: Properties
     var app: App!
-    var auth: Authentication! {
-        return app.authentication
-    }
-    var orderBook: OrderBook?
-    var orderBookTotalSize: Double = 0.0
-    var orderBookRowCount = 5
     
     var priceTextFieldsSet = false
     
@@ -75,199 +68,31 @@ class OrderVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataS
         shortButton.layer.cornerRadius = 4.0
         
         
-        
-        
-        
-        
         hideKeyboardWhenTappedAround()
-        initWebsocket()
+        update()
+    }
+    
+    func update() {
+        self.setCostLabelText()
+        self.setAvailableBalanceLabel()
     }
     
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        app.websocketCompletions["orderBookL2_25:\(app.settings.chartSymbol)"]?.append({ (json) in
-            if let data = json["data"] as? [[String: Any]] {
-                var orderBookEntries = [OrderBookEntry]()
-                for item in data {
-                    let p = OrderBookEntry(item: item)
-                    orderBookEntries.append(p)
-                }
-                let orderBook = OrderBook(entries: orderBookEntries)
-                DispatchQueue.main.async {
-                    self.orderBook = orderBook
-                    self.orderBookCV.reloadData()
-                }
-            }
-        })
-        
-        
-        
-        app.websocketCompletions["instrument:\(app.settings.chartSymbol)"]?.append({ (json) in
-            DispatchQueue.main.async {
-                self.setCostLabelText()
-            }
-        })
-        
-        initWebsocket()
+    private func setAvailableBalanceLabel() {
+        availableBalanceLabel.text = "Free Balance: " + String(format: "%.4f", app.game.freeBalance)
     }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        app.removeLatestWebsocketCompletion(arg: "orderBookL2_25:\(app.settings.chartSymbol)")
-        app.removeLatestWebsocketCompletion(arg: "instrument:\(app.settings.chartSymbol)")
-        app.removeLatestWebsocketCompletion(arg: "margin")
-    }
-    
-    
-    
-    func initWebsocket() {
-        if app.authentication == nil {
-            return
-        }
-        Order.GET(authentication: app.authentication!) { (optionalOrders, optionalResponse, optionalError) in
-            guard optionalError == nil else {
-                print(optionalError!.localizedDescription)
-                return
-            }
-            guard optionalResponse != nil else {
-                print("No Response!")
-                return
-            }
-            if let response = optionalResponse as? HTTPURLResponse {
-                if response.statusCode == 200 {
-                    if let orders = optionalOrders {
-                        for i in 0 ..< orders.count {
-                            let order = orders[orders.count - 1 - i]
-                            if let qty = order.orderQty {
-                                DispatchQueue.main.async {
-                                    self.orderQty = qty
-                                    self.tradeOptionsTV.reloadData()
-                                }
-                                break
-                            }
-                        }
-                    }
-                } else {
-                    print(response.description)
-                    return
-                }
-            } else {
-                print("Bad Response!")
-                return
-            }
-        }
         
-        app.websocketCompletions["margin"]?.append({ (json) in
-            if let data = json["data"] as? [[String: Any]] {
-                let margin = User.Margin(item: data[0])
-                if let availableMargin = margin.availableMargin {
-                    DispatchQueue.main.async {
-                        self.availableBalanceLabel.text = String(format: "Av. Balance: %.4f", Double(availableMargin) / 100000000.0)
-                    }
-                }
-            }
-        })
-    }
-    
-    
-    
-    
-    
-    
-    
-    //MARK: - CollectionView Delegates
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        if self.orderBook == nil {
-            return 0
-        }
-        return 1
-    }
-    
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let ob = self.orderBook else { return 0 }
-        return ob.getLongEntries(gap: 1.0).count + ob.getShortEntries(gap: 1.0).count + 2
-    }
-    
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "OrderBookEntryCVCell", for: indexPath) as! OBEntryCVCell
-        if indexPath.row == 0 {
-            cell.amountLabel.text = "SIZE"
-            cell.priceLabel.text = "PRICE"
-            cell.contentView.backgroundColor = .magenta
-            return cell
-        } else if indexPath.row == orderBookRowCount + 1 {
-            let simpleCell = collectionView.dequeueReusableCell(withReuseIdentifier: "SimpleCVCell", for: indexPath) as! SimpleCVCell
-            simpleCell.label.text = String(format: "%.1f", app.getInstrument(app.settings.chartSymbol)!.lastPrice!)
-            return simpleCell
-        }
-        
-        
-        let numberFormatter = NumberFormatter()
-        numberFormatter.numberStyle = .decimal
-        numberFormatter.maximumFractionDigits = 1
-        
-        
-        if indexPath.row < orderBookRowCount + 1 {
-            let index = orderBookRowCount - indexPath.row
-            
-            if let size = orderBook?.getShortEntries(gap: 1.0)[index].size, let totalSize = orderBook?.totalSize(rows: orderBookRowCount) {
-                cell.amountLabel.text = numberFormatter.string(from: NSNumber(value: size))
-                let progress = sqrt(Double(size) / Double(totalSize))//sqrt for amplifying smoothing small volumes
-                cell.progressView.progress = progress // >= 0.5 ? 1.0 : progress * 2
-            } else {
-                cell.amountLabel.text = "-"
-                cell.progressView.progress = 0
-            }
-            if let price =  orderBook?.getShortEntries(gap: 1.0)[index].price {
-                cell.priceLabel.text = String(format: "%d", Int(price))
-            } else {
-                cell.priceLabel.text = String(format: "-")
-            }
-            cell.progressView.isBullish = false
-        } else {
-            let index = indexPath.row - 2 - orderBookRowCount
-            if let size = orderBook?.getLongEntries(gap: 1.0)[index].size, let totalSize = orderBook?.totalSize(rows: orderBookRowCount) {
-                cell.amountLabel.text = numberFormatter.string(from: NSNumber(value: size))
-                let progress = sqrt(Double(size) / Double(totalSize))
-                cell.progressView.progress = progress // >= 0.5 ? 1.0 : progress * 2
-            } else {
-                cell.amountLabel.text = "-"
-                cell.progressView.progress = 0
-            }
-            if let price = orderBook?.getLongEntries(gap: 1.0)[index].price {
-                cell.priceLabel.text = String(format: "%d", Int(price))
-            } else {
-                cell.priceLabel.text = String(format: "-")
-            }
-            cell.progressView.isBullish = true
-        }
-        
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as! OBEntryCVCell
-        if let priceStr = cell.priceLabel.text, let price = Double(priceStr) {
-            self.orderPrice = price
-            self.tradeOptionsTV.reloadData()
-        }
-    }
-    
     private func setCostLabelText() {
         let instrument = app.getInstrument(app.settings.chartSymbol)!
         switch orderType {
         case "Market":
             let markPrice = instrument.lastPrice!
-            let cost = 1.075 * orderQty / (markPrice * orderLeverage)
+            let cost = 1 * orderQty / (markPrice * orderLeverage)
             costLabel.text = "Cost:\(String(format: "%.4f", cost))"
         case "Stop":
             fallthrough
         case "Limit":
-            let cost = 1.025 * orderQty / (orderPrice * orderLeverage)
+            let cost = orderQty / (orderPrice * orderLeverage)
             costLabel.text = "Cost: \(String(format: "%.4f", cost))"
         default:
             break
@@ -276,44 +101,6 @@ class OrderVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataS
     }
     
     
-    
-    func getOrderBook(completion: @escaping ([OrderBookEntry]?) -> Void) {
-        OrderBookEntry.GET(symbol: app.settings.chartSymbol, depth: 15) { (optionalOrderBook, optionalResponse, optionalError) in
-            guard optionalError == nil else {
-                print(optionalError!.localizedDescription)
-                completion(nil)
-                return
-            }
-            guard optionalResponse != nil else {
-                print("No Response!")
-                completion(nil)
-                return
-            }
-            if let response = optionalResponse as? HTTPURLResponse {
-                if response.statusCode == 200 {
-                    completion(optionalOrderBook)
-                } else {
-                    print(response.description)
-                    completion(nil)
-                    return
-                }
-            } else {
-                print("Bad Response!")
-                completion(nil)
-                return
-            }
-        }
-    }
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
     
     func postOrder(side: String) {
         let instrument = app.getInstrument(app.settings.chartSymbol)!
@@ -324,43 +111,10 @@ class OrderVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataS
             let alert = UIAlertController(title: "Confirmation", message: "Are you sure?", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Confirm", style: .default, handler: { action in
                 alert.dismiss(animated: true) {
-                    
-                    Order.POST(authentication: self.app.authentication!, symbol: instrument.symbol, side: side, orderQty: self.orderQty, price: nil, displayQty: nil, stopPx: nil, clOrdID: nil, pegOffsetValue: nil, pegPriceType: nil, ordType: Order.OrderType.Market, timeInForce: nil, execInst: nil, text: nil) { (optionalOrder, optionalResponse, optionalError) in
-                        guard optionalError == nil else {
-                            print(optionalError!.localizedDescription)
-                            self.showAlert(message: "Order Execution Failed!")
-                            return
-                        }
-                        guard optionalResponse != nil else {
-                            print("No Response!")
-                            self.showAlert(message: "Order Execution Failed!")
-                            return
-                        }
-                        if let response = optionalResponse as? HTTPURLResponse {
-                            if response.statusCode == 200 {
-                                self.showAlert(message: "Success!!")
-                                self.getPosition { (optionalPosition) in
-                                    if let positions = optionalPosition {
-                                        if !positions.isEmpty {
-                                            let position = positions[0]
-                                            if let l = position.leverage {
-                                                if l != self.orderLeverage {
-                                                    self.changePositionLeverage(leverage: self.orderLeverage)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            } else {
-                                self.showAlert(message: "Order Execution Failed!")
-                                print(response.description)
-                                return
-                            }
-                        } else {
-                            self.showAlert(message: "Order Execution Failed!")
-                            print("Bad Response!")
-                            return
-                        }
+                    if let _ = self.app.game.marketOrder(symbol: instrument.symbol, side: side, qty: self.orderQty, leverage: self.orderLeverage) {
+                        self.showAlert(message: "Success!!")
+                    } else {
+                        self.showAlert(message: "Order Execution Failed!")
                     }
                 }
             }))
@@ -375,43 +129,10 @@ class OrderVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataS
             let alert = UIAlertController(title: "Confirmation", message: "Are you sure?", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Confirm", style: .default, handler: { action in
                 alert.dismiss(animated: true) {
-                    Order.POST(authentication: self.app.authentication!, symbol: instrument.symbol, side: side, orderQty: self.orderQty, price: self.orderPrice, displayQty: nil, stopPx: nil, clOrdID: nil, pegOffsetValue: nil, pegPriceType: nil, ordType: Order.OrderType.Limit, timeInForce: nil, execInst: nil, text: nil) { (optionalOrder, optionalResponse, optionalError) in
-                        guard optionalError == nil else {
-                            print(optionalError!.localizedDescription)
-                            self.showAlert(message: "Order Execution Failed!")
-                            return
-                        }
-                        guard optionalResponse != nil else {
-                            print("No Response!")
-                            self.showAlert(message: "Order Execution Failed!")
-                            return
-                        }
-                        if let response = optionalResponse as? HTTPURLResponse {
-                            if response.statusCode == 200 {
-                                self.showAlert(message: "Success!!")
-                                self.getPosition { (optionalPosition) in
-                                    if let positions = optionalPosition {
-                                        if !positions.isEmpty {
-                                            let position = positions[0]
-                                            if let l = position.leverage {
-                                                if l != self.orderLeverage {
-                                                    self.changePositionLeverage(leverage: self.orderLeverage)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                            } else {
-                                self.showAlert(message: "Order Execution Failed!")
-                                print(response.description)
-                                return
-                            }
-                        } else {
-                            self.showAlert(message: "Order Execution Failed!")
-                            print("Bad Response!")
-                            return
-                        }
+                    if let _ = self.app.game.limitOrder(symbol: instrument.symbol, side: side, qty: self.orderQty, price: self.orderPrice, leverage: self.orderLeverage) {
+                        self.showAlert(message: "Success!!")
+                    } else {
+                        self.showAlert(message: "Order Execution Failed!")
                     }
                 }
             }))
@@ -425,44 +146,10 @@ class OrderVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataS
             let alert = UIAlertController(title: "Confirmation", message: "Are you sure?", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Confirm", style: .default, handler: { action in
                 alert.dismiss(animated: true) {
-                    Order.POST(authentication: self.app.authentication!, symbol: instrument.symbol, side: side, orderQty: self.orderQty, price: nil, displayQty: nil, stopPx: self.orderPrice, clOrdID: nil, pegOffsetValue: nil, pegPriceType: nil, ordType: Order.OrderType.Stop, timeInForce: nil, execInst: nil, text: nil) { (optionalOrder, optionalResponse, optionalError) in
-                        guard optionalError == nil else {
-                            print(optionalError!.localizedDescription)
-                            self.showAlert(message: "Order Execution Failed!")
-                            return
-                        }
-                        guard optionalResponse != nil else {
-                            print("No Response!")
-                            self.showAlert(message: "Order Execution Failed!")
-                            return
-                        }
-                        if let response = optionalResponse as? HTTPURLResponse {
-                            if response.statusCode == 200 {
-                                self.showAlert(message: "Success!!")
-                                self.getPosition { (optionalPosition) in
-                                    if let positions = optionalPosition {
-                                        if !positions.isEmpty {
-                                            let position = positions[0]
-                                            if let l = position.leverage {
-                                                if l != self.orderLeverage {
-                                                    self.changePositionLeverage(leverage: self.orderLeverage)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                
-                                
-                            } else {
-                                self.showAlert(message: "Order Execution Failed!")
-                                print(response.description)
-                                return
-                            }
-                        } else {
-                            self.showAlert(message: "Order Execution Failed!")
-                            print("Bad Response!")
-                            return
-                        }
+                    if let _ = self.app.game.stopOrder(symbol: instrument.symbol, side: side, qty: self.orderQty, price: self.orderPrice, leverage: self.orderLeverage) {
+                        self.showAlert(message: "Success!!")
+                    } else {
+                        self.showAlert(message: "Order Execution Failed!")
                     }
                 }
             }))
@@ -477,81 +164,21 @@ class OrderVC: UIViewController, UICollectionViewDelegate, UICollectionViewDataS
         }
     }
     @IBAction func shortButtonTapped(_ sender: Any) {
-        postOrder(side: "Sell")
+        if !app.game.isPlaying {
+            showAlert(message: "Game is Paused!")
+        } else {
+            postOrder(side: "Sell")
+        }
     }
     @IBAction func longButtonTapped(_ sender: Any) {
-        postOrder(side: "Buy")
-    }
-    
-    private func changePositionLeverage(leverage: Double) {
-        //Post Leverage
-        Position.POST_LEVERAGE(authentication: self.app.authentication!, symbol: self.app.settings.chartSymbol, leverage: leverage) { (optionalPosition, optionalResponse, optionalError) in
-            guard optionalError == nil else {
-                print(optionalError!.localizedDescription)
-                self.showAlert(message: "Order Execution Failed!")
-                return
-            }
-            guard optionalResponse != nil else {
-                print("No Response!")
-                self.showAlert(message: "Order Execution Failed!")
-                return
-            }
-            if let response = optionalResponse as? HTTPURLResponse {
-                if response.statusCode == 200 {
-                    
-                } else {
-                    self.showAlert(message: "Order Execution Failed!")
-                    print(response.description)
-                    return
-                }
-            } else {
-                self.showAlert(message: "Order Execution Failed!")
-                print("Bad Response!")
-                return
-            }
-        }
-        
-    }
-    
-    func getPosition(completion: @escaping ([Position]?) -> Void) {
-        Position.GET(authentication: auth) { (optionalPosition, optionalResponse, optionalError) in
-            guard optionalError == nil else {
-                print(optionalError!.localizedDescription)
-                completion(nil)
-                return
-            }
-            guard optionalResponse != nil else {
-                print("No Response!")
-                completion(nil)
-                return
-            }
-            if let response = optionalResponse as? HTTPURLResponse {
-                if response.statusCode == 200 {
-                    completion(optionalPosition)
-                } else {
-                    print(response.description)
-                    completion(nil)
-                    return
-                }
-            } else {
-                print("Bad Response!")
-                completion(nil)
-                return
-            }
+        if !app.game.isPlaying {
+            showAlert(message: "Game is Paused!")
+        } else {
+            postOrder(side: "Buy")
         }
     }
     
     
-    
-    
-    private func getInstrumentBySymbol(symbol: String) -> Instrument? {
-        for instrument in app.activeInstruments {
-            if instrument.symbol.uppercased() == symbol.uppercased() {
-                return instrument
-            }
-        }
-        return nil
-    }
     
     func showAlert(message: String) {
         DispatchQueue.main.async {

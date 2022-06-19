@@ -21,26 +21,20 @@ class PriceTracker: UIView {
     
     var isEnabled = false
     var timer: Timer?
+    var app: App!
     
     //MARK: - Initialization
     
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        startTimer()
+        self.app = (UIApplication.shared.delegate as? AppDelegate)?.app
     }
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        startTimer()
+        self.app = (UIApplication.shared.delegate as? AppDelegate)?.app
     }
     
-    func startTimer() {
-        timer = Timer.scheduledTimer(timeInterval: TimeInterval(1), target: self, selector: #selector(handleTimer), userInfo: nil, repeats: true)
-    }
-    
-    @IBAction func handleTimer() {
-        redraw()
-    }
     
     
     //MARK: - Draw
@@ -55,7 +49,6 @@ class PriceTracker: UIView {
         guard let priceView = chart.priceView else { return }
         guard let valueBars = chart.valueBars else { return }
         let valueBarWidth = chart.valueBarWidth
-        
         
         let price = visibleCandles.last!.close
         let y = priceView.y(price: price, highestPrice: chart.highestPrice, lowestPrice: chart.lowestPrice, topMargin: chart.topMargin, bottomMargin: chart.bottomMargin, logScale: chart.logScale)
@@ -93,9 +86,10 @@ class PriceTracker: UIView {
         if chart.timeframe == .daily || chart.timeframe == .weekly || chart.timeframe == .monthly {
             return
         }
-        let time = Date()
-        let calendar = Calendar.current
-        let comps = calendar.dateComponents([.hour, .minute, .second], from: time, to: chart.candles.reversed().last!.nextCandleOpenTime())
+        let time = app.game.currentTime
+        let calendar = App.myCalendar
+        let toTime = self.app.game.currentTime.nextOpenTime(timeframe: chart.timeframe!)!
+        let comps = calendar.dateComponents([.hour, .minute, .second], from: time, to: toTime)
         var hour = comps.hour ?? 0
         var minute = comps.minute ?? 0
         var second = comps.second ?? 0
@@ -117,7 +111,7 @@ class PriceTracker: UIView {
             if hour == 0 {
                 timeString = minuteStr + ":" + secondStr
             } else {
-                timeString = hourStr + ":" + minuteStr
+                timeString = hourStr + ":" + minuteStr + ":" + secondStr
             }
             
         default:
@@ -125,7 +119,7 @@ class PriceTracker: UIView {
         }
         
         if let string = timeString {
-            let s = (" " + string).asAttributedString(color: .white, textAlignment: .left)
+            let s = ("" + string).asAttributedString(color: .white, textAlignment: .center)
             let sWidth = valueBarWidth - 6 > s.size().width ? valueBarWidth - 6 : s.size().width
             let sHeight = s.size().height
             

@@ -142,7 +142,7 @@ class IndicatorView: UIView {
             let height: CGFloat = CGFloat(volume / highestVolume) * frame.height
 
             ctx.setFillColor((candle.isGreen() ? App.BullColor : App.BearColor).withAlphaComponent(0.5).cgColor)
-            ctx.fill(CGRect(x: candle.x, y: frame.height - height, width: chart.blockWidth * 2 / 3, height: height))
+            ctx.fill(CGRect(x: candle.x - chart.blockWidth / 3, y: frame.height - height, width: chart.blockWidth * 2 / 3, height: height))
             
             let candleIndex =  i + chart.candles.count - 1 - chart.priceView!.oldestVisibleCandleIndex
             if candleIndex < smaLength { continue }

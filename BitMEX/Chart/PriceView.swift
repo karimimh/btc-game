@@ -41,24 +41,15 @@ class PriceView: UIView {
         guard let timeframe = self.timeframe else { return }
         let ctx = UIGraphicsGetCurrentContext()!
         
-//        ctx.setLineWidth(2.0)
-//        ctx.strokeLineSegments(between: [CGPoint(x: 0, y: rect.height), CGPoint(x: rect.width, y: rect.height)])
-//        ctx.strokeLineSegments(between: [CGPoint(x: rect.width, y: 0), CGPoint(x: rect.width, y: rect.height)])
-//        ctx.setLineWidth(1.0)
-        
         if !visibleCandles.isEmpty {
             for candle in visibleCandles {
-                let y = self.y(price: candle.high, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: chart!.topMargin, bottomMargin: chart!.bottomMargin, logScale: app.settings.chartLogScale)
-                let h = self.y(price: candle.low, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: chart!.topMargin, bottomMargin: chart!.bottomMargin, logScale: app.settings.chartLogScale) - y
+                let yh = self.y(price: candle.high, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: chart!.topMargin, bottomMargin: chart!.bottomMargin, logScale: app.settings.chartLogScale)
+                let yc = self.y(price: candle.close, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: chart!.topMargin, bottomMargin: chart!.bottomMargin, logScale: app.settings.chartLogScale)
+                let yo = self.y(price: candle.open, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: chart!.topMargin, bottomMargin: chart!.bottomMargin, logScale: app.settings.chartLogScale)
+                let yl = self.y(price: candle.low, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: chart!.topMargin, bottomMargin: chart!.bottomMargin, logScale: app.settings.chartLogScale)
                 
                 let blockWidth = candleWidth + spacing
-                if candle.high == candle.low {
-                    Candle.drawOptimized(candle, in: CGRect(x: candle.x - blockWidth / 2, y: y, width: blockWidth, height: wickWidth), using: ctx, blockWidth: blockWidth, candleWidth: candleWidth, spacing: spacing, wickWidth: wickWidth)
-//                    draw(candle: candle, in: CGRect(x: candle.x - blockWidth / 2, y: y, width: blockWidth, height: wickWidth), using: ctx)
-                } else {
-                    Candle.drawOptimized(candle, in: CGRect(x: candle.x - blockWidth / 2, y: y, width: blockWidth, height: h), using: ctx, blockWidth: blockWidth, candleWidth: candleWidth, spacing: spacing, wickWidth: wickWidth)
-//                    draw(candle: candle, in: CGRect(x: candle.x - blockWidth / 2, y: y, width: blockWidth, height: h), using: ctx)
-                }
+                Candle.draw(candle, x: candle.x, yo: yo, yh: yh, yl: yl, yc: yc, using: ctx, blockWidth: blockWidth, candleWidth: candleWidth, spacing: spacing, wickWidth: wickWidth)
             }
         }
         
@@ -70,6 +61,9 @@ class PriceView: UIView {
         let stringSize = titleString.size()
         let stringRect = CGRect(x: 5, y: 5, width: stringSize.width, height: stringSize.height)
         titleString.draw(in: stringRect)
+        
+        
+        
 
     }
     
@@ -219,7 +213,7 @@ class PriceView: UIView {
         }
         
         if candles[oldestVisibleCandleIndex].x - chart.blockWidth > 0 {
-            chart.downloadOlderCandles()
+            chart.downloadOlderCandles(completion: nil)
         }
     }
     
@@ -303,6 +297,14 @@ class PriceView: UIView {
         if oldestVisibleCandleIndex > candles.count - 1 {
             oldestVisibleCandleIndex = candles.count - 1
         }
+    }
+    
+    
+    
+    
+    func getX(date: Date, timeframe: Timeframe) -> CGFloat {
+        let distanceFromOldest: Int = Int((date.timeIntervalSince1970 - candles.last!.openTime.timeIntervalSince1970) / TimeInterval(timeframe.toMinutes() * 60))
+        return chart!.oldestCandleX + CGFloat(distanceFromOldest) * chart!.blockWidth
     }
     
     

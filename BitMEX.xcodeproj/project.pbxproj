@@ -27,6 +27,9 @@
 		A554949A232CFA9B00140787 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5549499232CFA9B00140787 /* App.swift */; };
 		A554949F232CFFB900140787 /* ListVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A554949E232CFFB900140787 /* ListVC.swift */; };
 		A556AB09253C804F00E6A244 /* OpenOrderReusableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A556AB08253C804F00E6A244 /* OpenOrderReusableView.swift */; };
+		A55D581425618C9E00847390 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55D581325618C9E00847390 /* Game.swift */; };
+		A55D58192561B53F00847390 /* GameOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55D58182561B53F00847390 /* GameOrder.swift */; };
+		A55D581D2561B54900847390 /* GamePosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55D581C2561B54900847390 /* GamePosition.swift */; };
 		A55DE49723489FE300227C45 /* ColorCVCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A55DE49623489FE300227C45 /* ColorCVCell.swift */; };
 		A55DE49923489FF800227C45 /* ColorCVCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A55DE49823489FF800227C45 /* ColorCVCell.xib */; };
 		A55DE4A1234BC1E300227C45 /* SimpleTVCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A55DE4A0234BC1E300227C45 /* SimpleTVCell.xib */; };
@@ -65,15 +68,17 @@
 		A58D45A0253D81E1005AB960 /* OBEntryCVCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A58D459F253D81E1005AB960 /* OBEntryCVCell.swift */; };
 		A5944D6C235609F1004D4D4C /* LayersVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5944D6B235609F1004D4D4C /* LayersVC.swift */; };
 		A5944D6E23560D0E004D4D4C /* LayerSettingsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5944D6D23560D0E004D4D4C /* LayerSettingsVC.swift */; };
-		A59BD0292535884F003F6BBB /* LoginVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A59BD0282535884F003F6BBB /* LoginVC.swift */; };
 		A59F4CF023479C1100FE47AB /* CheckMarkTVCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A59F4CEF23479C1100FE47AB /* CheckMarkTVCell.xib */; };
 		A59F4CF223479C1E00FE47AB /* DropDownTVCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A59F4CF123479C1E00FE47AB /* DropDownTVCell.xib */; };
 		A5A06415233E2BF0001B1B85 /* SortCVHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A06414233E2BF0001B1B85 /* SortCVHeader.swift */; };
 		A5A2CA2B23409D3200B9692C /* GridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A2CA2A23409D3200B9692C /* GridView.swift */; };
+		A5A54C342565BAAD00586AFE /* ToolsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A54C332565BAAD00586AFE /* ToolsView.swift */; };
+		A5A54C3C2566EDCB00586AFE /* ToolsVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A54C3B2566EDCB00586AFE /* ToolsVC.swift */; };
 		A5A5BD6523489A1C00A44A5F /* TextFieldTVCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A5A5BD6423489A1C00A44A5F /* TextFieldTVCell.xib */; };
 		A5A5BD6723489A2700A44A5F /* TextFieldTVCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A5BD6623489A2700A44A5F /* TextFieldTVCell.swift */; };
 		A5A72DB72348989F0028735B /* ColorTVCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = A5A72DB62348989F0028735B /* ColorTVCell.xib */; };
 		A5A72DB9234899AB0028735B /* ColorTVCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5A72DB8234899AB0028735B /* ColorTVCell.swift */; };
+		A5BCC42E25681590007C861F /* Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5BCC42D25681590007C861F /* Tools.swift */; };
 		A5C89AEE233F660D00EDD98B /* DrawerBar.xib in Resources */ = {isa = PBXBuildFile; fileRef = A5C89AED233F660D00EDD98B /* DrawerBar.xib */; };
 		A5C89AF0233F672700EDD98B /* DrawerBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C89AEF233F672700EDD98B /* DrawerBar.swift */; };
 		A5CF5C4D233CEEFA00C7A301 /* ValueBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5CF5C4C233CEEFA00C7A301 /* ValueBar.swift */; };
@@ -126,6 +131,9 @@
 		A5549499232CFA9B00140787 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		A554949E232CFFB900140787 /* ListVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListVC.swift; sourceTree = "<group>"; };
 		A556AB08253C804F00E6A244 /* OpenOrderReusableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenOrderReusableView.swift; sourceTree = "<group>"; };
+		A55D581325618C9E00847390 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
+		A55D58182561B53F00847390 /* GameOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOrder.swift; sourceTree = "<group>"; };
+		A55D581C2561B54900847390 /* GamePosition.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GamePosition.swift; sourceTree = "<group>"; };
 		A55DE49623489FE300227C45 /* ColorCVCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorCVCell.swift; sourceTree = "<group>"; };
 		A55DE49823489FF800227C45 /* ColorCVCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ColorCVCell.xib; sourceTree = "<group>"; };
 		A55DE4A0234BC1E300227C45 /* SimpleTVCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SimpleTVCell.xib; sourceTree = "<group>"; };
@@ -164,15 +172,17 @@
 		A58D459F253D81E1005AB960 /* OBEntryCVCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OBEntryCVCell.swift; sourceTree = "<group>"; };
 		A5944D6B235609F1004D4D4C /* LayersVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayersVC.swift; sourceTree = "<group>"; };
 		A5944D6D23560D0E004D4D4C /* LayerSettingsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayerSettingsVC.swift; sourceTree = "<group>"; };
-		A59BD0282535884F003F6BBB /* LoginVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginVC.swift; sourceTree = "<group>"; };
 		A59F4CEF23479C1100FE47AB /* CheckMarkTVCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = CheckMarkTVCell.xib; sourceTree = "<group>"; };
 		A59F4CF123479C1E00FE47AB /* DropDownTVCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DropDownTVCell.xib; sourceTree = "<group>"; };
 		A5A06414233E2BF0001B1B85 /* SortCVHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortCVHeader.swift; sourceTree = "<group>"; };
 		A5A2CA2A23409D3200B9692C /* GridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GridView.swift; sourceTree = "<group>"; };
+		A5A54C332565BAAD00586AFE /* ToolsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsView.swift; sourceTree = "<group>"; };
+		A5A54C3B2566EDCB00586AFE /* ToolsVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolsVC.swift; sourceTree = "<group>"; };
 		A5A5BD6423489A1C00A44A5F /* TextFieldTVCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TextFieldTVCell.xib; sourceTree = "<group>"; };
 		A5A5BD6623489A2700A44A5F /* TextFieldTVCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldTVCell.swift; sourceTree = "<group>"; };
 		A5A72DB62348989F0028735B /* ColorTVCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ColorTVCell.xib; sourceTree = "<group>"; };
 		A5A72DB8234899AB0028735B /* ColorTVCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorTVCell.swift; sourceTree = "<group>"; };
+		A5BCC42D25681590007C861F /* Tools.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tools.swift; sourceTree = "<group>"; };
 		A5C89AED233F660D00EDD98B /* DrawerBar.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DrawerBar.xib; sourceTree = "<group>"; };
 		A5C89AEF233F672700EDD98B /* DrawerBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawerBar.swift; sourceTree = "<group>"; };
 		A5CF5C4C233CEEFA00C7A301 /* ValueBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueBar.swift; sourceTree = "<group>"; };
@@ -229,12 +239,15 @@
 			isa = PBXGroup;
 			children = (
 				A503ECFE2338F28D00496884 /* ChartVC.swift */,
+				A503ECFA2338D09B00496884 /* Chart.swift */,
 				A573406123585C7C000505DB /* TimeframeVC.swift */,
+				A5A54C3B2566EDCB00586AFE /* ToolsVC.swift */,
 				A5944D6B235609F1004D4D4C /* LayersVC.swift */,
 				A5482B1E2356691E004192A4 /* AddLayerVC.swift */,
 				A5944D6D23560D0E004D4D4C /* LayerSettingsVC.swift */,
 				A5D1A95323562B510092E2B7 /* ColorPickerVC.swift */,
-				A503ECFA2338D09B00496884 /* Chart.swift */,
+				A5A54C332565BAAD00586AFE /* ToolsView.swift */,
+				A5BCC42D25681590007C861F /* Tools.swift */,
 				A503ED002339075700496884 /* PriceView.swift */,
 				A503ED022339080A00496884 /* IndicatorView.swift */,
 				A503ED042339084F00496884 /* TimeView.swift */,
@@ -244,9 +257,20 @@
 				A54AEE8E23427E6A00073E1E /* PriceTracker.swift */,
 				A54AEE8A2342641700073E1E /* Crosshair.swift */,
 				A57772E62328DC9900446914 /* Candle.swift */,
+				A50B4D3723465EF000A75BD5 /* Indicator.swift */,
 				A50F52E62347975B009B8FF8 /* Views */,
 			);
 			path = Chart;
+			sourceTree = "<group>";
+		};
+		A55D58172561B52C00847390 /* Game */ = {
+			isa = PBXGroup;
+			children = (
+				A55D581325618C9E00847390 /* Game.swift */,
+				A55D58182561B53F00847390 /* GameOrder.swift */,
+				A55D581C2561B54900847390 /* GamePosition.swift */,
+			);
+			path = Game;
 			sourceTree = "<group>";
 		};
 		A5676090253C6BFD009B6BD8 /* Wallet */ = {
@@ -364,14 +388,6 @@
 			path = List;
 			sourceTree = "<group>";
 		};
-		A5CF5C50233D028400C7A301 /* Technical Analysis */ = {
-			isa = PBXGroup;
-			children = (
-				A50B4D3723465EF000A75BD5 /* Indicator.swift */,
-			);
-			path = "Technical Analysis";
-			sourceTree = "<group>";
-		};
 		A5F32B112327F185002A69C2 = {
 			isa = PBXGroup;
 			children = (
@@ -392,23 +408,22 @@
 		A5F32B1C2327F185002A69C2 /* BitMEX */ = {
 			isa = PBXGroup;
 			children = (
-				A5676090253C6BFD009B6BD8 /* Wallet */,
-				A5676091253C6C04009B6BD8 /* Position */,
-				A5797DC7252C52930090D734 /* Order */,
-				A554949B232CFAA600140787 /* Chart */,
 				A5F32B1D2327F185002A69C2 /* AppDelegate.swift */,
 				A5F32B1F2327F185002A69C2 /* ViewController.swift */,
-				A59BD0282535884F003F6BBB /* LoginVC.swift */,
 				A5F32B212327F185002A69C2 /* Main.storyboard */,
 				A5F32B242327F18A002A69C2 /* Assets.xcassets */,
 				A5F32B262327F18A002A69C2 /* LaunchScreen.storyboard */,
 				A5F32B292327F18A002A69C2 /* Info.plist */,
 				A5549499232CFA9B00140787 /* App.swift */,
+				A55D58172561B52C00847390 /* Game */,
+				A5676090253C6BFD009B6BD8 /* Wallet */,
+				A5676091253C6C04009B6BD8 /* Position */,
+				A5797DC7252C52930090D734 /* Order */,
+				A554949B232CFAA600140787 /* Chart */,
 				A5C63AF423300D1000AE7800 /* List */,
 				A57CA3A32329204D00304811 /* API */,
 				A57772E82328DCAB00446914 /* Utility */,
 				A5A2CA292340951500B9692C /* Assets */,
-				A5CF5C50233D028400C7A301 /* Technical Analysis */,
 			);
 			path = BitMEX;
 			sourceTree = "<group>";
@@ -500,6 +515,7 @@
 				A503ECFB2338D09B00496884 /* Chart.swift in Sources */,
 				A567609B253C6CE1009B6BD8 /* PositionCVReusable.swift in Sources */,
 				A573406223585C7C000505DB /* TimeframeVC.swift in Sources */,
+				A55D581D2561B54900847390 /* GamePosition.swift in Sources */,
 				A57CA3AB23292AF900304811 /* GlobalNotification.swift in Sources */,
 				A5A72DB9234899AB0028735B /* ColorTVCell.swift in Sources */,
 				A5D0C272234F3D10002BFD7C /* LayerTVCell.swift in Sources */,
@@ -510,15 +526,19 @@
 				A57CA3B32329332000304811 /* Liquidation.swift in Sources */,
 				A50F52E52347974B009B8FF8 /* DropDownTVCell.swift in Sources */,
 				A58D45A0253D81E1005AB960 /* OBEntryCVCell.swift in Sources */,
+				A5BCC42E25681590007C861F /* Tools.swift in Sources */,
 				A5CF5C4D233CEEFA00C7A301 /* ValueBar.swift in Sources */,
 				A57772ED2328DCAB00446914 /* Util.swift in Sources */,
 				A503ECF92338C7BF00496884 /* Timeframe.swift in Sources */,
+				A5A54C342565BAAD00586AFE /* ToolsView.swift in Sources */,
 				A57CA3BB232937C200304811 /* Quote.swift in Sources */,
 				A50F52E32347971E009B8FF8 /* CheckMarkTVCell.swift in Sources */,
 				A55DE49723489FE300227C45 /* ColorCVCell.swift in Sources */,
 				A54AEE8B2342641700073E1E /* Crosshair.swift in Sources */,
 				A57CA3B72329356600304811 /* OrderBookEntry.swift in Sources */,
 				A5A5BD6723489A2700A44A5F /* TextFieldTVCell.swift in Sources */,
+				A5A54C3C2566EDCB00586AFE /* ToolsVC.swift in Sources */,
+				A55D58192561B53F00847390 /* GameOrder.swift in Sources */,
 				A537C790235769D900DCFB12 /* Guidlines.swift in Sources */,
 				A5CF5C56233DFA1900C7A301 /* SortVC.swift in Sources */,
 				A5A06415233E2BF0001B1B85 /* SortCVHeader.swift in Sources */,
@@ -547,6 +567,7 @@
 				A531628B232967D8000C00E0 /* ListCVCell.swift in Sources */,
 				A554949F232CFFB900140787 /* ListVC.swift in Sources */,
 				A5D1A95423562B510092E2B7 /* ColorPickerVC.swift in Sources */,
+				A55D581425618C9E00847390 /* Game.swift in Sources */,
 				A503ED052339084F00496884 /* TimeView.swift in Sources */,
 				A5450FC523437D0F00B46963 /* RealTime.swift in Sources */,
 				A57CA3A52329206400304811 /* Announcement.swift in Sources */,
@@ -562,7 +583,6 @@
 				A57CA3A7232921B700304811 /* Execution.swift in Sources */,
 				A5CF5C5A233DFB3100C7A301 /* SortCVCell.swift in Sources */,
 				A57CA3C1232939BE00304811 /* User.swift in Sources */,
-				A59BD0292535884F003F6BBB /* LoginVC.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

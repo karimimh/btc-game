@@ -73,4 +73,13 @@ enum Timeframe: String {
             return Timeframe(rawValue: p)!
         }
     }
+    
+    func lowerTimeframe() -> Timeframe {
+        if self == .oneMinute {
+            return .oneMinute
+        } else {
+            let index = Timeframe.allValues().firstIndex(of: self.rawValue)!
+            return Timeframe(rawValue: Timeframe.allValues()[index - 1])!
+        }
+    }
 }

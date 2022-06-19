@@ -125,8 +125,53 @@ extension Date {
         RFC3339DateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
         RFC3339DateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
         
-        
+        if let r = RFC3339DateFormatter.date(from: s) {
+            return r
+        } else if let r = fromBitMEXString2(str: s) {
+            return r
+        } else if let r = fromBitMEXStringWithoutSeconds(str: s) {
+            return r
+        } else if let r = fromBitMEXStringWithoutSeconds2(str: s) {
+            return r
+        }
         return RFC3339DateFormatter.date(from: s)!
+    }
+    private static func fromBitMEXString2(str: String) -> Date? {
+        let s: String = String(str.split(separator: ".")[0])
+        
+        
+        let RFC3339DateFormatter = DateFormatter()
+        RFC3339DateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        RFC3339DateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        RFC3339DateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        
+        return RFC3339DateFormatter.date(from: s)
+    }
+    
+    private static func fromBitMEXStringWithoutSeconds(str: String) -> Date? {
+        let s: String = String(str.split(separator: ".")[0])
+        
+        
+        let RFC3339DateFormatter = DateFormatter()
+        RFC3339DateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        RFC3339DateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm"
+        RFC3339DateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        
+        return RFC3339DateFormatter.date(from: s)
+    }
+    private static func fromBitMEXStringWithoutSeconds2(str: String) -> Date? {
+        let s: String = String(str.split(separator: ".")[0])
+        
+        
+        let RFC3339DateFormatter = DateFormatter()
+        RFC3339DateFormatter.locale = Locale(identifier: "en_US_POSIX")
+        RFC3339DateFormatter.dateFormat = "yyyy-MM-dd HH:mm"
+        RFC3339DateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        
+        return RFC3339DateFormatter.date(from: s)
     }
     
     func localToUTC() -> Date {
@@ -157,8 +202,8 @@ extension Date {
     }
     
     func dateBy(adding: Timeframe) -> Date {
-        let calendar = Calendar.current
         let time = self
+        let calendar = App.myCalendar
         switch adding {
         case .oneMinute:
             return calendar.date(byAdding: .minute, value: 1, to: time)!
@@ -186,8 +231,8 @@ extension Date {
     }
     
     func dateBy(subtracting: Timeframe) -> Date {
-        let calendar = Calendar.current
         let time = self
+        let calendar = App.myCalendar
         switch subtracting {
         case .oneMinute:
             return calendar.date(byAdding: .minute, value: -1, to: time)!
@@ -216,9 +261,9 @@ extension Date {
 
     /// date should be exact second
     func nextOpenTime(timeframe: Timeframe) -> Date? {
-        let calendar = Calendar(identifier: .gregorian)
+        let calendar = App.myCalendar
         let timeZone = calendar.timeZone
-        let openTime = self.localToUTC()
+        let openTime = self
         let minute = calendar.component(.minute, from: openTime)
         let hour = calendar.component(.hour, from: openTime)
         
@@ -226,27 +271,27 @@ extension Date {
         
         switch timeframe {
         case .oneMinute:
-            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: nil, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)?.utcToLocal()
+            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: nil, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)
         case .fiveMinutes:
-            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: ((minute / 5) * 5 + 5) % 60, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)?.utcToLocal()
+            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: ((minute / 5) * 5 + 5) % 60, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)
         case .fifteenMinutes:
-            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: ((minute / 15) * 15 + 15) % 60, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)?.utcToLocal()
+            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: ((minute / 15) * 15 + 15) % 60, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)
         case .thirtyMinutes:
-            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: ((minute / 30) * 30 + 30) % 60, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)?.utcToLocal()
+            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: ((minute / 30) * 30 + 30) % 60, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)
         case .hourly:
-            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)?.utcToLocal()
+            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: nil, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)
         case .twoHourly:
-            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: ((hour / 2) * 2 + 2) % 24, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)?.utcToLocal()
+            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: ((hour / 2) * 2 + 2) % 24, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)
         case .fourHourly:
-            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: ((hour / 4) * 4 + 4) % 24, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)?.utcToLocal()
+            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: ((hour / 4) * 4 + 4) % 24, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)
         case .twelveHourly:
-            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: ((hour / 12) * 12 + 12) % 24, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)?.utcToLocal()
+            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: ((hour / 12) * 12 + 12) % 24, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)
         case .daily:
-            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: 0, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)?.utcToLocal()
+            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: 0, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)
         case .weekly:
-            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: 0, minute: 0, second: 0, nanosecond: 0, weekday: 2, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)?.utcToLocal()
+            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: nil, hour: 0, minute: 0, second: 0, nanosecond: 0, weekday: 2, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)
         case .monthly:
-            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: 1, hour: 0, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)?.utcToLocal()
+            return calendar.nextDate(after: openTime, matching: DateComponents(calendar: calendar, timeZone: timeZone, era: nil, year: nil, month: nil, day: 1, hour: 0, minute: 0, second: 0, nanosecond: 0, weekday: nil, weekdayOrdinal: nil, quarter: nil, weekOfMonth: nil, weekOfYear: nil, yearForWeekOfYear: nil), matchingPolicy: .nextTime, repeatedTimePolicy: .first, direction: .forward)
         }
     }
 }
@@ -693,22 +738,88 @@ extension String {
 
 extension UIView {
     func y(price: Double, highestPrice: Double, lowestPrice: Double, topMargin: Double, bottomMargin: Double, logScale: Bool) -> CGFloat {
+        let pt = self.pt(highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: topMargin, bottomMargin: bottomMargin, logScale: logScale)
+        let pb = self.pb(highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: topMargin, bottomMargin: bottomMargin, logScale: logScale)
+        
         if logScale {
-            let h = log2(highestPrice)
-            let l = log2(lowestPrice)
-            let p = log2(price)
-            let ratio = CGFloat((h - p) / (h - l))
-            let frameHeight = frame.height * CGFloat(1.0 - (topMargin + bottomMargin) / 100.0)
-            return frameHeight * ratio + CGFloat(topMargin) * frame.height / 100
+            let p: CGFloat = CGFloat(log2(price))
+            let result = frame.height * (log2(pt) - p) / (log2(pt) - log2(pb))
+            return result
         } else {
-            let ratio = CGFloat((highestPrice - price) / (highestPrice - lowestPrice))
-            let frameHeight = frame.height * CGFloat(1.0 - (topMargin + bottomMargin) / 100.0)
-            return frameHeight * ratio + CGFloat(topMargin) * frame.height / 100
+            let p: CGFloat = CGFloat(price)
+            return frame.height * (pt - p) / (pt - pb)
         }
+    }
+    
+    func price(y: CGFloat, highestPrice: Double, lowestPrice: Double, topMargin: Double, bottomMargin: Double, logScale: Bool) -> Double {
+        let pt = self.pt(highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: topMargin, bottomMargin: bottomMargin, logScale: logScale)
+        let pb = self.pb(highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: topMargin, bottomMargin: bottomMargin, logScale: logScale)
+        
+        if logScale {
+            let p = log2(pt) - y * (log2(pt) - log2(pb)) / frame.height
+            return Double(pow(2, p))
+        } else {
+            let p = pt - y * (pt - pb) / frame.height
+            return Double(p)
+        }
+    }
+    
+    func pt(highestPrice: Double, lowestPrice: Double, topMargin: Double, bottomMargin: Double, logScale: Bool) -> CGFloat {
+        if logScale {
+            let ph: CGFloat = CGFloat(log2(highestPrice))
+            let pl: CGFloat = CGFloat(log2(lowestPrice))
+            
+            let t: CGFloat = frame.height * CGFloat(topMargin) / 100.0
+            let b: CGFloat = frame.height * CGFloat(bottomMargin) / 100.0
+            let h: CGFloat = frame.height - t - b
+            let gamma: CGFloat = t / (t + h)
+            
+            let x: CGFloat = (ph - gamma * pl) / (1 - gamma)
+            return pow(2, x)
+        } else {
+            let ph: CGFloat = CGFloat(highestPrice)
+            let pl: CGFloat = CGFloat(lowestPrice)
+            
+            let t: CGFloat = frame.height * CGFloat(topMargin) / 100.0
+            let b: CGFloat = frame.height * CGFloat(bottomMargin) / 100.0
+            let h: CGFloat = frame.height - t - b
+            let gamma = t / (t + h)
+            
+            let x: CGFloat = (ph - gamma * pl) / (1 - gamma)
+            return x
+        }
+        
         
     }
     
     
+    func pb(highestPrice: Double, lowestPrice: Double, topMargin: Double, bottomMargin: Double, logScale: Bool) -> CGFloat {
+        if logScale {
+            let ph: CGFloat = CGFloat(log2(highestPrice))
+            let pl: CGFloat = CGFloat(log2(lowestPrice))
+            
+            let t: CGFloat = frame.height * CGFloat(topMargin) / 100.0
+            let b: CGFloat = frame.height * CGFloat(bottomMargin) / 100.0
+            let h: CGFloat = frame.height - t - b
+            let gamma = t / (t + h)
+            
+            let x: CGFloat = (ph - gamma * pl) / (1 - gamma)
+            return pow(2, x - (x - ph) * (t + h + b) / t)
+        } else {
+            let ph: CGFloat = CGFloat(highestPrice)
+            let pl: CGFloat = CGFloat(lowestPrice)
+            
+            let t: CGFloat = frame.height * CGFloat(topMargin) / 100.0
+            let b: CGFloat = frame.height * CGFloat(bottomMargin) / 100.0
+            let h: CGFloat = frame.height - t - b
+            let gamma: CGFloat = t / (t + h)
+            
+            let x: CGFloat = (ph - gamma * pl) / (1 - gamma)
+            return x - (x - ph) * (t + h + b) / t
+        }
+        
+        
+    }
 }
 
 

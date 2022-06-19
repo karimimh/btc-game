@@ -22,37 +22,15 @@ class OpenOrdersVC: UIViewController {
         if let delegate = UIApplication.shared.delegate as? AppDelegate {
             app = delegate.app
         }
+        app.openOrdersVC = self
         collectionView.delegate = self
         collectionView.dataSource = self
         
     }
     
-    
-    
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        app.websocketCompletions["order"]?.append({ (json) in
-            if let data = json["data"] as? [[String: Any]] {
-                
-                var orders = [Order]()
-                for item in data {
-                    let p = Order(item: item)
-                    orders.append(p)
-                }
-                self.app.orders = orders
-                DispatchQueue.main.async {
-                    self.collectionView.reloadData()
-                }
-            }
-        })
+    func update() {
+        self.collectionView.reloadData()
     }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        app.removeLatestWebsocketCompletion(arg: "order")
-    }
-   
 }
 
 
@@ -66,12 +44,11 @@ extension OpenOrdersVC: UICollectionViewDelegate, UICollectionViewDataSource {
         
         if indexPath.row == 0 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "OrderQtyCVCell", for: indexPath) as! DoubleLabelCVCell
-            cell.rightLabel.text = String(format: "%d", Int(order.orderQty!))
+            cell.rightLabel.text = String(format: "%d", Int(order.qty))
             return cell
         } else if indexPath.row == 1 {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "OrderPriceCVCell", for: indexPath) as! LabelButtonCVCell
-            let isStop = order.ordType == Order.OrderType.Stop
-            cell.button.setTitle(String(format: "%.1f", isStop ? order.stopPx! : order.price!), for: .normal)
+            cell.button.setTitle(String(format: "%.1f", order.price), for: .normal)
             
             cell.buttonTappedCompletion = {
                 let alert = UIAlertController(title: "Edit Price", message: "", preferredStyle: .alert)
@@ -109,15 +86,15 @@ extension OpenOrdersVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "OrderCVRView", for: indexPath) as? OpenOrderReusableView {
             let order = getOpenOrders()[indexPath.section]
-            let isBuy = order.side! == "Buy"
-            let s = order.symbol!.asMutableAttributedString(color: .black, font: .systemFont(ofSize: 22), textAlignment: .left)
-            s.append(" \(order.side!) \(order.ordType!)".asAttributedString(color: isBuy ? App.BullColor : App.BearColor, font: .systemFont(ofSize: 22), textAlignment: .left))
+            let isBuy = order.side.lowercased() == "buy"
+            let s = order.symbol.asMutableAttributedString(color: .black, font: .systemFont(ofSize: 22), textAlignment: .left)
+            s.append(" \(order.side) \(order.type)".asAttributedString(color: isBuy ? App.BullColor : App.BearColor, font: .systemFont(ofSize: 22), textAlignment: .left))
             sectionHeader.label.attributedText = s
             sectionHeader.cancelCompletion = {
                 let alert = UIAlertController(title: "Confirmation", message: "Are you sure?", preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "Confirm", style: .default, handler: { action in
                     alert.dismiss(animated: true) {
-                        self.deleteOrder(order)
+                        self.cancelOrder(order)
                     }
                 }))
                 alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { action in
@@ -134,104 +111,31 @@ extension OpenOrdersVC: UICollectionViewDelegate, UICollectionViewDataSource {
     
     
     
-    private func editOrder(order: Order, editButton: UIButton, priceTF: UITextField) {
+    private func editOrder(order: GameOrder, editButton: UIButton, priceTF: UITextField) {
         if let priceStr = priceTF.text {
             if let p = Double(priceStr) {
                 if let prevPrice = Double(editButton.titleLabel!.text!) {
                     if p == prevPrice { return }
-                    let isStop = order.ordType == Order.OrderType.Stop
-                    
-                    Order.PUT(authentication: self.app.authentication!, orderID: order.orderID, origClOrdID: nil, clOrdID: nil, orderQty: order.orderQty, leavesQty: nil, price: isStop ? nil : p, stopPx: isStop ? p : nil, pegOffsetValue: nil, text: nil) { (optionalOrder, optionalResponse, optionalError) in
-                        guard optionalError == nil else {
-                            print(optionalError!.localizedDescription)
-                            DispatchQueue.main.async {
-                                self.alertDialog(message: "Order Amend Failed!")
-                            }
-                            return
-                        }
-                        guard optionalResponse != nil else {
-                            print("No Response!")
-                            DispatchQueue.main.async {
-                                self.alertDialog(message: "Order Amend Failed!")
-                            }
-                            return
-                        }
-                        if let response = optionalResponse as? HTTPURLResponse {
-                            if response.statusCode == 200 {
-                                //Success
-                            } else {
-                                print(response.description)
-                                DispatchQueue.main.async {
-                                    self.alertDialog(message: "Order Amend Failed!")
-                                }
-                                return
-                            }
-                        } else {
-                            DispatchQueue.main.async {
-                                self.alertDialog(message: "Order Amend Failed!")
-                            }
-                            print("Bad Response!")
-                            return
-                        }
-                    }
+                    order.price = p
                 }
-                
             }
         }
     }
     
     
-    func deleteOrder(_ order: Order) {
-        Order.DELETE(authentication: self.app.authentication!, orderID: order.orderID, clOrdID: nil, text: nil) { (optionalOrders, optionalResponse, optionalError) in
-            guard optionalError == nil else {
-                print(optionalError!.localizedDescription)
-                DispatchQueue.main.async {
-                    self.alertDialog(message: "Order Cancellation Failed!")
-                }
-                return
-            }
-            guard optionalResponse != nil else {
-                print("No Response!")
-                DispatchQueue.main.async {
-                    self.alertDialog(message: "Order Cancellation Failed!")
-                }
-                return
-            }
-            if let response = optionalResponse as? HTTPURLResponse {
-                if response.statusCode == 200 {
-                    DispatchQueue.main.async {
-                        self.collectionView.reloadData()
-                    }
-
-                } else {
-                    print(response.description)
-                    DispatchQueue.main.async {
-                        self.alertDialog(message: "Order Cancellation Failed!")
-                    }
-                    return
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self.alertDialog(message: "Order Cancellation Failed!")
-                }
-                print("Bad Response!")
-                return
-            }
-        }
+    func cancelOrder(_ order: GameOrder) {
+        order.status = "Cancelled"
     }
     
-    private func getOpenOrders() -> [Order] {
-        if let orders = app.orders {
-            var result = [Order]()
-            for order in orders {
-                if order.ordStatus == "New" {
-                    result.append(order)
-                }
-                
+    private func getOpenOrders() -> [GameOrder] {
+        var result = [GameOrder]()
+        for order in app.game.orders {
+            if order.status.lowercased() == "open" {
+                result.append(order)
             }
-            return result
+            
         }
-        return []
+        return result
     }
 }
 

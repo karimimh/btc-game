@@ -18,6 +18,9 @@ class LayerSettingsVC: UIViewController {
         return app.chart
     }
     var indicator: Indicator?
+    var horizontalLine: HorizontalLine?
+    var trendline: Trendline?
+    var fib: FibRetracement?
     var chartVC: ChartVC? {
         return app.chartVC
     }
@@ -79,6 +82,10 @@ class LayerSettingsVC: UIViewController {
     }
     
     @IBAction func backButtonTapped(_ sender: Any) {
+        self.indicator = nil
+        self.horizontalLine = nil
+        self.trendline = nil
+        self.fib = nil
         willMove(toParent: nil)
         if let v = self.view {
             v.removeFromSuperview()
@@ -92,13 +99,347 @@ extension LayerSettingsVC: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let indicator = self.indicator {
             return indicator.getSettings().count
+        } else if let _ = horizontalLine {
+            return 3
+        } else if let _ = trendline {
+            return 4
+        } else if let _ = fib {
+            return 4 + FibRetracement.Levels.all().count
         } else {
             return 8
         }
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if let indicator = self.indicator {
+        if let horizontalLine = self.horizontalLine {
+            if indexPath.row == 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: TextFieldTVCell.identidier, for: indexPath) as! TextFieldTVCell
+                cell.label.text = "Price"
+                cell.stepUpCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val > 0 else { return }
+                    val += 0.5
+                    guard val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    horizontalLine.price = val
+                    self.app.chart?.redraw()
+                }
+                cell.stepDownCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val > 0 else { return }
+                    val -= 0.5
+                    guard val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    horizontalLine.price = val
+                    self.app.chart?.redraw()
+                }
+                let value = horizontalLine.price
+                cell.textField.text = String.init(format: "%.1f", value)
+                cell.textFieldValueChangedCompletion = { opText in
+                    guard let text = opText else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    guard let val = Double(text) else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    guard val > 0 else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    horizontalLine.price = val
+                    self.app.chart?.redraw()
+                }
+                return cell
+            } else if indexPath.row == 1 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: TextFieldTVCell.identidier, for: indexPath) as! TextFieldTVCell
+                cell.label.text = "Linewidth"
+                cell.stepUpCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val <= 10.0 && val > 0 else { return }
+                    val += 0.5
+                    guard val <= 10.0 && val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    horizontalLine.lineWidth = val.toCGFLoat()
+                    self.app.chart?.redraw()
+                }
+                cell.stepDownCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val <= 10.0 && val > 0 else { return }
+                    val -= 0.5
+                    guard val <= 10.0 && val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    horizontalLine.lineWidth = val.toCGFLoat()
+                    self.app.chart?.redraw()
+                }
+                let value = horizontalLine.lineWidth
+                cell.textField.text = String.init(format: "%.1f", Double(value))
+                cell.textFieldValueChangedCompletion = { opText in
+                    guard let text = opText else { cell.textField.text = String.init(format: "%.1f", Double(value)); return }
+                    guard let val = Double(text) else { cell.textField.text = String.init(format: "%.1f", Double(value)); return }
+                    guard val <= 10.0 && val > 0 else { cell.textField.text = String.init(format: "%.1f", Double(value)); return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    horizontalLine.lineWidth = val.toCGFLoat()
+                    self.app.chart?.redraw()
+                }
+                return cell
+            } else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: ColorTVCell.identidier, for: indexPath) as! ColorTVCell
+                cell.label.text = "Color"
+                cell.currentColor = horizontalLine.color
+                cell.colorChangedCompletion = { color in
+                    horizontalLine.color = color
+                    self.app.chart?.redraw()
+                }
+                return cell
+            }
+            
+        } else if let trendline = self.trendline {
+            if indexPath.row == 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: TextFieldTVCell.identidier, for: indexPath) as! TextFieldTVCell
+                cell.label.text = "Price_1"
+                cell.stepUpCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val > 0 else { return }
+                    val += 0.5
+                    guard val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    trendline.start.1 = val
+                    self.app.chart?.redraw()
+                }
+                cell.stepDownCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val > 0 else { return }
+                    val -= 0.5
+                    guard val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    trendline.start.1 = val
+                    self.app.chart?.redraw()
+                }
+                let value = trendline.start.1
+                cell.textField.text = String.init(format: "%.1f", value)
+                cell.textFieldValueChangedCompletion = { opText in
+                    guard let text = opText else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    guard let val = Double(text) else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    guard val > 0 else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    trendline.start.1 = val
+                    self.app.chart?.redraw()
+                }
+                return cell
+            } else if indexPath.row == 1 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: TextFieldTVCell.identidier, for: indexPath) as! TextFieldTVCell
+                cell.label.text = "Price_2"
+                cell.stepUpCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val > 0 else { return }
+                    val += 0.5
+                    guard val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    trendline.end.1 = val
+                    self.app.chart?.redraw()
+                }
+                cell.stepDownCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val > 0 else { return }
+                    val -= 0.5
+                    guard val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    trendline.end.1 = val
+                    self.app.chart?.redraw()
+                }
+                let value = trendline.end.1
+                cell.textField.text = String.init(format: "%.1f", value)
+                cell.textFieldValueChangedCompletion = { opText in
+                    guard let text = opText else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    guard let val = Double(text) else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    guard val > 0 else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    trendline.end.1 = val
+                    self.app.chart?.redraw()
+                }
+                return cell
+            } else if indexPath.row == 2 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: TextFieldTVCell.identidier, for: indexPath) as! TextFieldTVCell
+                cell.label.text = "Linewidth"
+                cell.stepUpCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val <= 10.0 && val > 0 else { return }
+                    val += 0.5
+                    guard val <= 10.0 && val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    trendline.lineWidth = val.toCGFLoat()
+                    self.app.chart?.redraw()
+                }
+                cell.stepDownCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val <= 10.0 && val > 0 else { return }
+                    val -= 0.5
+                    guard val <= 10.0 && val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    trendline.lineWidth = val.toCGFLoat()
+                    self.app.chart?.redraw()
+                }
+                let value = trendline.lineWidth
+                cell.textField.text = String.init(format: "%.1f", Double(value))
+                cell.textFieldValueChangedCompletion = { opText in
+                    guard let text = opText else { cell.textField.text = String.init(format: "%.1f", Double(value)); return }
+                    guard let val = Double(text) else { cell.textField.text = String.init(format: "%.1f", Double(value)); return }
+                    guard val <= 10.0 && val > 0 else { cell.textField.text = String.init(format: "%.1f", Double(value)); return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    trendline.lineWidth = val.toCGFLoat()
+                    self.app.chart?.redraw()
+                }
+                return cell
+            } else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: ColorTVCell.identidier, for: indexPath) as! ColorTVCell
+                cell.label.text = "Color"
+                cell.currentColor = trendline.color
+                cell.colorChangedCompletion = { color in
+                    trendline.color = color
+                    self.app.chart?.redraw()
+                }
+                return cell
+            }
+        } else if let fib = self.fib {
+            if indexPath.row == 0 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: TextFieldTVCell.identidier, for: indexPath) as! TextFieldTVCell
+                cell.label.text = "Price_1"
+                cell.stepUpCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val > 0 else { return }
+                    val += 0.5
+                    guard val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    fib.start.1 = val
+                    self.app.chart?.redraw()
+                }
+                cell.stepDownCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val > 0 else { return }
+                    val -= 0.5
+                    guard val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    fib.start.1 = val
+                    self.app.chart?.redraw()
+                }
+                let value = fib.start.1
+                cell.textField.text = String.init(format: "%.1f", value)
+                cell.textFieldValueChangedCompletion = { opText in
+                    guard let text = opText else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    guard let val = Double(text) else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    guard val > 0 else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    fib.start.1 = val
+                    self.app.chart?.redraw()
+                }
+                return cell
+            } else if indexPath.row == 1 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: TextFieldTVCell.identidier, for: indexPath) as! TextFieldTVCell
+                cell.label.text = "Price_2"
+                cell.stepUpCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val > 0 else { return }
+                    val += 0.5
+                    guard val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    fib.end.1 = val
+                    self.app.chart?.redraw()
+                }
+                cell.stepDownCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val > 0 else { return }
+                    val -= 0.5
+                    guard val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    fib.end.1 = val
+                    self.app.chart?.redraw()
+                }
+                let value = fib.end.1
+                cell.textField.text = String.init(format: "%.1f", value)
+                cell.textFieldValueChangedCompletion = { opText in
+                    guard let text = opText else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    guard let val = Double(text) else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    guard val > 0 else { cell.textField.text = String.init(format: "%.1f", value); return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    fib.end.1 = val
+                    self.app.chart?.redraw()
+                }
+                return cell
+            } else if indexPath.row == 2 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: TextFieldTVCell.identidier, for: indexPath) as! TextFieldTVCell
+                cell.label.text = "Linewidth"
+                cell.stepUpCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val <= 10.0 && val > 0 else { return }
+                    val += 0.5
+                    guard val <= 10.0 && val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    fib.lineWidth = val.toCGFLoat()
+                    self.app.chart?.redraw()
+                }
+                cell.stepDownCompletion = {
+                    guard let text = cell.textField.text else { return }
+                    guard var val = Double(text) else { return }
+                    guard val <= 10.0 && val > 0 else { return }
+                    val -= 0.5
+                    guard val <= 10.0 && val > 0 else { return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    fib.lineWidth = val.toCGFLoat()
+                    self.app.chart?.redraw()
+                }
+                let value = fib.lineWidth
+                cell.textField.text = String.init(format: "%.1f", Double(value))
+                cell.textFieldValueChangedCompletion = { opText in
+                    guard let text = opText else { cell.textField.text = String.init(format: "%.1f", Double(value)); return }
+                    guard let val = Double(text) else { cell.textField.text = String.init(format: "%.1f", Double(value)); return }
+                    guard val <= 10.0 && val > 0 else { cell.textField.text = String.init(format: "%.1f", Double(value)); return }
+                    cell.textField.text = String.init(format: "%.1f", val)
+                    fib.lineWidth = val.toCGFLoat()
+                    self.app.chart?.redraw()
+                }
+                return cell
+            } else if indexPath.row == 3 {
+                let cell = tableView.dequeueReusableCell(withIdentifier: ColorTVCell.identidier, for: indexPath) as! ColorTVCell
+                cell.label.text = "Color"
+                cell.currentColor = fib.color
+                cell.colorChangedCompletion = { color in
+                    fib.color = color
+                    self.app.chart?.redraw()
+                }
+                return cell
+            } else {
+                let cell = tableView.dequeueReusableCell(withIdentifier: CheckMarkTVCell.identidier, for: indexPath) as! CheckMarkTVCell
+                let level: Double = FibRetracement.Levels.all()[indexPath.row - 4]
+                cell.label.text = "Level \(level)"
+                cell.switchValueChanged = { isOn in
+                    if fib.levels.contains(level) && !isOn {
+                        let index = fib.levels.firstIndex(of: level)
+                        if let i = index {
+                            fib.levels.remove(at: i)
+                        }
+                    } else if !fib.levels.contains(level) && isOn {
+                        fib.levels.append(level)
+                    }
+                    self.app.chart?.redraw()
+                }
+                if fib.levels.contains(level) {
+                    cell.switch.isOn = true
+                } else {
+                    cell.switch.isOn = false
+                }
+                
+                return cell
+            }
+        } else if let indicator = self.indicator {
             let (key, value): (String, Any) = indicator.getSettings()[indexPath.row]
             
             if key.contains(Indicator.InputKey.length) {
@@ -341,6 +682,7 @@ extension LayerSettingsVC: UITableViewDataSource, UITableViewDelegate {
                     self.app.settings.showTitles = isOn
                     self.app.chart?.redraw()
                 }
+                cell.switch.isOn = self.app.settings.showTitles
                 return cell
             default:
                 return UITableViewCell()

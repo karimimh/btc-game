@@ -1,26 +1,22 @@
 //
-//  TimeframeVC.swift
+//  ToolsVC.swift
 //  BitMEX
 //
-//  Created by Behnam Karimi on 7/25/1398 AP.
-//  Copyright © 1398 AP Behnam Karimi. All rights reserved.
+//  Created by Behnam Karimi on 8/29/1399 AP.
+//  Copyright © 1399 AP Behnam Karimi. All rights reserved.
 //
 
 import UIKit
 
-class TimeframeVC: UIViewController {
-    @IBOutlet weak var collectionView: UICollectionView!
-    
+class ToolsVC: UIViewController {
     //MARK: - Properties
     var app: App!
-    
-    static var ALL_TIMEFRAMES: [Timeframe] = [.oneMinute, .fiveMinutes, .fifteenMinutes, .thirtyMinutes,
-                                       .hourly, .twoHourly, .fourHourly, .twelveHourly,
-                                       .daily, .weekly, .monthly/*Yearly later to be implemented*/]
-    
     var isShowing = false
+    @IBOutlet weak var collectionView: UICollectionView!
+    
     
     //MARK: - View LifeCycle
+   
     override func viewDidLoad() {
         super.viewDidLoad()
         if let delegate = UIApplication.shared.delegate as? AppDelegate {
@@ -43,8 +39,8 @@ class TimeframeVC: UIViewController {
         blurEffectView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         blurEffectView.topAnchor.constraint(equalTo: view.topAnchor).isActive = true
         blurEffectView.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-
     }
+    
     
     override func didMove(toParent parent: UIViewController?) {
         super.didMove(toParent: parent)
@@ -65,15 +61,14 @@ class TimeframeVC: UIViewController {
 
 
 //MARK: - Timeframe CollectionView Delegate
-extension TimeframeVC: UICollectionViewDelegate, UICollectionViewDataSource {
+extension ToolsVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return TimeframeVC.ALL_TIMEFRAMES.count
+        return 1
     }
-    
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TimeframeCVCell", for: indexPath) as! TimeframeCVCell
@@ -92,7 +87,6 @@ extension TimeframeVC: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let prevGameStatus = app.game.isPlaying
         self.app.game.pause()
-        
         let r = TimeframeVC.ALL_TIMEFRAMES.firstIndex(of: app.settings.chartTimeframe)!
         let previousSelectedCell = collectionView.cellForItem(at: IndexPath(row: r, section: 0)) as! TimeframeCVCell
         previousSelectedCell.backgroundColor = .clear
@@ -113,7 +107,8 @@ extension TimeframeVC: UICollectionViewDelegate, UICollectionViewDataSource {
     }
 }
 
-extension TimeframeVC : UICollectionViewDelegateFlowLayout {
+
+extension ToolsVC : UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return CGSize(width: 50, height: 50)
     }

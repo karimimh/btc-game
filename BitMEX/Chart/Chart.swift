@@ -18,7 +18,7 @@ class Chart: UIView {
             return valueBarWidthConstraint.constant
         }
         set {
-            valueBarWidthConstraint.constant = ((newValue >= 40 ) ? newValue : 40.0)
+            valueBarWidthConstraint.constant = ((newValue >= 60 ) ? newValue : 60.0)
         }
     }
     var visibleCandles = [Candle]()
@@ -31,6 +31,7 @@ class Chart: UIView {
     var gridView: GridView?
     var indicatorViews = [IndicatorView]()
     var drawerBar: DrawerBar!
+    var toolsView: ToolsView?
     weak var valueBarWidthConstraint: NSLayoutConstraint!
     weak var priceViewHeightConstraint: NSLayoutConstraint!
     weak var drawerBarHeightConstraint: NSLayoutConstraint!
@@ -41,6 +42,7 @@ class Chart: UIView {
     var app: App!
     
     
+    var liveModeOn: Bool = false
     var lastExecTime: Date = Date()
     var websocketTimer: Timer?
     
@@ -74,8 +76,8 @@ class Chart: UIView {
     
     //MARK: - Public Methods
     func setupChart() {
-        app.resetWebSocket()
-        websocketTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(websocketCheck), userInfo: self, repeats: true)
+//        app.resetWebSocket()
+//        websocketTimer = Timer.scheduledTimer(timeInterval: 5.0, target: self, selector: #selector(websocketCheck), userInfo: self, repeats: true)
         priceTracker?.isEnabled = false
         newestCandleX = bounds.width * 0.75
         if drawerBar.isMainMenuShowing {
@@ -96,39 +98,98 @@ class Chart: UIView {
         
         if let instrument = instrument {
             app.chartVC?.symbolButton.title = instrument.symbol.uppercased()
-            Candle.downloadFor(timeframe: timeframe!, instrument: instrument, partialCandle: true, reverse: true, count: 750) { (opCandles, opResponse, opError) in
-                guard opError == nil else {
-                    print("ERROR!")
-                    return
-                }
-                guard opResponse != nil else {
-                    print("No Response!")
-                    return
-                }
+            
+            Candle.download(timeframe: timeframe!, instrument: instrument, partialCandle: true, reverse: true, count: 750, startTime: nil, endTime: app.game.currentTime.bitMEXStringWithSeconds()) { (opCandles, opResponse, opError) in
+                guard opError == nil && opResponse != nil else {return}
                 if let response = opResponse as? HTTPURLResponse {
                     if response.statusCode == 200 {
                         if let c = opCandles {
                             self.candles = c
-                            DispatchQueue.main.async {
-
-                                self.setupSubViews()
-                                self.redraw()
-
-
+                            
+                            if self.timeframe! == .fifteenMinutes {
+                                self.downloadOlderCandles {
+                                    self.downloadOlderCandles {
+                                        DispatchQueue.main.async {
+                                            self.setupSubViews()
+                                            self.redraw()
+                                        }
+                                        
+                                    }
+                                }
+                            } else if self.timeframe! == .thirtyMinutes {
+                                self.downloadOlderCandles {
+                                    self.downloadOlderCandles {
+                                        self.downloadOlderCandles {
+                                            DispatchQueue.main.async {
+                                                self.setupSubViews()
+                                                self.redraw()
+                                            }
+                                        }
+                                        
+                                    }
+                                }
+                            } else if self.timeframe! == .twoHourly {
+                                self.downloadOlderCandles {
+                                    DispatchQueue.main.async {
+                                        self.setupSubViews()
+                                        self.redraw()
+                                    }
+                                }
+                            } else if self.timeframe! == .fourHourly {
+                                self.downloadOlderCandles {
+                                    self.downloadOlderCandles {
+                                        self.downloadOlderCandles {
+                                            DispatchQueue.main.async {
+                                                self.setupSubViews()
+                                                self.redraw()
+                                            }
+                                        }
+                                    }
+                                }
+                            } else if self.timeframe! == .twelveHourly {
+                                self.downloadOlderCandles {
+                                    self.downloadOlderCandles {
+                                        self.downloadOlderCandles {
+                                            self.downloadOlderCandles {
+                                                self.downloadOlderCandles {
+                                                    self.downloadOlderCandles {
+                                                        self.downloadOlderCandles {
+                                                            self.downloadOlderCandles {
+                                                                self.downloadOlderCandles {
+                                                                    self.downloadOlderCandles {
+                                                                        self.downloadOlderCandles {
+                                                                            DispatchQueue.main.async {
+                                                                                self.setupSubViews()
+                                                                                self.redraw()
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            } else {
+                                DispatchQueue.main.async {
+                                    self.setupSubViews()
+                                    self.redraw()
+                                }
+                                
                             }
+                            
                         } else {
-                            print("BAD Data from server!")
                             return
                         }
                     } else {
-                        print("\n\n")
                         print(response.statusCode)
-                        print("\n\n")
                         print(response.description)
                         return
                     }
                 } else {
-                    print("BAD Response!")
                     return
                 }
                 
@@ -244,7 +305,7 @@ class Chart: UIView {
         self.isUserInteractionEnabled = true
         
         priceTracker?.isEnabled = true
-        activateWebsocket()
+//        activateWebsocket()
         redraw()
     }
     
@@ -252,6 +313,7 @@ class Chart: UIView {
     
     func redraw() {
         if CHARTSHOULDNOTBEREDRAWN { return }
+        
         self.priceView?.processVisibleCandles()
         self.priceView?.redraw()
         self.timeView?.redraw()
@@ -264,7 +326,7 @@ class Chart: UIView {
         self.crosshair?.redraw()
         self.priceTracker?.redraw()
         self.app.chartVC?.layersButton.isHidden = false
-        
+        self.toolsView?.redraw()
     }
 
     override func layoutSubviews() {
@@ -276,28 +338,36 @@ class Chart: UIView {
     var isDownloadingOlderCandles = false
     var CHARTSHOULDNOTBEREDRAWN = false
     
-    func downloadOlderCandles() {
+    func downloadOlderCandles(completion: (() -> Void)?) {
         if isDownloadingOlderCandles {
             return
         }
         isDownloadingOlderCandles = true
         
         if let instrument = instrument {
-            Candle.downloadFor(timeframe: timeframe!, instrument: instrument, partialCandle: true, reverse: true, count: 750, endTime: candles.last!.openTime.bitMEXString()) { (opCandles, opResponse, opError) in
-                guard opError == nil else {
-                    print("ERROR!")
-                    return
-                }
-                guard opResponse != nil else {
-                    print("No Response!")
-                    return
-                }
+            Candle.download(timeframe: timeframe!, instrument: instrument, partialCandle: true, reverse: true, count: 750, endTime: candles.last!.openTime.bitMEXStringWithSeconds()) { (opCandles, opResponse, opError) in
+                guard opError == nil && opResponse != nil else { return }
                 if let response = opResponse as? HTTPURLResponse {
                     if response.statusCode == 200 {
-                        if let c = opCandles {
+                        if var c = opCandles {
                             DispatchQueue.main.async {
                                 if c.isEmpty { return }
                                 self.CHARTSHOULDNOTBEREDRAWN = true
+                                
+                                var can = c.first
+                                while can != nil && can!.closeTime.timeIntervalSince1970 > self.candles.last!.closeTime.timeIntervalSince1970 {
+                                    c.remove(at: 0)
+                                    can = c.first
+                                }
+                                if c.isEmpty { return }
+                                
+                                if can!.closeTime.timeIntervalSince1970 == self.candles.last!.closeTime.timeIntervalSince1970 {
+                                    let cc = self.candles.removeLast()
+                                    let ccc = Candle(open: can!.open, close: cc.close, high: max(cc.high, can!.high), low: max(cc.low, can!.low), volume: can!.volume, timeframe: self.timeframe!, closeTime: can!.closeTime)
+                                    self.candles.append(ccc)
+                                    c.remove(at: 0)
+                                }
+                                
                                 
                                 self.candles.append(contentsOf: c)
                                 for indicator in self.indicators {
@@ -305,24 +375,17 @@ class Chart: UIView {
                                 }
                                 self.isDownloadingOlderCandles = false
                                 self.CHARTSHOULDNOTBEREDRAWN = false
-                                self.redraw()
-                                
-                                
-
+                                completion?()
                             }
                         } else {
-                            print("BAD Data from server!")
                             return
                         }
                     } else {
-                        print("\n\n")
                         print(response.statusCode)
-                        print("\n\n")
                         print(response.description)
                         return
                     }
                 } else {
-                    print("BAD Response!")
                     return
                 }
                 
@@ -347,75 +410,24 @@ class Chart: UIView {
     }
     
     
-    //MARK: - Websocket
-    
-    func activateWebsocket() {
-        self.lastExecTime = Date()
-        
-        app.websocketCompletions["trade:\(app.settings.chartSymbol)"]?.append({ (json) in
-            if let tradeData = json["data"] as? [[String: Any]] {
-                self.lastExecTime = Date()
-                
-                let trades = Trade.processJSONString(tradeData)
-                var volume: Double = 0
-                var high: Double = -Double.greatestFiniteMagnitude
-                var low: Double = Double.greatestFiniteMagnitude
-                var close: Double = 0
-                var _closeTime: Date?
-                for i in 0 ..< trades.count {
-                    let trade = trades[i]
-                    if trade.symbol != self.instrument!.symbol { continue }
-                    
-                    if let v = trade.size {
-                        volume += v
-                    }
-                    if let c = trade.price {
-                        close = c
-                    }
-                    if close > high {
-                        high = close
-                    }
-                    if close < low {
-                        low = close
-                    }
-                    if let ct = Date.fromBitMEXString(str: trade.timestamp) {
-                        _closeTime = ct
-                    }
-                }
-                guard let closeTime = _closeTime else { return }
-                
-                if closeTime.toMillis() < self.candles.first!.nextCandleOpenTime().toMillis() {
-                    let candle = self.candles.first!
-                    candle.volume += volume
-                    candle.close = close
-                    if low < candle.low {
-                        candle.low = low
-                    }
-                    if high > candle.high {
-                        candle.high = high
-                    }
-                } else {
-                    let candle = Candle(open: self.candles.first!.close, close: close, high: high, low: low, volume: volume, timeframe: self.timeframe!, closeTime: self.candles.first!.nextCandleOpenTime().dateBy(adding: self.timeframe!))
-                    self.candles.insert(candle, at: 0)
-                }
-                self.indicators.forEach { (indicator) in
-                    indicator.computeValue(candles: self.candles.reversed())
-                }
-                DispatchQueue.main.async {
-                    self.redraw()
-                }
-            }
-        })
-        
-        
-    }
-
-    
     //MARK: - Handle Touches
     
     //MARK: Tap
     @IBAction func handleTap(_ recognizer: UITapGestureRecognizer) {
-        if crosshair!.isEnabled {
+        if isDrawingHorizontalLine {
+            let location = recognizer.location(in: priceView!)
+            if priceView!.frame.contains(location) {
+                horizontalLines.append(HorizontalLine(price: 0, timeframe: timeframe!))
+                if let candle = getCandleAt(x: location.x) {
+                    self.horizontalLines.last!.price = candle.close
+                } else {
+                    let p = self.price(y: location.y, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: topMargin, bottomMargin: bottomMargin, logScale: logScale)
+                    self.horizontalLines.last!.price = p
+                }
+                isDrawingHorizontalLine = false
+                redraw()
+            }
+        } else if crosshair!.isEnabled {
             let location = recognizer.location(in: crosshair!)
             if priceView!.frame.contains(location) || bottomViews!.frame.contains(location) {
                 crosshair!.isEnabled = false
@@ -427,7 +439,6 @@ class Chart: UIView {
     
     //MARK: Pan
     
-    
     private var panBeganNewestX: CGFloat = 0
     private var panBeganHighestPrice: Double = 0
     private var panBeganLowestPrice: Double = 0
@@ -435,6 +446,9 @@ class Chart: UIView {
     private var panBeganLocation: CGPoint = .zero
     
     @IBAction func handlePan(_ recognizer: UIPanGestureRecognizer) {
+        if isDrawingHorizontalLine {
+            return
+        }
         
         let tr = recognizer.translation(in: self)
         let dx = tr.x
@@ -449,16 +463,86 @@ class Chart: UIView {
             panBeganHighestPrice = highestPrice
             pinchBeganBlockWidth = blockWidth
             
-            let loc = panBeganLocation.applying(CGAffineTransform(translationX: -valueBars!.frame.origin.x, y: -valueBars!.frame.origin.y))
-            if priceView!.valueBar!.frame.contains(loc) {
-                autoScale = false
-                redraw()
+            if isDrawingTrendline {
+                let location = panBeganLocation
+                if priceView!.frame.contains(location) {
+                    trendlines.append(Trendline(start: (candles[0].openTime, 1.0), end: (candles[0].openTime, 2.0), timeframe: timeframe!))
+                    if let candle = getCandleAt(x: location.x) {
+                        self.trendlines.last!.start = (candle.openTime, candle.close)
+                    } else {
+                        let p = self.price(y: location.y, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: topMargin, bottomMargin: bottomMargin, logScale: logScale)
+                        var time = visibleCandles.last!.openTime
+                        var xx: CGFloat = visibleCandles.last!.x
+                        while xx < location.x {
+                            time = time.dateBy(adding: timeframe!)
+                            xx += blockWidth
+                        }
+                        self.trendlines.last!.start = (time, p)
+                    }
+                    redraw()
+                }
+            } else if isDrawingFibRetracement {
+                let location = panBeganLocation
+                if priceView!.frame.contains(location) {
+                    fibs.append(FibRetracement(start: (candles[0].openTime, 1.0), end: (candles[0].openTime, 2.0), timeframe: timeframe!))
+                    if let candle = getCandleAt(x: location.x) {
+                        self.fibs.last!.start = (candle.openTime, candle.close)
+                    } else {
+                        let p = self.price(y: location.y, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: topMargin, bottomMargin: bottomMargin, logScale: logScale)
+                        var time = visibleCandles.last!.openTime
+                        var xx: CGFloat = visibleCandles.last!.x
+                        while xx < location.x {
+                            time = time.dateBy(adding: timeframe!)
+                            xx += blockWidth
+                        }
+                        self.fibs.last!.start = (time, p)
+                    }
+                    redraw()
+                }
+            } else {
+                let loc = panBeganLocation.applying(CGAffineTransform(translationX: -valueBars!.frame.origin.x, y: -valueBars!.frame.origin.y))
+                if priceView!.valueBar!.frame.contains(loc) {
+                    autoScale = false
+                    redraw()
+                }
             }
+            
         case .changed:
-            if priceView!.frame.contains(panBeganLocation) || bottomViews!.frame.contains(panBeganLocation) {
+            if isDrawingTrendline {
+                let location: CGPoint = CGPoint(x: panBeganLocation.x + dx, y: panBeganLocation.y + dy)
+                if let candle = getCandleAt(x: location.x) {
+                    self.trendlines.last!.end = (candle.openTime, candle.close)
+                } else {
+                    let p = self.price(y: location.y, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: topMargin, bottomMargin: bottomMargin, logScale: logScale)
+                    var time = visibleCandles.last!.openTime
+                    var xx: CGFloat = visibleCandles.last!.x
+                    while xx < location.x {
+                        time = time.dateBy(adding: timeframe!)
+                        xx += blockWidth
+                    }
+                    self.trendlines.last!.end = (time, p)
+                }
+                
+                redraw()
+            } else if isDrawingFibRetracement {
+                let location: CGPoint = CGPoint(x: panBeganLocation.x + dx, y: panBeganLocation.y + dy)
+                if let candle = getCandleAt(x: location.x) {
+                    self.fibs.last!.end = (candle.openTime, candle.close)
+                } else {
+                    let p = self.price(y: location.y, highestPrice: highestPrice, lowestPrice: lowestPrice, topMargin: topMargin, bottomMargin: bottomMargin, logScale: logScale)
+                    var time = visibleCandles.last!.openTime
+                    var xx: CGFloat = visibleCandles.last!.x
+                    while xx < location.x {
+                        time = time.dateBy(adding: timeframe!)
+                        xx += blockWidth
+                    }
+                    self.fibs.last!.end = (time, p)
+                }
+                
+                redraw()
+            } else if priceView!.frame.contains(panBeganLocation) || bottomViews!.frame.contains(panBeganLocation) {
                 
                 //Panning PriceView or IndicatorViews:
-                
                 
                 if !crosshair!.isEnabled {
                     let newNewestCandleX = panBeganNewestX + dx
@@ -537,12 +621,18 @@ class Chart: UIView {
                 }
             }
         case .ended:
-            if crosshair!.isEnabled {
+            if isDrawingTrendline {
+                isDrawingTrendline = false
+            } else if isDrawingFibRetracement {
+                isDrawingFibRetracement = false
+            } else if crosshair!.isEnabled {
                 crosshair!.initialPosition = crosshair!.position
             }
             break
         case .failed, .cancelled:
-            if !crosshair!.isEnabled {
+            if isDrawingTrendline {
+                isDrawingTrendline = false
+            } else if crosshair!.isEnabled {
                 crosshair!.isEnabled = false
             }
         default:
@@ -553,6 +643,10 @@ class Chart: UIView {
     
     //MARK: Pinch
     @IBAction func handlePinch(_ recognizer: UIPinchGestureRecognizer) {
+        if isDrawingHorizontalLine || isDrawingFibRetracement || isDrawingTrendline {
+            return
+        }
+        
         
         let scale = recognizer.scale
         
@@ -579,18 +673,21 @@ class Chart: UIView {
     
     //MARK: Long Press
     @IBAction func handleLongPress(_ recognizer: UILongPressGestureRecognizer) {
-        
+        if isDrawingHorizontalLine || isDrawingTrendline || isDrawingFibRetracement {
+            return
+        }
         guard let crosshair = self.crosshair else { return }
         switch recognizer.state {
         case .began:
             let l = recognizer.location(in: crosshair)
             if priceView!.frame.contains(l) || bottomViews!.frame.contains(l) {
-                
-                let index = Int((l.x - oldestCandleX) / blockWidth)
-                let candle: Candle = candles.reversed()[index]
-                crosshair.initialPosition = CGPoint(x: candle.x, y: l.y)
+                if let candle = getCandleAt(x: l.x) {
+                    crosshair.initialPosition = CGPoint(x: candle.x, y: l.y)
+                } else {
+                    let N = Int((l.x - self.newestCandleX) / blockWidth)
+                    crosshair.initialPosition = CGPoint(x: CGFloat(newestCandleX + CGFloat(N) * blockWidth), y: l.y)
+                }
                 crosshair.isEnabled = true
-                
                 redraw()
             }
             
@@ -610,6 +707,16 @@ class Chart: UIView {
     
     
     //MARK: - Methods
+    func getCandleAt(x: CGFloat) -> Candle? {
+        let _candleIndex = Int((x - oldestCandleX) / blockWidth)
+        let currentCandleIndex = _candleIndex - (candles.count - priceView!.oldestVisibleCandleIndex - 1)
+        if currentCandleIndex >= 0 && currentCandleIndex < visibleCandles.count {
+            return visibleCandles.reversed()[currentCandleIndex]
+        }
+        return nil
+    }
+    
+    
     func sortIndicators() {
         indicators = sort(indicators: indicators)
     }
@@ -706,20 +813,14 @@ class Chart: UIView {
     }
     
     var spacing: CGFloat {
-        if blockWidth >= 4.0 {
-            return blockWidth * 0.2
-        } else if blockWidth >= 0.7 {
-            return blockWidth * 0.1
-        } else {
-            return 0.0
-        }
+        return blockWidth * 0.4
     }
     var candleWidth: CGFloat {
         return blockWidth - spacing
     }
     var wickWidth: CGFloat {
 //        return blockWidth >= 2.0 ? blockWidth * 0.25 : blockWidth * 0.5
-        return blockWidth >= 2.0 ? 2.0 : blockWidth
+        return blockWidth >= 1.5 ? 1.5 : blockWidth
     }
     var blockWidth: CGFloat {
         get {
@@ -799,5 +900,48 @@ class Chart: UIView {
 //            self.backgroundColor = newValue
         }
     }
+    
+    
+    var isDrawingHorizontalLine: Bool = false {
+        didSet {
+            self.app.chartVC?.setToolButtonTint()
+        }
+    }
+    var isDrawingTrendline: Bool = false {
+        didSet {
+            self.app.chartVC?.setToolButtonTint()
+        }
+    }
+    var isDrawingFibRetracement: Bool = false {
+        didSet {
+            self.app.chartVC?.setToolButtonTint()
+        }
+    }
+    
+    var horizontalLines: [HorizontalLine] {
+        get {
+            return app.settings.horizontalLines
+        }
+        set {
+            app.settings.horizontalLines = newValue
+        }
+    }
+    var trendlines: [Trendline] {
+        get {
+            return app.settings.trendlines
+        }
+        set {
+            app.settings.trendlines = newValue
+        }
+    }
+    var fibs: [FibRetracement] {
+        get {
+            return app.settings.fibs
+        }
+        set {
+            app.settings.fibs = newValue
+        }
+    }
+    
     
 }

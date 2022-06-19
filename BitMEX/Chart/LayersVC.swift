@@ -13,11 +13,13 @@ class LayersVC: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var editBBI: UIBarButtonItem!
     @IBOutlet weak var addBBI: UIBarButtonItem!
+    @IBOutlet weak var showDrawingsBBI: UIBarButtonItem!
     
     @IBOutlet weak var fitButton: UIButton!
     @IBOutlet weak var logButton: UIButton!
     var app: App!
     
+    var isShowingDrawings: Bool = false
     
     //MARK: - View LifeCycle
     override func viewDidLoad() {
@@ -42,8 +44,7 @@ class LayersVC: UIViewController {
         
         logButton.addBorders(edges: .init(arrayLiteral: .top, .left, .bottom), color: App.BullColor, width: 1)
         logButton.addBorders(edges: .right, color: App.BullColor, width: 0.5)
-        
-        
+        setToolButtonTint()
     }
     
     override func didMove(toParent parent: UIViewController?) {
@@ -148,6 +149,20 @@ class LayersVC: UIViewController {
         addLayerVC.didMove(toParent: chartVC)
     }
     
+    @IBAction func showDrawingsBBI(_ sender: Any) {
+        self.isShowingDrawings = !self.isShowingDrawings
+        self.tableView.reloadData()
+        self.didMove(toParent: app.chartVC!)
+    }
+    
+    //Tools Bar functions:
+    func setToolButtonTint() {
+        if isShowingDrawings {
+            showDrawingsBBI.tintColor = .black
+        } else {
+            showDrawingsBBI.tintColor = .gray
+        }
+    }
 }
 
 // MARK: - TableView Delegate
@@ -157,6 +172,9 @@ extension LayersVC: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if isShowingDrawings {
+            return 1 + app.chart!.horizontalLines.count + app.chart!.trendlines.count + app.chart!.fibs.count
+        }
         return 1 + app.chart!.indicators.count
     }
     
@@ -165,10 +183,26 @@ extension LayersVC: UITableViewDataSource, UITableViewDelegate {
         let cell = tableView.dequeueReusableCell(withIdentifier: "LayerTVCell", for: indexPath) as! LayerTVCell
         
         let section = indexPath.section, row = indexPath.row
-        
         if (section, row) == (0, 0) {
             cell.label.text = app.chart!.instrument!.symbol.uppercased()
 //            cell.previewIV.image = app.chart?.priceView?.getPreviewImage()
+            return cell
+        }
+        
+        if isShowingDrawings {
+            let horizontalLines = getHorizontalLines()
+            let trendlines = getTrendlines()
+            let fibs = getFibs()
+            if row - 1 < horizontalLines.count {
+                let line = horizontalLines[row - 1]
+                cell.label.text = "HorizontalLine(\(app.chart!.instrument!.priceFormatted(line.price)))"
+            } else if row - 1 < horizontalLines.count + trendlines.count {
+                let line = trendlines[row - horizontalLines.count - 1]
+                cell.label.text = "Trendline(\(app.chart!.instrument!.priceFormatted(line.start.1)), \(app.chart!.instrument!.priceFormatted(line.end.1)))"
+            } else {
+                let line = fibs[row - horizontalLines.count - trendlines.count - 1]
+                cell.label.text = "Fib(\(app.chart!.instrument!.priceFormatted(line.start.1)), \(app.chart!.instrument!.priceFormatted(line.end.1)))"
+            }
         } else {
             let indicator = app.chart!.indicators[row - 1]
             cell.label.text = indicator.getNameInFunctionForm()
@@ -180,10 +214,40 @@ extension LayersVC: UITableViewDataSource, UITableViewDelegate {
 //                }
 //
 //            }
+                
             
         }
         
+        
         return cell
+    }
+    
+    private func getHorizontalLines() -> [HorizontalLine] {
+        var result = [HorizontalLine]()
+        for line in app.settings.horizontalLines {
+            if line.timeframe == app.settings.chartTimeframe {
+                result.append(line)
+            }
+        }
+        return result
+    }
+    private func getTrendlines() -> [Trendline] {
+        var result = [Trendline]()
+        for line in app.settings.trendlines {
+            if line.timeframe == app.settings.chartTimeframe {
+                result.append(line)
+            }
+        }
+        return result
+    }
+    private func getFibs() -> [FibRetracement] {
+        var result = [FibRetracement]()
+        for line in app.settings.fibs {
+            if line.timeframe == app.settings.chartTimeframe {
+                result.append(line)
+            }
+        }
+        return result
     }
     
     //MARK: Selection
@@ -191,13 +255,39 @@ extension LayersVC: UITableViewDataSource, UITableViewDelegate {
         guard let chartVC = app.chartVC else { return }
         chartVC.addChild(chartVC.layerSettingsVC)
         let section = indexPath.section, row = indexPath.row
-        var indicator: Indicator?
-        if (section, row) != (0, 0) {
-            indicator = app.chart!.indicators[row - 1]
+        
+        
+        if isShowingDrawings {
+            let horizontalLines = getHorizontalLines()
+            let trendlines = getTrendlines()
+            let fibs = getFibs()
+            if row - 1 < horizontalLines.count {
+                let line = horizontalLines[row - 1]
+                chartVC.layerSettingsVC.horizontalLine = line
+                chartVC.layersContainerView.addSubview(chartVC.layerSettingsVC.view)
+                chartVC.layerSettingsVC.didMove(toParent: chartVC)
+            } else if row - 1 < horizontalLines.count + trendlines.count {
+                let line = trendlines[row - horizontalLines.count - 1]
+                chartVC.layerSettingsVC.trendline = line
+                chartVC.layersContainerView.addSubview(chartVC.layerSettingsVC.view)
+                chartVC.layerSettingsVC.didMove(toParent: chartVC)
+
+            } else {
+                let line = fibs[row - horizontalLines.count - trendlines.count - 1]
+                chartVC.layerSettingsVC.fib = line
+                chartVC.layersContainerView.addSubview(chartVC.layerSettingsVC.view)
+                chartVC.layerSettingsVC.didMove(toParent: chartVC)
+
+            }
+        } else {
+            var indicator: Indicator?
+            if (section, row) != (0, 0) {
+                indicator = app.chart!.indicators[row - 1]
+            }
+            chartVC.layerSettingsVC.indicator = indicator
+            chartVC.layersContainerView.addSubview(chartVC.layerSettingsVC.view)
+            chartVC.layerSettingsVC.didMove(toParent: chartVC)
         }
-        chartVC.layerSettingsVC.indicator = indicator
-        chartVC.layersContainerView.addSubview(chartVC.layerSettingsVC.view)
-        chartVC.layerSettingsVC.didMove(toParent: chartVC)
     }
     
     //MARK: Editing
@@ -207,30 +297,46 @@ extension LayersVC: UITableViewDataSource, UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        let row = indexPath.row
         if editingStyle == .delete {
-            let row = indexPath.row
-            let indicator: Indicator = app.chart!.indicators[row - 1]
-            let indicatorRow = indicator.getRow()
-            app.chart?.indicators.remove(at: row - 1)
-            if app.chart!.getIndicatorsIn(row: indicatorRow).isEmpty {
-                for ind in app.chart!.indicators {
-                    if ind.getRow() > indicatorRow {
-                        let newRow = ind.getRow() - 1
-                        ind.style[Indicator.StyleKey.row] = newRow
+            if isShowingDrawings {
+                let horizontalLines = getHorizontalLines()
+                let trendlines = getTrendlines()
+                if row - 1 < horizontalLines.count {
+                    app.chart!.horizontalLines.remove(at: row - 1)
+                } else if row - 1 < horizontalLines.count + trendlines.count {
+                    app.chart!.trendlines.remove(at: row - 1 - horizontalLines.count)
+                } else {
+                    app.chart!.fibs.remove(at: row - 1 - horizontalLines.count - trendlines.count)
+                }
+                tableView.reloadData()
+                didMove(toParent: app.chartVC)
+                app.chart?.setupSubViews()
+            } else {
+                
+                let indicator: Indicator = app.chart!.indicators[row - 1]
+                let indicatorRow = indicator.getRow()
+                app.chart?.indicators.remove(at: row - 1)
+                if app.chart!.getIndicatorsIn(row: indicatorRow).isEmpty {
+                    for ind in app.chart!.indicators {
+                        if ind.getRow() > indicatorRow {
+                            let newRow = ind.getRow() - 1
+                            ind.style[Indicator.StyleKey.row] = newRow
+                        }
                     }
                 }
+                app.chart?.sortIndicators()
+                tableView.reloadData()
+                didMove(toParent: app.chartVC)
+                app.chart?.setupSubViews()
             }
-            app.chart?.sortIndicators()
-            tableView.reloadData()
-            didMove(toParent: app.chartVC)
-            app.chart?.setupSubViews()
         }
     }
     
     
     //MARK: Rearranging
     func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        return indexPath != .init(row: 0, section: 0)
+        return indexPath != .init(row: 0, section: 0) && !isShowingDrawings
     }
     
     func tableView(_ tableView: UITableView, targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath, toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {

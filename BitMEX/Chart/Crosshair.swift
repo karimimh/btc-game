@@ -65,69 +65,93 @@ class Crosshair: UIView {
         
         
         //Draw Time:
-//        let _candleIndex = Int((position.x - chart.oldestCandleX) / chart.blockWidth)
-//        currentCandleIndex = _candleIndex - priceView.oldestVisibleCandleIndex
-//        print(currentCandleIndex)
-//
-//        let string = timeToText(tick: currentCandleIndex)
-//        let stringSize = string.size()
-//        let bgTRect = CGRect(x: position.x - stringSize.width / 2, y: chart.timeView!.frame.origin.y, width: stringSize.width, height: TimeView.getHeight())
-//        let strRect = CGRect(x: position.x - stringSize.width / 2, y: chart.timeView!.frame.origin.y + (TimeView.getHeight() - stringSize.height) / 2, width: stringSize.width, height: stringSize.height)
-//        ctx.setFillColor(UIColor.black.withAlphaComponent(0.75).cgColor)
-//        ctx.fill(bgTRect)
-//        string.draw(in: strRect)
-//
-        //Draw Price
+        let _candleIndex = Int((position.x - chart.oldestCandleX) / chart.blockWidth)
+        currentCandleIndex = _candleIndex - (priceView.candles.count - priceView.oldestVisibleCandleIndex - 1)
         
-//        if chart.priceView!.frame.contains(position) {
-//            let f = chart.priceView!.frame
-//            let price = chart.highestPrice - Double(position.y - f.origin.y) / Double(f.height) * (chart.highestPrice - chart.lowestPrice)
-//            let str = (" " + chart.instrument!.priceFormatted(price)).asAttributedString(color: .white, textAlignment: .center)
-//            let strWidth = chart.valueBarWidth
-//            let strHeight = str.size().height
-//
-//            let strRect = CGRect(x: self.frame.width + 6 - strWidth, y: position.y - strHeight / 2, width: strWidth, height: strHeight)
-//            let bgRect = CGRect(x: self.frame.width - strWidth, y: position.y - strHeight * 0.75, width: strWidth, height: strHeight * 1.5)
-//            ctx.setFillColor(UIColor.black.withAlphaComponent(0.75).cgColor)
-//            ctx.fill(bgRect)
-//            ctx.setStrokeColor(UIColor.white.cgColor)
-//            ctx.strokeLineSegments(between: [CGPoint(x: self.frame.width - strWidth, y: position.y), CGPoint(x: self.frame.width - strWidth + 6, y: position.y)])
-//            str.draw(in: strRect)
-//        } else {
-//            var indicatorView: IndicatorView?
-//            for iv in chart.indicatorViews {
-//                if iv.indicator.frameRow == 0 { continue }
-//                let f = iv.frame
-//                if f.contains(position) {
-//                    indicatorView = iv
-//                    break
-//                }
-//            }
-//            if let v = indicatorView {
-//                let f = CGRect(x: 0, y: chart.bottomViews!.frame.origin.y + v.frame.origin.y, width: chart.bottomViews!.bounds.width, height: v.bounds.height)
-//                let value = v.valueBar.highestValue.doubleValue - Double(position.y - f.origin.y) / Double(f.height) * (v.valueBar.highestValue - v.valueBar.lowestValue).doubleValue
-//                let str: NSAttributedString
-//                switch v.indicator.indicatorType {
-//                case .macd:
-//                    str = (" " + chart.instrument!.priceFormatted(value)).asAttributedString(color: .white, textAlignment: .center)
-//                case .rsi:
-//                    str = (" " + value.formattedWith(fractionDigitCount: 2)).asAttributedString(color: .white, textAlignment: .center)
-//                default:
-//                    str = " ".asAttributedString(color: .white, textAlignment: .center)
-//                }
-//                
-//                let strWidth = chart.valueBarWidth
-//                let strHeight = str.size().height
-//
-//                let strRect = CGRect(x: self.frame.width + 6 - strWidth, y: position.y - strHeight / 2, width: strWidth, height: strHeight)
-//                let bgRect = CGRect(x: self.frame.width - strWidth, y: position.y - strHeight * 0.75, width: strWidth, height: strHeight * 1.5)
-//                ctx.setFillColor(UIColor.black.withAlphaComponent(0.75).cgColor)
-//                ctx.fill(bgRect)
-//                ctx.setStrokeColor(UIColor.white.cgColor)
-//                ctx.strokeLineSegments(between: [CGPoint(x: self.frame.width - strWidth, y: position.y), CGPoint(x: self.frame.width - strWidth + 6, y: position.y)])
-//                str.draw(in: strRect)
-//            }
-//        }
+
+        let string = timeToText(tick: currentCandleIndex)
+        let stringSize = string.size()
+        let bgTRect = CGRect(x: position.x - stringSize.width / 2, y: chart.timeView!.frame.origin.y, width: stringSize.width, height: TimeView.getHeight())
+        let strRect = CGRect(x: position.x - stringSize.width / 2, y: chart.timeView!.frame.origin.y + (TimeView.getHeight() - stringSize.height) / 2, width: stringSize.width, height: stringSize.height)
+        ctx.setFillColor(UIColor.black.withAlphaComponent(0.5).cgColor)
+        ctx.fill(bgTRect)
+        string.draw(in: strRect)
+
+//        Draw Price
+        
+        if chart.priceView!.frame.contains(position) {
+            let price = chart.priceView!.price(y: position.y, highestPrice: chart.highestPrice, lowestPrice: chart.lowestPrice, topMargin: chart.topMargin, bottomMargin: chart.bottomMargin, logScale: chart.logScale)
+            let str = (" " + chart.instrument!.priceFormatted(price)).asAttributedString(color: .white, textAlignment: .center)
+            let strWidth = chart.valueBarWidth
+            let strHeight = str.size().height
+
+            let strRect = CGRect(x: self.frame.width + 6 - strWidth, y: position.y - strHeight / 2, width: strWidth, height: strHeight)
+            let bgRect = CGRect(x: self.frame.width - strWidth, y: position.y - strHeight * 0.75, width: strWidth, height: strHeight * 1.5)
+            ctx.setFillColor(UIColor.black.withAlphaComponent(0.75).cgColor)
+            ctx.fill(bgRect)
+            ctx.setStrokeColor(UIColor.white.cgColor)
+            ctx.strokeLineSegments(between: [CGPoint(x: self.frame.width - strWidth, y: position.y), CGPoint(x: self.frame.width - strWidth + 6, y: position.y)])
+            str.draw(in: strRect)
+            
+            
+            if let vc = visibleCandles{
+                if currentCandleIndex < vc.count {
+                    let candle = vc[currentCandleIndex]
+                    let candleStr = ("O: \(candle.open)  H: \(candle.high)  L: \(candle.low)  C: \(candle.close)").asAttributedString(color: .gray, textAlignment: .center)
+                    let candleStrWidth = candleStr.size().width
+                    let candleStrHeight = candleStr.size().height
+
+                    let candleStrRect = CGRect(x: 6, y: 30, width: candleStrWidth, height: candleStrHeight)
+                    candleStr.draw(in: candleStrRect)
+                    
+                    for kk in 0 ..< chart.indicators.count {
+                        let indicator = chart.indicators[kk]
+                        if indicator.name == "ema" || indicator.name == "ma" {
+                            let mastr = ("\(indicator.getNameInFunctionForm()): " + chart.instrument!.priceFormatted((indicator.value[candle.openTime] as! Double))).asAttributedString(color: indicator.style["color"] as! UIColor, textAlignment: .center)
+                            let mastrWidth = mastr.size().width
+                            let mastrHeight = mastr.size().height
+
+                            let candleStrRect = CGRect(x: 6, y: 45 + CGFloat(kk) * 15, width: mastrWidth, height: mastrHeight)
+                            mastr.draw(in: candleStrRect)
+                        }
+                    }
+                    
+                }
+            }
+            
+        } else {
+            var indicatorView: IndicatorView?
+            for iv in chart.indicatorViews {
+                if iv.indicator.getRow() == 0 { continue }
+                let f = iv.frame
+                if f.contains(position) {
+                    indicatorView = iv
+                    break
+                }
+            }
+            if let v = indicatorView {
+                let f = CGRect(x: 0, y: chart.bottomViews!.frame.origin.y + v.frame.origin.y, width: chart.bottomViews!.bounds.width, height: v.bounds.height)
+                let value = v.valueBar.highestValue.doubleValue - Double(position.y - f.origin.y) / Double(f.height) * (v.valueBar.highestValue - v.valueBar.lowestValue).doubleValue
+                let str: NSAttributedString
+                switch v.indicator.name {
+                case Indicator.SystemName.ma.rawValue:
+                    str = (" " + value.formattedWith(fractionDigitCount: 2)).asAttributedString(color: .white, textAlignment: .center)
+                default:
+                    str = " ".asAttributedString(color: .white, textAlignment: .center)
+                }
+                
+                let strWidth = chart.valueBarWidth
+                let strHeight = str.size().height
+
+                let strRect = CGRect(x: self.frame.width + 6 - strWidth, y: position.y - strHeight / 2, width: strWidth, height: strHeight)
+                let bgRect = CGRect(x: self.frame.width - strWidth, y: position.y - strHeight * 0.75, width: strWidth, height: strHeight * 1.5)
+                ctx.setFillColor(UIColor.black.withAlphaComponent(0.75).cgColor)
+                ctx.fill(bgRect)
+                ctx.setStrokeColor(UIColor.white.cgColor)
+                ctx.strokeLineSegments(between: [CGPoint(x: self.frame.width - strWidth, y: position.y), CGPoint(x: self.frame.width - strWidth + 6, y: position.y)])
+                str.draw(in: strRect)
+            }
+        }
     }
     
     func redraw() {
@@ -151,15 +175,14 @@ class Crosshair: UIView {
                 time = time.dateBy(adding: chart!.timeframe!)
             }
         }
-        let timeLocal = time.utcToLocal()
-        let day = Calendar.current.component(.day, from: time)
-        let month = Calendar.current.component(.month, from: time)
-        let year = Calendar.current.component(.year, from: time)
-        let minuteL = Calendar.current.component(.minute, from: timeLocal)
-        let hourL = Calendar.current.component(.hour, from: timeLocal)
+        let day = App.myCalendar.component(.day, from: time)
+        let month = App.myCalendar.component(.month, from: time)
+        let year = App.myCalendar.component(.year, from: time)
+        let minuteL = App.myCalendar.component(.minute, from: time)
+        let hourL = App.myCalendar.component(.hour, from: time)
         
         
-        let text = Calendar.current.monthSymbols[month - 1]
+        let text = App.myCalendar.monthSymbols[month - 1]
         let m = String(text[text.startIndex ..< text.index(text.startIndex, offsetBy: 3)])
         
         let d = String(format: "%02d", day)

@@ -10,7 +10,6 @@ import UIKit
 
 class LayerTVCell: UITableViewCell {
     @IBOutlet weak var label: UILabel!
-    @IBOutlet weak var previewIV: UIImageView!
     
     override func awakeFromNib() {
         super.awakeFromNib()

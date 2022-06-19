@@ -20,6 +20,10 @@ class App {
     }
     var chartVC: ChartVC?
     var orderVC: OrderVC?
+    var walletVC: WalletVC?
+    var positionVC: PositionVC?
+    var openOrdersVC: OpenOrdersVC?
+    
     var viewController: ViewController?
     var tabBarVC: UITabBarController?
     
@@ -31,39 +35,28 @@ class App {
     static var BearColor = UIColor.fromHex(hex: "#EF5350")
     
     var webSocket = WebSocket("wss://www.bitmex.com/realtime")
-    var authentication: Authentication? {
-        didSet {
-            if let vc = orderVC {
-                vc.initWebsocket()
-            }
-            if let vc = chartVC {
-                vc.chart.activateWebsocket()
-            }
-        }
-    }
     
-    var user: User?
-    var walletHistory: [User.WalletHistory]?
-    var wallet: User.Wallet?
-    var margin: User.Margin?
-    var position: [Position]?
-    var orders: [Order]?
-    
-    var insX = 0
-    var margX = 0
     
     var websocketCompletions: [String: [([String: Any]) -> Void]] = [:]
     private var realtimeSubscriptionArgs: [String] = []
     private var partials: [String: [String: Any]?] = [:]
     
+    var game: Game {
+        return settings.game
+    }
+    
+    static var myCalendar: Calendar = Calendar(identifier: .gregorian)
 
     
     //MARK: - Initialization
     init() {
+        App.myCalendar.timeZone = TimeZone(secondsFromGMT: 0)!
         settings = Settings()
         settings = loadSettings() ?? Settings()
         App.BullColor = settings.bullCandleColor
         App.BearColor = settings.bearCandleColor
+        
+        game.app = self
     }
     
     
@@ -82,7 +75,7 @@ class App {
         realtimeSubscriptionArgs.removeAll()
         websocketCompletions.removeAll()
         
-        realtimeSubscriptionArgs = ["instrument:\(settings.chartSymbol)", "position", "wallet", "margin", "order", "orderBookL2_25:\(settings.chartSymbol)", "trade:\(settings.chartSymbol)"]
+        realtimeSubscriptionArgs = ["instrument:\(settings.chartSymbol)", "trade:\(settings.chartSymbol)"]
         for arg in realtimeSubscriptionArgs {
             websocketCompletions[arg] = []
         }
@@ -100,13 +93,6 @@ class App {
     
     
     func subscribeRealTime() {
-        if let auth = self.authentication {
-            let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
-            let api_signature: String = "GET/realtime" + api_expires
-            let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
-            webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
-        }
-        
         let message: String = "{\"op\": \"subscribe\", \"args\": " + realtimeSubscriptionArgs.description + "}"
         webSocket.send(text: message)
         
@@ -144,17 +130,32 @@ class App {
     
     private func unsubscribeRealTime() {
         if realtimeSubscriptionArgs.isEmpty { return }
-        if let auth = self.authentication {
-            let api_expires = String(Int(Date().timeIntervalSince1970.rounded()) + 5)
-            let api_signature: String = "GET/realtime" + api_expires
-            let sig = api_signature.hmac(algorithm: .SHA256, key: auth.apiSecret)
-            webSocket.send(text: "{\"op\": \"authKeyExpires\", \"args\": [\"\(auth.apiKey)\", \(api_expires), \"\(sig)\"]}")
-        }
-        
         
         let message: String = "{\"op\": \"unsubscribe\", \"args\": " + realtimeSubscriptionArgs.description + "}"
         webSocket.send(text: message)
         webSocket.close()
+    }
+    
+    func downloadInstruments(completion: @escaping (([Instrument]?) -> Void)) {
+        Instrument.GET_Active(symbol: "XBTUSD", count: nil, reverse: nil, start: nil, startTime: game.currentTime.bitMEXStringWithSeconds(), endTime: game.currentTime.bitMEXStringWithSeconds(), filter: nil, columns: nil) { (optionalInstruments, optionalResponse, optionalError) in
+            guard optionalError == nil else {
+                print(optionalError!.localizedDescription)
+                return
+            }
+            guard optionalResponse != nil else {
+                print("No Response!")
+                return
+            }
+            if let response = optionalResponse as? HTTPURLResponse {
+                if response.statusCode == 200 {
+                    completion(optionalInstruments)
+                } else {
+                    print(response.description)
+                }
+            } else {
+                print("Bad Response!")
+            }
+        }
     }
     
     func getInstrument(_ symbol: String) -> Instrument? {
@@ -234,6 +235,7 @@ class App {
 class Settings: NSObject, NSCoding {
     
     //MARK: - Properties
+    var game: Game = Game()
     
     var bullCandleColor = UIColor.fromHex(hex: "#26A69A") {
         didSet {
@@ -254,7 +256,7 @@ class Settings: NSObject, NSCoding {
     var chartTopMargin: Double = 10
     var chartBottomMargin: Double = 10
     var chartAutoScale = true
-    var chartLogScale = false
+    var chartLogScale = true
     var chartSymbol: String = "XBTUSD"
     var chartTimeframe: Timeframe = .daily
     var chartLatestX: CGFloat = UIScreen.main.bounds.width * 0.75
@@ -263,10 +265,13 @@ class Settings: NSObject, NSCoding {
     var chartLowestPrice: Double = 0
     var chartIndicators: [Indicator] = [
         Indicator.fromSystem(name: .volume, row: 0, height: 20.0),
-        Indicator.fromSystem(name: .ma, row: 0, height: 100.0, withInputs: [Indicator.InputKey.length: 20], andStyle: [Indicator.StyleKey.color: UIColor.fromHex(hex: "#FF981C"), Indicator.StyleKey.lineWidth: CGFloat(1.0), Indicator.StyleKey.zIndex: 6.0]),
-        Indicator.fromSystem(name: .ma, row: 0, height: 100.0, withInputs: [Indicator.InputKey.length: 50], andStyle: [Indicator.StyleKey.color: UIColor.fromHex(hex: "#AC47B9"), Indicator.StyleKey.lineWidth: CGFloat(1.5), Indicator.StyleKey.zIndex: 5.0]),
-        Indicator.fromSystem(name: .ma, row: 0, height: 100.0, withInputs: [Indicator.InputKey.length: 200], andStyle: [Indicator.StyleKey.color: UIColor.fromHex(hex: "#EB1E61"), Indicator.StyleKey.lineWidth: CGFloat(2.0), Indicator.StyleKey.zIndex: 4.0]),
-        Indicator.fromSystem(name: .rsi, row: 1, height: 20.0)]
+        Indicator.fromSystem(name: .ma, row: 0, height: 100.0, withInputs: [Indicator.InputKey.length: 20], andStyle: [Indicator.StyleKey.color: UIColor.fromHex(hex: "#FF981C"), Indicator.StyleKey.lineWidth: CGFloat(1.5), Indicator.StyleKey.zIndex: 6.0]),
+        Indicator.fromSystem(name: .ma, row: 0, height: 100.0, withInputs: [Indicator.InputKey.length: 50], andStyle: [Indicator.StyleKey.color: UIColor.fromHex(hex: "#AC47B9"), Indicator.StyleKey.lineWidth: CGFloat(2.0), Indicator.StyleKey.zIndex: 5.0]),
+        Indicator.fromSystem(name: .ma, row: 0, height: 100.0, withInputs: [Indicator.InputKey.length: 200], andStyle: [Indicator.StyleKey.color: UIColor.fromHex(hex: "#EB1E61"), Indicator.StyleKey.lineWidth: CGFloat(2.5), Indicator.StyleKey.zIndex: 4.0])]
+    
+    var horizontalLines: [HorizontalLine] = []
+    var trendlines: [Trendline] = []
+    var fibs: [FibRetracement] = []
     
     var sortBy = SortBy.VOLUME
     var sortDirection = SortDirection.DESCENDING
@@ -280,7 +285,7 @@ class Settings: NSObject, NSCoding {
         return (UIApplication.shared.delegate as? AppDelegate)?.app
     }
     
-    init(sortBy: Int?, sortDirection: Int?, bullCandleColor: UIColor?, bearCandleColor: UIColor?, chartAutoScale: Bool?, chartLogScale: Bool?, chartSymbol: String?, chartTimeframe: String?, chartBlockWidth: CGFloat?, chartLatestX: CGFloat?, chartHighestPrice: Double?, chartLowestPrice: Double?, chartIndicators: [Indicator]?, chartTopMargin: Double?, chartBottomMargin: Double?, priceLineColor: UIColor?, chartBackgroundColor: UIColor?, gridLinesColor: UIColor?, crosshairColor: UIColor?, showTitles: Bool?, accountApiKey: String?, accountApiSecret: String?) {
+    init(sortBy: Int?, sortDirection: Int?, bullCandleColor: UIColor?, bearCandleColor: UIColor?, chartAutoScale: Bool?, chartLogScale: Bool?, chartSymbol: String?, chartTimeframe: String?, chartBlockWidth: CGFloat?, chartLatestX: CGFloat?, chartHighestPrice: Double?, chartLowestPrice: Double?, chartIndicators: [Indicator]?, chartTopMargin: Double?, chartBottomMargin: Double?, priceLineColor: UIColor?, chartBackgroundColor: UIColor?, gridLinesColor: UIColor?, crosshairColor: UIColor?, showTitles: Bool?, accountApiKey: String?, accountApiSecret: String?, game: Game?, horizontalLines: [HorizontalLine]?, trendlines: [Trendline]?, fibs: [FibRetracement]?) {
         if let q = sortBy, let s = SortBy(rawValue: q) { self.sortBy = s}
         if let q = sortDirection, let s = SortDirection(rawValue: q) { self.sortDirection = s}
         if let q = bullCandleColor { self.bullCandleColor = q}
@@ -303,6 +308,10 @@ class Settings: NSObject, NSCoding {
         if let q = showTitles { self.showTitles = q}
         if let q = accountApiKey { self.accountApiKey = q}
         if let q = accountApiSecret { self.accountApiSecret = q}
+        if let q = game { self.game = q}
+        if let q = horizontalLines { self.horizontalLines = q}
+        if let q = trendlines { self.trendlines = q}
+        if let q = fibs { self.fibs = q}
         super.init()
         self.chartIndicators = sort(indicators: self.chartIndicators)
     }
@@ -336,6 +345,10 @@ class Settings: NSObject, NSCoding {
         static let showTitles = "showTitles"
         static let accountApiKey = "accountApiKey"
         static let accountApiSecret = "accountApiSecret"
+        static let game = "game"
+        static let horizontalLines = "horizontalLines"
+        static let trendlines = "trendlines"
+        static let fibs = "fibs"
         
     }
     
@@ -363,6 +376,11 @@ class Settings: NSObject, NSCoding {
         aCoder.encode(showTitles, forKey: Key.showTitles)
         aCoder.encode(accountApiKey, forKey: Key.accountApiKey)
         aCoder.encode(accountApiSecret, forKey: Key.accountApiSecret)
+        aCoder.encode(game, forKey: Key.game)
+        aCoder.encode(horizontalLines, forKey: Key.horizontalLines)
+        aCoder.encode(trendlines, forKey: Key.trendlines)
+        aCoder.encode(fibs, forKey: Key.fibs)
+        
     }
     
     
@@ -389,9 +407,11 @@ class Settings: NSObject, NSCoding {
         let showTitles: Bool? = decoder.containsValue(forKey: Key.showTitles) ? decoder.decodeBool(forKey: Key.showTitles) : nil
         let accountApiKey: String? = decoder.containsValue(forKey: Key.accountApiKey) ? decoder.decodeObject(forKey: Key.accountApiKey) as? String : nil
         let accountApiSecret: String? = decoder.containsValue(forKey: Key.accountApiSecret) ? decoder.decodeObject(forKey: Key.accountApiSecret) as? String : nil
-        
-        self.init(sortBy: sortBy, sortDirection: sortDirection, bullCandleColor: bullCandleColor, bearCandleColor: bearCandleColor, chartAutoScale: chartAutoScale, chartLogScale: chartLogScale, chartSymbol: chartSymbol, chartTimeframe: chartTimeframe, chartBlockWidth: chartBlockWidth, chartLatestX: chartLatestX, chartHighestPrice: chartHighestPrice, chartLowestPrice: chartLowestPrice, chartIndicators: chartIndicators, chartTopMargin: chartTopMargin, chartBottomMargin: chartBottomMargin, priceLineColor: priceLineColor, chartBackgroundColor: chartBackgroundColor, gridLinesColor: gridLinesColor, crosshairColor: crosshairColor, showTitles: showTitles, accountApiKey: accountApiKey, accountApiSecret: accountApiSecret)
-        
+        let game: Game? = decoder.containsValue(forKey: Key.game) ? decoder.decodeObject(forKey: Key.game) as? Game : nil
+        let horizontalLines: [HorizontalLine]? = decoder.containsValue(forKey: Key.horizontalLines) ? decoder.decodeObject(forKey: Key.horizontalLines) as? [HorizontalLine] : nil
+        let trendlines: [Trendline]? = decoder.containsValue(forKey: Key.trendlines) ? decoder.decodeObject(forKey: Key.trendlines) as? [Trendline] : nil
+        let fibs: [FibRetracement]? = decoder.containsValue(forKey: Key.fibs) ? decoder.decodeObject(forKey: Key.fibs) as? [FibRetracement] : nil
+        self.init(sortBy: sortBy, sortDirection: sortDirection, bullCandleColor: bullCandleColor, bearCandleColor: bearCandleColor, chartAutoScale: chartAutoScale, chartLogScale: chartLogScale, chartSymbol: chartSymbol, chartTimeframe: chartTimeframe, chartBlockWidth: chartBlockWidth, chartLatestX: chartLatestX, chartHighestPrice: chartHighestPrice, chartLowestPrice: chartLowestPrice, chartIndicators: chartIndicators, chartTopMargin: chartTopMargin, chartBottomMargin: chartBottomMargin, priceLineColor: priceLineColor, chartBackgroundColor: chartBackgroundColor, gridLinesColor: gridLinesColor, crosshairColor: crosshairColor, showTitles: showTitles, accountApiKey: accountApiKey, accountApiSecret: accountApiSecret, game: game, horizontalLines: horizontalLines, trendlines: trendlines, fibs: fibs)
     }
     
     func save() {

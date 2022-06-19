@@ -19,6 +19,7 @@ class ChartVC: UIViewController {
     @IBOutlet weak var priceTracker: PriceTracker!
     @IBOutlet weak var crosshair: Crosshair!
     @IBOutlet weak var guidelines: Guidlines!
+    @IBOutlet weak var toolsView: ToolsView!
     
     @IBOutlet weak var valueBarWidthConstraint: NSLayoutConstraint!
     @IBOutlet weak var priceViewHeightConstraint: NSLayoutConstraint!
@@ -29,15 +30,22 @@ class ChartVC: UIViewController {
     var colorPickerVC: ColorPickerVC!
     var addLayerVC: AddLayerVC!
     
+    @IBOutlet weak var playButton: UIButton!
+    @IBOutlet weak var skipButton: UIButton!
+    @IBOutlet weak var trendlineBBI: UIBarButtonItem!
+    @IBOutlet weak var horizontalLineBBI: UIBarButtonItem!
+    @IBOutlet weak var fibBBI: UIBarButtonItem!
+    
     @IBOutlet weak var timeframesContainer: UIView!
     @IBOutlet weak var timeframeBBI: UIBarButtonItem!
     @IBOutlet weak var symbolButton: UIBarButtonItem!
+    @IBOutlet weak var currentTimeLabel: UILabel!
     var timeframeVC: TimeframeVC!
     var app: App!
     
     var viewDidLoadExecuted = false
-    
     var activeDropDown: DropDownTVCell?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -57,6 +65,7 @@ class ChartVC: UIViewController {
         chart.crosshair = crosshair
         chart.layersVC = layersVC
         chart.guidelines = guidelines
+        chart.toolsView = toolsView
         
         let tapGR = UITapGestureRecognizer(target: self, action: #selector(viewTapped(_:)))
         tapGR.cancelsTouchesInView = false
@@ -65,7 +74,10 @@ class ChartVC: UIViewController {
         setupLayerView()
         setupTimeframesContainer()
         
+        currentTimeLabel.text = app.game.currentTime.bitMEXStringWithSeconds()
         
+        
+        setToolButtonTint()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -233,5 +245,91 @@ class ChartVC: UIViewController {
         }
     }
     
+    @IBAction func playBBITapped(_ sender: Any) {
+        if !app.game.isPlaying {
+            app.game.resume()
+            playButton.setImage(UIImage(systemName: "pause"), for: .normal)
+        } else {
+            app.game.pause()
+            playButton.setImage(UIImage(systemName: "play"), for: .normal)
+            app.saveSettings()
+        }
+    }
+    
+    @IBAction func skipButtonTapped(_ sender: Any) {
+        if !app.game.isPlaying {
+            return
+        }
+        self.skipButton.isEnabled = false
+        self.playButton.isEnabled = false
+        app.game.pause()
+        var nextOpenTime = app.game.currentTime.nextOpenTime(timeframe: chart.timeframe!)!
+        if nextOpenTime.timeIntervalSince1970 - app.game.currentTime.timeIntervalSince1970 <= 2.0 {
+            nextOpenTime = nextOpenTime.nextOpenTime(timeframe: chart.timeframe!)!
+        }
+        let newTime = Date(timeIntervalSince1970: nextOpenTime.timeIntervalSince1970 - 2.0)
+        
+        
+        app.game.skipTime(from: app.game.currentTime, to: newTime) {
+            self.app.game.currentTime = newTime
+            self.app.game.tradeBuffer.removeAll()
+            self.app.game.downloadNextTrades {
+                DispatchQueue.main.async {
+                    self.app.game.resume()
+                }
+            }
+        }
+    }
+    @IBAction func trendlineBBITapped(_ sender: Any) {
+        if chart.isDrawingHorizontalLine || chart.isDrawingFibRetracement {
+            return
+        }
+        if !chart!.isDrawingHorizontalLine {
+            chart!.crosshair?.isEnabled = false
+        }
+        chart!.isDrawingTrendline = !chart!.isDrawingTrendline
+    }
+    
+    
+    @IBAction func horizontalLineBBITapped(_ sender: Any) {
+        if chart.isDrawingTrendline || chart.isDrawingFibRetracement {
+            return
+        }
+        if !chart!.isDrawingHorizontalLine {
+            chart!.crosshair?.isEnabled = false
+        }
+        
+        chart!.isDrawingHorizontalLine = !chart!.isDrawingHorizontalLine
+    }
+    
+    @IBAction func fibBBITapped(_ sender: Any) {
+        if chart.isDrawingTrendline || chart.isDrawingHorizontalLine {
+            return
+        }
+        if !chart!.isDrawingFibRetracement {
+            chart!.crosshair?.isEnabled = false
+        }
+        chart!.isDrawingFibRetracement = !chart.isDrawingFibRetracement
+    }
+    
+    
+    //Tools Bar functions:
+    func setToolButtonTint() {
+        if chart.isDrawingHorizontalLine {
+            horizontalLineBBI.tintColor = .black
+        } else {
+            horizontalLineBBI.tintColor = .gray
+        }
+        if chart.isDrawingTrendline {
+            trendlineBBI.tintColor = .black
+        } else {
+            trendlineBBI.tintColor = .gray
+        }
+        if chart.isDrawingFibRetracement {
+            fibBBI.tintColor = .black
+        } else {
+            fibBBI.tintColor = .gray
+        }
+    }
     
 }
