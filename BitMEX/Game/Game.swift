@@ -31,6 +31,7 @@ class Game: NSObject, NSCoding {
             DispatchQueue.main.async {
                 self.app.chartVC?.currentTimeLabel.text = self.currentTime.bitMEXStringWithSeconds()
             }
+            print("Hello! Git")
         }
     }
     var step: TimeInterval = 0.5
