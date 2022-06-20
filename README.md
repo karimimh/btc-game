@@ -1,7 +1,7 @@
 # BTC-Game-iOS
 
 This is a project I developed in 2019 to simulate BTC trading on iOS devices. This can be helpful for learning how to trade.
-The primary purpose for uploading this project into GitHub is for the companies I apply for their job positions, to understand my abilities.
+The primary purpose for uploading this project into GitHub is for personal use.
 
 Below you can see some screenshots of the app:
 
